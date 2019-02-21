@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <title>Work</title>
+    <link rel="stylesheet" href="/dist/work/view.css">
+
+    <script src="/lib/js/es6-promise.js"></script>
+
+    <!------------------  ▼ [data-template] ▼  -------------------->
+    <script type="text/html" data-template="print">
+        <div class="work-items-print-list" data-value="index:{{index}}">
+            <div class="work-items-print-list-anchor">
+                <a href="{{path}}" class="work-items-print-list-icon file-icon file-icon-{{data.filetype}}"></a>
+                <span class="work-items-print-list-name">{{data.getOrigName()}}</span>
+                <span class="work-items-print-list-datetime">{{data.datetime | datetime}}</span>
+                <span class="work-items-print-list-size">{{data.size | filesize}}</span>
+                <span class="work-items-print-list-remove" data-event="removePrint">×</span>
+            </div>
+        </div>
+    </script>
+
+    <!------------------  ▲ [data-template] ▲  -------------------->
+
+
+    <!------------------  ▼ [data-each] ▼  -------------------->
+    <script type="text/html" data-each="items">
+        <tr data-element="target">
+            <td data-val="subject"></td>
+            <td data-val="detail"></td>
+            <td data-val="count" class="text-right"></td>
+            <td data-val="price | number" class="text-right"></td>
+            <td data-val="vat | number" class="text-right"></td>
+            <td data-val="total | number" class="text-right"></td>
+            <td>
+                <div>
+                    <span class="work-items-btn" data-event="screen" data-val=" | draft">시안</span>
+                    <div class="dropdown work-items-print" data-element="print"
+                         style="display: inline-block;" data-val=" | print">
+                        <span class="work-items-btn">인쇄파일</span>
+                        <div class="dropdown-menu dropdown-menu-right"></div>
+                    </div>
+                </div>
+                <span data-val="memo"></span>
+            </td>
+            <td class="sort ctrl">
+                <span class="view-btn" data-event="modify">수정</span>
+                <span class="view-btn view-btn-danger" data-event="remove">삭제</span>
+                <div class="work-items-table-sort-btn" draggable="true">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </td>
+        </tr>
+    </script>
+
+
+    <script type="text/html" data-each="memo">
+        <div class="work-memo-list-item" data-element="target">
+            <pre data-val="value"></pre>
+            <span class="work-memo-list-item-datetime" data-val="datetime | datetime"></span>
+            <div class="view-btns">
+                <span class="view-btn" data-event="modify">수정</span>
+                <span class="view-btn view-btn-danger" data-event="remove">삭제</span>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" data-each="refs">
+        <div class="work-refs-list" data-element="target">
+            <span class="work-refs-remove" data-event="remove">×</span>
+            <a class="work-refs-thumb file-icon" data-val=" | refThumb"></a>
+            <div class="work-refs-name" data-val="original_name"></div>
+            <div class="work-refs-datetime" data-val="datetime | datetime"></div>
+            <div class="work-refs-size" data-val="size | fileSize"></div>
+        </div>
+    </script>
+    <!------------------  ▲ [data-each] ▲  -------------------->
+
+    <!------------------  ▼ [data-form] ▼  -------------------->
+    <script type="text/html" data-form="title">
+        <div class="work-title-form">
+            <input class="work-title-input view-input" name="title">
+            <div class="view-btns">
+                <span class=" view-btn" data-event="confirm">확인</span>
+                <span class=" view-btn view-btn-gray" data-cancel>취소</span>
+            </div>
+        </div>
+
+    </script>
+
+    <script type="text/html" data-form="customer">
+
+        <div class="work-customer">
+            <div class="view-btns">
+                <span class="view-btn form-btn" data-event="confirm">확인</span>
+                <span class="view-btn view-btn-gray" data-cancel>취소</span>
+            </div>
+            <table class="view-table work-customer-table">
+                <tbody>
+                <tr>
+                    <th>상호</th>
+                    <td colspan="3">
+                        <input name="name" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th style="width: 10%">사업자번호</th>
+                    <td style="width: 25%">
+                        <input name="biz_num">
+                    </td>
+                    <th style="width: 10%">대표자</th>
+                    <td style="width: 25%">
+                        <input name="owner">
+                    </td>
+                </tr>
+                <tr>
+                    <th>업태</th>
+                    <td>
+                        <input name="biz_con">
+                    </td>
+                    <th>종목</th>
+                    <td>
+                        <input name="biz_type">
+                    </td>
+                </tr>
+                <tr>
+                    <th>휴대전화</th>
+                    <td>
+                        <input name="mobile">
+                    </td>
+                    <th>이메일</th>
+                    <td>
+                        <input name="email">
+                    </td>
+                </tr>
+                <tr>
+                    <th>유선전화</th>
+                    <td>
+                        <input name="tel">
+                    </td>
+                    <th>팩스</th>
+                    <td>
+                        <input name="fax">
+                    </td>
+                </tr>
+                <tr>
+                    <th>주소</th>
+                    <td colspan="3">
+                        <input name="address">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </script>
+
+    <script type="text/html" data-form="items">
+        <tr>
+            <td><input name="subject" required></td>
+            <td><input name="detail"></td>
+            <td class="text-right"><input name="count" data-type="number" data-event-register="number"></td>
+            <td class="text-right"><input name="price" data-type="number" data-event-register="number"></td>
+            <td class="text-right"><input name="vat" data-type="number" data-event-register="number"></td>
+            <td class="text-right"><input name="total" data-type="number" data-event-register="number"></td>
+            <td><input name="memo"></td>
+            <td class="ctrl">
+                <span class="view-btn form-btn" data-event="confirm">확인</span>
+                <span class="view-btn view-btn-gray" data-cancel>취소</span>
+            </td>
+        </tr>
+    </script>
+
+    <script type="text/html" data-form="text">
+        <div>
+            <div class="view-header">
+                <span class="view-header-subject">견적메모</span>
+                <div class="view-btns">
+                    <span class="view-btn" data-event="confirm">확인</span>
+                    <span class="view-btn view-btn-gray" data-cancel>취소</span>
+                </div>
+            </div>
+
+            <div class="view-container">
+                <div class="view-content">
+                    <textarea data-form="text" class="work-textarea-wide" name="text"></textarea>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" data-form="memo">
+        <div>
+            <textarea class="work-textarea-wide" name="value" required></textarea>
+            <div class="view-btns">
+                <span class="view-btn form-btn" data-event="confirm">확인</span>
+                <span class="view-btn view-btn-gray" data-cancel>취소</span>
+            </div>
+        </div>
+    </script>
+    <!------------------  ▲ [data-form] ▲  -------------------->
+
+</head>
+<body>
+
+<nav>
+
+    <a href="/work" class="nav-brand">Hancomee</a>
+
+    <div class="nav-btns" data-mapper="info" data-follow="items,memo,refs">
+        <span class="nav-btn-title">작업갯수</span>
+        <span class="active nav-resource">작업수<b data-val="item_len | len"></b></span>
+        <span class="nav-resource">작업메모<b data-val="memo_len | len"></b></span>
+        <span class="nav-resource">참고파일<b data-val="file_len | len"></b></span>
+    </div>
+
+
+    <div class="nav-right nav-btns">
+        <span class="nav-btn-title">프린트</span>
+        <a href="" data-href="/work/print/estimate" data-val="uuid | href" target="_blank" class="nav-btn">견적서</a>
+        <a href="" data-href="/work/print/account" data-val="uuid | href" target="_blank" class="nav-btn">거래명세표</a>
+        <a href="" data-href="/work/print/receipt" data-val="uuid | href" target="_blank" class="nav-btn">간이영수증</a>
+    </div>
+
+
+</nav>
+
+<main>
+
+    <div id="view">
+
+        <div class="view-row" data-mapper="title">
+
+            <div class="view-container">
+                <div class="view-content text-center work-title">
+                    <div>
+                        <span class="work-datetime" data-val="datetime | datetime"></span>
+                    </div>
+                    <div data-element="target">
+                        <strong class="work-title-val" data-val="title"></strong>
+                        <div class="view-btns">
+                            <span class=" view-btn" data-event="modify">수정</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="view-row">
+
+            <div class="view-header">
+                <span class="view-header-subject">고객정보</span>
+            </div>
+
+            <div class="view-container">
+                <div class="view-content" data-mapper="customer">
+                    <div class="work-customer" data-mapping="customer" data-element="target">
+                        <div class="view-btns">
+                            <span class=" view-btn" data-event="modify">수정</span>
+                        </div>
+                        <table class="view-table work-customer-table">
+                            <tbody>
+                            <tr>
+                                <th>상호</th>
+                                <td colspan="3">
+                                    <span data-val="name"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width: 10%">사업자번호</th>
+                                <td style="width: 25%">
+                                    <span data-val="biz_num"></span>
+                                </td>
+                                <th style="width: 10%">대표자</th>
+                                <td style="width: 25%">
+                                    <span data-val="owner"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>업태</th>
+                                <td>
+                                    <span data-val="biz_con"></span>
+                                </td>
+                                <th>종목</th>
+                                <td>
+                                    <span data-val="biz_type"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>휴대전화</th>
+                                <td>
+                                    <span data-val="mobile"></span>
+                                </td>
+                                <th>이메일</th>
+                                <td>
+                                    <span data-val="email"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>유선전화</th>
+                                <td>
+                                    <span data-val="tel"></span>
+                                </td>
+                                <th>팩스</th>
+                                <td>
+                                    <span data-val="fax"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>주소</th>
+                                <td colspan="3">
+                                    <span data-val="address"></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="view-content work-sum" data-follow="items">
+                    <div class="work-sum-price" data-val="price | number"></div>
+                    <div class="work-sum-vat" data-val="vat | number"></div>
+                    <div class="work-sum-total" data-val="total | number"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-row" data-mapping="items"
+             data-mapper="items" data-event-register="itemSort">
+
+            <div class="view-header">
+                <span class="view-header-subject">작업리스트</span>
+                <span class="view-btns">
+                    <span class="view-btn" data-event="addItem">추가</span>
+                </span>
+            </div>
+
+            <div class="view-container">
+                <div class="view-content work-items">
+                    <table class="view-table work-items-table">
+                        <thead>
+                        <tr>
+                            <th>품목</th>
+                            <th>규격</th>
+                            <th class="text-right">수량</th>
+                            <th class="text-right">단가</th>
+                            <th class="text-right">부가세</th>
+                            <th class="text-right">금액</th>
+                            <th>비고</th>
+                            <th>...</th>
+                        </tr>
+                        </thead>
+                        <tbody id="items-form" data-each="items">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="view-row" data-mapper="text">
+
+            <div data-element="target">
+                <div class="view-header">
+                    <span class="view-header-subject">견적메모</span>
+                    <div class="view-btns">
+                        <span class="view-btn" data-event="modify">수정</span>
+                    </div>
+                </div>
+
+                <div class="view-container">
+                    <div class="view-content">
+                        <pre class="work-text" data-val="text"></pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="view-row" data-mapping="memo" data-mapper="memo">
+
+            <div class="view-header">
+                <span class="view-header-subject">작업메모</span>
+            </div>
+
+            <div class="view-container">
+                <div class="view-content work-memo">
+                    <div class="work-memo-list" data-each="memo">
+                    </div>
+                    <div class="work-memo-textarea" data-element="target" data-event-register="memoForm">
+                        <textarea class="work-textarea-wide"></textarea>
+                        <span data-event="addMemo" class="textarea-btn">등록</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="view-row" data-mapper="refs">
+
+            <div class="view-header">
+                <span class="view-header-subject">작업파일</span>
+                <span class="view-btns">
+                    <span class="view-btn" data-event="upload" data-value="type:ref">추가</span>
+                </span>
+            </div>
+
+            <div class="view-container" data-mapping="refs">
+                <div class="view-content work-refs" data-each="refs" data-event-register="imageScreen">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+
+<div id="screen" data-mapper="screen">
+    <div class="screen-nav">
+        <div class="screen-nav-left">
+            <div class="screen-upload-btn" data-event="screenFile" data-value="type:draft">시안 업로드</div>
+            <div class="screen-upload-btn" data-event="screenFile" data-value="type:print">인쇄파일 업로드</div>
+        </div>
+
+        <div class="screen-nav-center text-center">
+            <a target="_blank" class="screen-filename" data-val=" | name"></a>
+            <span class="screen-remove" data-event="removeDraft">삭제</span>
+        </div>
+
+        <div class="screen-nav-right">
+            <div class="screen-nav-count">
+                <strong data-val="current"></strong>
+                <span> / </span>
+                <strong data-val="total"></strong>
+            </div>
+            <div class="screen-nav-close">닫기</div>
+        </div>
+    </div>
+    <div class="screen-body" data-event-register="pasteImage">
+        <div class="screen-image" data-val=" | render"></div>
+    </div>
+</div>
+
+
+<div id="file-upload">
+
+    <div class="upload-header">
+        <span class="upload-current" data-prop="current"></span>
+        <i>/</i>
+        <span class="upload-total" data-prop="total"></span>
+    </div>
+
+    <div class="upload-body">
+        <div class="upload-filename" data-prop="filename"></div>
+        <div class="upload-progress">
+            <div class="upload-progress-container">
+                <div class="upload-progress-bar" data-prop="bar"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="image-screen">
+</div>
+
+<div id="confirm-box" data-dismiss="false">
+    <div class="confirm-box-content">정말 삭제하시겠습니까?</div>
+    <div class="confirm-box-btns text-center">
+        <span class="confirm-box-btn confirm-box-btn-submit" data-submit>삭제</span>
+        <span class="confirm-box-btn confirm-box-btn-cancel" data-cancel>취소</span>
+    </div>
+</div>
+
+<script src="/dist/work/view.js"></script>
+</body>
+</html>

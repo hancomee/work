@@ -1,0 +1,1 @@
+export let r_inputs = /select|textarea|input/i;

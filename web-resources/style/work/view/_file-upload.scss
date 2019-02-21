@@ -1,0 +1,73 @@
+
+#file-upload {
+  display: flex;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -8rem;
+  z-index: 1500;
+
+  padding: 2rem;
+  height: 8rem;
+
+  align-items: center;
+
+  background-color: #444;
+  transition: bottom .3s ease;
+
+  &.on {
+    bottom: 0;
+  }
+}
+
+.upload {
+
+  &-header {
+    flex: 0 0 9rem;
+    padding-right: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    > i {
+      margin: 0 .3rem 0 .2rem;
+    }
+  }
+
+  &-current {
+    font-size: 58px;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  &-total {
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  &-body {
+    flex: 1 1 auto;
+  }
+
+  &-filename {
+    margin-bottom: .5rem;
+  }
+
+  &-progress {
+
+    & + & {
+      margin-top: 1rem;
+    }
+
+    &-container {
+      height: 10px;
+      background-color: white;
+    }
+
+    &-bar {
+      width: 0%;
+      height: inherit;
+      background-color: #848484;
+    }
+  }
+}

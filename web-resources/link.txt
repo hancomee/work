@@ -1,0 +1,2 @@
+mklink /d "D:\code\audiosnoop\web-resources\@types" "D:\code\hancomee\web-resources\@types"
+mklink /d "D:\code\audiosnoop\web-resources\lib" "D:\code\hancomee\web-resources\lib"

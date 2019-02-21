@@ -1,0 +1,156 @@
+$screen-nav-height: 60px;
+
+%position {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#screen {
+
+  display: none;
+  z-index: 1045;
+
+  &.on {
+    display: block;
+  }
+
+  &, &:after {
+    @extend %position;
+  }
+
+  &:after {
+    display: block;
+    content: '';
+    z-index: -1;
+    background-color: black;
+    opacity: .87;
+  }
+}
+
+.screen {
+
+  &-nav, &-body {
+    @extend %position;
+  }
+
+  &-nav {
+    display: flex;
+    align-items: center;
+
+    height: $screen-nav-height;
+    bottom: initial;
+    background-color: black;
+    border-bottom: 1px solid #424242;
+
+    &-left, &-center, &-right {
+      display: flex;
+      align-items: center;
+      height: inherit;
+    }
+
+    &-left, &-right {
+      flex: 1 1 auto;
+      padding: 0 1rem;
+    }
+
+    &-right {
+      justify-content: right;
+    }
+
+    &-center {
+      flex-grow: 0;
+      flex-shrink: 0;
+      width: 60%;
+      justify-content: center;
+    }
+
+    &-count {
+      margin-left: auto;
+      font-size: 28px;
+    }
+
+    &-close {
+      margin-left: 1rem;
+    }
+  }
+
+
+  &-body {
+    top: $screen-nav-height;
+
+    &-btn {
+      height: 3rem;
+      position: absolute;
+      top: 50%;
+      margin-top: -1.5rem;
+      display: flex;
+      align-items: center;
+
+      &-left {
+        left: 1rem;
+      }
+
+      &-right {
+        right: 1rem;
+      }
+    }
+  }
+
+  &-upload-btn {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 17px;
+    line-height: 1;
+    background-color: #464646;
+    color: #7d7d7d;
+    transition: background-color .3s ease;
+    cursor: pointer;
+
+    & + &  {
+      margin-left: .6rem;
+    }
+
+    &:hover {
+      background-color: #353535;
+      color: #a2a2a2;
+    }
+  }
+
+  &-datetime {
+    margin-right: .5rem;
+    font-size: 14px;
+  }
+
+  &-filename {
+    color: #d0d0d0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  &-image {
+    position: absolute;
+    top: 3rem;
+    right: 0;
+    left: 0;
+    bottom: 3rem;
+
+    background: {
+      repeat: no-repeat;
+      size: contain;
+      position: center;
+    }
+  }
+
+  // 이미지가 있을때만 나타나도록
+  &-remove {
+    display: none;
+    margin-left: 1rem;
+    font-size: 14px;
+    .has-image & {
+      display: inline-block;
+    }
+  }
+}
