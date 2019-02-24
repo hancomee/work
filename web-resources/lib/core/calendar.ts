@@ -3,18 +3,9 @@ import date = Formats.date;
 import datetime = Formats.datetime;
 
 let second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24,
-    __day = ["일", "월", "화", "수", "목", "금", "토"];
-
-export class Month {
-
-    // month는 0부터
-    constructor(public year: number, public month: number) {
-    }
-
-
-    move(val: number) {
-        let {year, month} = this,
-            i = 1;
+    __day = ["일", "월", "화", "수", "목", "금", "토"],
+    __month = (year: number, month: number, val: number) => {
+        let i = 1;
         if (val < 0) val = val * (i = -1);
 
         while (val-- > 0) {
@@ -28,6 +19,18 @@ export class Month {
                 month = 11;
             }
         }
+        return [year, month];
+    };
+
+export class Month {
+
+    // month는 0부터
+    constructor(public year: number, public month: number) {
+    }
+
+
+    move(val: number) {
+        let [year, month] = __month(this.year, this.month, val);
         return new Month(year, month);
     }
 
@@ -87,28 +90,9 @@ export class Calendar {
 
     $month(num: number) {
         if (!num) return this;
-
-        var _a = this, y = _a.year, m = _a.month, date = _a.date,
-            expectMonth = m + num, // 희망하는 달
-            len = y * 12 + expectMonth, // 년도를 달로 고쳐서 숫자를 만든다.
-            result = new Calendar(new Date(len / 12, len % 12, date));
-        /*
-         *  만약 this가 10월 31일 이라면, 달만 더하면 11월 31일이 되는데,
-         *  11월 31일은 없으므로 12월 1일이 되어버린다.
-         *  따라서 이를 보정한다.
-         *  해당하는 달이 될때까지 날짜를 빼나간다.
-         */
-        var i = 11;
-        expectMonth = expectMonth % 12;
-        expectMonth = expectMonth < 0 ? 11 : expectMonth;
-        while (result.month !== expectMonth) {
-            result = result.$date(-1);
-            // 로직에 문제는 없지만 혹시 모르니까 추가해둔다.
-            // 여기서 무한루프에 빠지면 디버깅이 존나 힘들것이므로..
-            if (i-- < 0)
-                throw new Error('무한루프에 빠질 위험이 있습니다!!');
-        }
-        return result;
+        let {date} = this, [year, month] = __month(this.year, this.month, num),
+            lastDate = new Date(year, month + 1, -1).getDate();
+        return new Calendar(new Date(year, month, date > lastDate ? lastDate : date));
     }
 
     $year(num: number) {
@@ -118,12 +102,24 @@ export class Calendar {
         return new Calendar(new Date(year + num, month, date));
     }
 
+
+    // 주차를 알려준다.
+    $week(): [number, number] {
+        let {day, date, year, month} = this,
+            firstDate = this.getFirstDate().day,                // 첫번째 요일
+            lastDate = this.getLastDate().date,                 // 마지막 일
+            current = Math.ceil((firstDate + date) / 7),
+            total = Math.ceil((firstDate + lastDate) / 7);   // 총 주차 수
+        return [current, total];
+    }
+
     getFirstDate() {
         return new Calendar(new Date(this.year, this.month, 1));
     }
 
     getLastDate() {
-        return new Calendar(new Date(this.year, this.month + 1, 0));
+        let [year, month] = __month(this.year, this.month, 1);
+        return new Calendar(new Date(year, month, 0));
     }
 
     setTime(value?: Date) {
@@ -138,18 +134,22 @@ export class Calendar {
         return date(this.value);
     }
 
-    year_kr() {
-        return this.year + '';
+    year_kr(str = '년') {
+        return this.year + str;
     }
 
-    month_kr() {
-        var month = this.month + 1;
-        return (month < 10 ? '0' : '') + month;
+    month_kr(str = '월', zerofill = true) {
+        let month = this.month + 1,
+            val = month.toString();
+        if (zerofill) val = (month < 10 ? '0' : '') + month;
+        return val + str;
     }
 
-    date_kr() {
-        var date = this.date;
-        return (date < 10 ? '0' : '') + date;
+    date_kr(str = '일', zerofill = true) {
+        var date = this.date,
+            val = date.toString();
+        if (zerofill) val = (date < 10 ? '0' : '') + date;
+        return val + str;
     }
 
     day_kr() {
@@ -252,4 +252,10 @@ export namespace Calendar {
         if (typeof dd === 'number') dd = new Date(y, m, d);
         return date(dd);
     }
+
+    export function _day(date: Date, opt = 'kr') {
+        return __day[date.getDay()];
+    }
+
+
 }

@@ -342,6 +342,9 @@ export namespace Work {
         items: WorkItem[]
     }
 
+    export function updateState(id, state) {
+        return $post('/work/db/update/state/' + id + '/' + state, null);
+    }
 
     // 2018-0600442 ==> 2018/06/00442
     export function toPath(uuid: string) {
@@ -353,15 +356,26 @@ export namespace Work {
         return $state[typeof num === 'number' ? num : num.state];
     }
 
-    // 리스트 로딩
-    export function list(query: string): Promise<ServerData<Work>> {
-        return $get('/work/list?' + query).then((e: ServerData<any>) => {
-            e.contents = e.contents.map(a => {
-                let work = new Work(a);
+    export type WorkListValue = { work: Work, customer: Customer, draft: WorkFile }
 
-                // 이미지가 같이 담겨온다.
-                work.img = new WorkFile(a.draft);
-                return work;
+    // 리스트 로딩
+    export function list(query: string): Promise<ListData<WorkListValue>> {
+        return $post('/work/list?' + query, null).then((e: ListData<any>) => {
+            let {contents, price, count} = e;
+            e.contents = contents.map(values => {
+                return {
+                    work: new Work(values.work),
+                    customer: new Customer(values.customer),
+                    draft: values.draft.id ? new WorkFile(values.draft) : null
+                }
+            })
+            e.states = count.map((v, i) => {
+                return {
+                    index: i,
+                    name: $state[i],
+                    count: v,
+                    price: price[i]
+                }
             });
             return e;
         });
@@ -369,14 +383,14 @@ export namespace Work {
 
 
     export function update(val, work: Work) {
-        return $post('/work/db/update/' + work.id, val).then(() =>  $extend(work, val));
+        return $post('/work/db/update/' + work.id, val).then(() => $extend(work, val));
     }
 
     // 전체 로딩
     export function get(workUUID: string): Promise<Work> {
         return $get('/work/view?uuid=' + workUUID).then((data: { work: any, items: any[] }) => {
 
-            if(data.work) {
+            if (data.work) {
                 let work = new Work(data.work);
                 data.items.forEach(item => new WorkItem(work, item));
                 return work;
@@ -388,6 +402,14 @@ export namespace Work {
 
 
 export namespace Customer {
+
+    export function search(key: string): Promise<Customer[]> {
+        return $get('/work/db/customer/' + key).then(v => {
+            return v.map(val => new Customer(val));
+        });
+    }
+
+
     export function save(data) {
         return $post('/work/db/customer', data);
     }
@@ -420,7 +442,7 @@ export namespace WorkItem {
     }
 
     export function priority(ids: number[]) {
-        return $post('/work/db/item/priority', ids).then( v => {
+        return $post('/work/db/item/priority', ids).then(v => {
             console.log(v);
         })
     }

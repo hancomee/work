@@ -18,6 +18,7 @@ import {patseImage} from "../../lib/core/support/patseImage";
 import {ImageScreen} from "./view/ImageScreen";
 import {ViewForm} from "./view/ViewForm";
 import {Mapping} from "./_support/Mapping";
+import {ConfirmBox} from "./_support/ComfirmBox";
 import createHTML = DOM.createHTML;
 import dataEvent = Events.dataEvent;
 import access = Access.access;
@@ -25,7 +26,6 @@ import className = DOM.className;
 import number = Formats.number;
 import eventProperty = Events.eventProperty;
 import simpleTrigger = Events.simpleTrigger;
-import {ConfirmBox} from "./_support/ComfirmBox";
 import filesize = Formats.filesize;
 
 class EventObject {
@@ -67,8 +67,88 @@ function $init($uuid: string, $path: string, $work: Work) {
         $screen = new Screen(document.getElementById('screen'), $path),
         $imageScreen = new ImageScreen(document.getElementById('image-screen')),
         $confirm = new ConfirmBox(document.getElementById('confirm-box')),
-        $mapping: Mapping,
 
+
+        /*
+         *  data-directive="prop | {directive}"
+         */
+        $directive = {
+            number(ele: HTMLElement, v) {
+                ele.textContent = number(v);
+            },
+            datetime(ele: HTMLElement, v) {
+                if (v) ele.textContent = Calendar.format(v, 'yyyy-MM-dd(E) HH:mm');
+            },
+            len(ele: HTMLElement, v: number) {
+                let p = ele.parentElement;
+                if (v > 0) p.classList.add('active');
+                else p.classList.remove('active');
+                ele.textContent = v.toString();
+            },
+            // 견적서로 가는 href 작성
+            href(ele: HTMLAnchorElement, v) {
+                ele.href = '/work/bill?uuid=' + v + '&type=' +
+                    ele.getAttribute('data-href');
+            },
+            fileSize(ele: HTMLElement, v) {
+                ele.textContent = filesize(v);
+            },
+            /*
+             *  인쇄파일 클릭시 나타나는 드롭다운 엘리먼트를 직접 생성
+             */
+            print(ele: HTMLElement, v: WorkItem) {
+
+                let {print} = v,
+                    btn = <HTMLSpanElement>ele.getElementsByTagName('span')[0],
+                    dropdown = <HTMLDivElement>ele.getElementsByClassName('dropdown-menu')[0];
+
+                if (print.length) {
+                    btn.classList.add('active');
+                    btn.setAttribute('data-toggle', 'dropdown');
+                    dropdown.innerHTML = print.map((p, i) =>
+                        $$templates['print']({
+                            index: i, data: p,
+                            path: $path + p.getSaveName() + '?attachment=' + p.getOrigName()
+                        })
+                    ).join('');
+                } else {
+                    btn.classList.remove('active');
+                    btn.removeAttribute('data-toggle');
+                }
+            },
+            draft(ele: HTMLElement, v: WorkItem) {
+                if (v.draft.length) {
+                    ele.classList.add('active')
+                }
+            },
+
+            // 참고파일 렌더링
+            refThumb(ele: HTMLAnchorElement, v: WorkFile) {
+
+                // ① 이미지 파일일 경우
+                if (v.content_type.indexOf('image') !== -1) {
+
+                    ele.classList.remove('file-icon');
+
+                    let image = new Image();
+                    image.onload = () => {
+                        ele.appendChild(__adjustTo(ele, image, true));
+                        image.onload = null;
+                    }
+                    image.src = $path + v.getSaveName();
+                }
+                // ② 일반 파일
+                else {
+                    ele.classList.add('file-icon-' + v.filetype);
+                    ele.href = $path + v.getSaveName() + '?attachment=' + v.getOrigName();
+                }
+            },
+        },
+
+        $mapping = new Mapping()
+            .setData($work)
+            .addDirective($directive)
+            .addTemplate(Mapping.createTemplates(document.head)),
 
         /*
          *   data-event-register="{name}"
@@ -230,16 +310,6 @@ function $init($uuid: string, $path: string, $work: Work) {
             return result;
         })(document.head.querySelectorAll('[data-template]')),
 
-        $each: MappingTemplate = (function (list) {
-            let $templates = {};
-            _forEach(list, (e: HTMLScriptElement) => {
-                let name = e.getAttribute('data-each'),
-                    html = createHTML(e.innerText);
-                $templates[name] = () => html.cloneNode(true);
-            });
-            return $templates;
-        })(document.querySelectorAll('script[data-each]')),
-
 
         fileTo = (file: File) => ({name: file.name, data: file}),
         blobTo = (blob: Blob) => {
@@ -262,81 +332,6 @@ function $init($uuid: string, $path: string, $work: Work) {
                 })
             }, <Promise<any>>Promise.resolve())
                 .then(() => $uploadProgress.off());
-        },
-
-
-        /*
-         *  data-val="prop | {directive}"
-         */
-        $directive = {
-            number(ele: HTMLElement, v) {
-                ele.textContent = number(v);
-            },
-            datetime(ele: HTMLElement, v) {
-                if (v) ele.textContent = Calendar.format(v, 'yyyy-MM-dd(E) HH:mm');
-            },
-            len(ele: HTMLElement, v: number) {
-                let p = ele.parentElement;
-                if (v > 0) p.classList.add('active');
-                else p.classList.remove('active');
-                ele.textContent = v.toString();
-            },
-            href(ele: HTMLAnchorElement, v) {
-                ele.href = ele.getAttribute('data-href') + '/' + v;
-            },
-            fileSize(ele: HTMLElement, v) {
-                ele.textContent = filesize(v);
-            },
-            /*
-             *  인쇄파일 클릭시 나타나는 드롭다운 엘리먼트를 직접 생성
-             */
-            print(ele: HTMLElement, v: WorkItem) {
-
-                let {print} = v,
-                    btn = <HTMLSpanElement>ele.getElementsByTagName('span')[0],
-                    dropdown = <HTMLDivElement>ele.getElementsByClassName('dropdown-menu')[0];
-
-                if (print.length) {
-                    btn.classList.add('active');
-                    btn.setAttribute('data-toggle', 'dropdown');
-                    dropdown.innerHTML = print.map((p, i) =>
-                        $$templates['print']({
-                            index: i, data: p,
-                            path: $path + p.getSaveName() + '?attachment=' + p.getOrigName()
-                        })
-                    ).join('');
-                } else {
-                    btn.classList.remove('active');
-                    btn.removeAttribute('data-toggle');
-                }
-            },
-            draft(ele: HTMLElement, v: WorkItem) {
-                if (v.draft.length) {
-                    ele.classList.add('active')
-                }
-            },
-
-            // 참고파일 렌더링
-            refThumb(ele: HTMLAnchorElement, v: WorkFile) {
-
-                // ① 이미지 파일일 경우
-                if (v.content_type.indexOf('image') !== -1) {
-
-                    ele.classList.remove('file-icon');
-
-                    let image = new Image();
-                    image.onload = () => {
-                        ele.appendChild(__adjustTo(ele, image, true));
-                        image.onload = null;
-                    }
-                    image.src = $path + v.getSaveName();
-                }
-                // ② 일반 파일
-                else {
-                    ele.classList.add('file-icon-' + v.filetype);
-                    ele.href = $path + v.getSaveName() + '?attachment=' + v.getOrigName();
-                }
-            },
         },
 
 
@@ -418,7 +413,6 @@ function $init($uuid: string, $path: string, $work: Work) {
 
 
     // ************************************ Start ************************************ //
-    $mapping = new Mapping($work, $directive, $each);
 
     document.title = $work.title;
 
@@ -493,7 +487,7 @@ function $init($uuid: string, $path: string, $work: Work) {
         addItem({mapper, name}: EventObject) {
             let forms = $viewForms[name];
             forms.element.removeAttribute('data-form-mapping');
-            forms.reset().appendTo(mapper.querySelector('[data-each]'));
+            forms.reset().appendTo(mapper.querySelector('[data-template]'));
         },
 
         // 메모추가하기
@@ -614,7 +608,6 @@ function $init($uuid: string, $path: string, $work: Work) {
 Work.get(/([^\/]+)\/*$/.exec(location.pathname)[1]).then($work => {
     if ($work) {
         console.log($work);
-        // Work.toPath($work.uuid)
         $init($work.uuid, 'http://localhost/local/work/files/', $work);
     }
 });

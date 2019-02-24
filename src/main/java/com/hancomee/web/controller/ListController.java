@@ -5,6 +5,7 @@ import com.hancomee.web.controller.support.WorkList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -18,9 +19,13 @@ public class ListController {
     _WorkManager sql;
 
     // hancomee_work INNER JOIN hancomee_customer
-    @RequestMapping()
+    @RequestMapping(method=RequestMethod.POST)
     @ResponseBody
     public Object values(WorkList list, @RequestParam Map<String, Object> map) throws Exception {
+
+        if(map.containsKey("search") && map.containsKey("searchType")) {
+            map.put(map.get("searchType").toString(), map.get("search"));
+        }
         return sql.getWorkList(list, map);
     }
 

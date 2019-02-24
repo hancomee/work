@@ -4,12 +4,134 @@
     <meta charset="UTF-8">
     <title>Work List</title>
     <link rel="stylesheet" href="/dist/work/list.css">
+
+    <script src="/lib/js/es6-promise.js"></script>
+
+    <script id="stateList" type="text/html">
+        <li class="{{$.index === _.state ? 'active' :''}}" data-dismiss="{{$.index !== _.state}}"
+            data-state="{{_.id + ':' + $.index}}">
+            {{$[$.index]}}
+        </li>
+    </script>
+
+
+    <!-- 작업 현황 -->
+    <script data-html="state" type="text/html">
+        <div class="state-list-item" data-load="state={{index}}&page=1" data-load-match="state={{index}}">
+            <span class="state-list-item-name">{{name}}</span>
+            <span class="state-list-item-count">{{count | number}}</span>
+            <span class="state-list-item-price">{{price | number}}</span>
+        </div>
+    </script>
+
+    <!-- 작업 리스트 -->
+    <script data-template="work" type="text/html">
+        <div class="col-3">
+            <div class="work-list">
+                <div class="work-list-thumb" data-directive=" | draft"></div>
+                <div class="work-list-state dropdown" data-directive="work | state">
+                    <div class="work-list-datetime"
+                         data-directive="work.datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></div>
+                    <span class="work-list-state-name" data-toggle="dropdown"></span>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <ul></ul>
+                    </div>
+                </div>
+                <a class="work-list-title" data-directive="work | title"></a>
+                <div class="work-list-customer" data-directive="customer.name"></div>
+                <div class="work-list-item">
+                    <span class="work-list-item-len" data-directive="work.item_len"></span>
+                    <span class="work-list-item-total" data-directive="work.total | number"></span>
+                </div>
+            </div>
+        </div>
+    </script>
+
+
 </head>
 <body>
 
 <nav>
 
+    <span class="page-name">WorkList</span>
+
+    <div class="ctrl-pager" data-pre-processor="pager">
+        <span class="ctrl-pager-prev" data-move="-1">&lt;</span>
+        <div class="ctrl-pager-page">
+            <span data-toggle="dropdown"></span>
+        </div>
+        <span class="ctrl-pager-next" data-move="1">&gt;</span>
+    </div>
+
+    <div class="ctrl-btns">
+        <ul class="ctrl-btns-list">
+            <li data-load="orders=<work.datetime">최근등록순</li>
+            <li data-load="orders=<work.updatetime">최근수정순</li>
+            <li data-load="orders=<work.total">큰금액순</li>
+            <li data-load="orders=>work.total">작은금액순</li>
+        </ul>
+    </div>
+
+
+    <div class="ctrl-search" data-pre-processor="search">
+        <div class="ctrl-search-option dropdown">
+            <span data-toggle="dropdown">선택</span>
+            <div class="dropdown-menu"></div>
+        </div>
+        <input class="ctrl-search-input" id="search">
+    </div>
+
+    <div class="ctrl-create" data-pre-processor="create">작업 추가</div>
 </nav>
+
+<#include "./modules/aside.html">
+
+<main data-pre-processor="main">
+
+
+
+    <div class="state-list" data-html="state" data-mapping="states">
+    </div>
+
+
+    <div class="container-fluid work">
+        <div class="row" data-template="work" data-mapping="contents" data-pre-processor="work">
+        </div>
+    </div>
+
+</main>
+
+<div id="work-creator">
+    <div class="work-creator">
+
+        <div>
+            <div class="work-creator-badge">거래처 검색</div>
+            <div class="work-creator-search">
+                <div class="work-creator-search-input">
+                    <input data-prop="search">
+                    <div data-prop="result"></div>
+                </div>
+                <span class="work-creator-search-create" data-prop="createBtn">새로만들기</span>
+            </div>
+        </div>
+
+
+        <div>
+            <div class="work-creator-badge">작업 제목</div>
+            <div class="work-creator-title">
+                <input class="work-creator-title-input" data-prop="title">
+            </div>
+        </div>
+
+        <div class="work-creator-row">
+            <div class="work-creator-btn">
+                <span class="work-creator-btn-confirm" data-prop="confirmBtn" data-confirm>등록</span>
+                <span class="work-creator-btn-cancel" data-prop="cancelBtn" data-cancel>취소</span>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <script src="/dist/work/list.js"></script>
 </body>

@@ -10,8 +10,8 @@ SELECT work.*, customer.*, draft.*
             [INNER JOIN hancomee_workfile wfile1 ON ref.id = wfile1.id  |ref]
             [INNER JOIN hancomee_workfile_print print ON print.item_id = item.id  |print]
             [INNER JOIN hancomee_workfile wfile3 ON print.id = wfile3.id  |print]
-            LEFT OUTER JOIN hancomee_workfile_draft draft ON draft.item_id = item.id
-            LEFT OUTER JOIN hancomee_workfile wfile2 ON draft.id = wfile2.id
+            LEFT OUTER JOIN hancomee_workfile_draft wfile2 ON wfile2.item_id = item.id
+            LEFT OUTER JOIN hancomee_workfile draft ON draft.id = wfile2.id
             WHERE work.state = :state{i}
             [AND work.title LIKE :%title%]
             [AND print.original_name LIKE :%print%]

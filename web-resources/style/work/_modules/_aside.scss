@@ -1,0 +1,99 @@
+
+
+aside {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  z-index: 1041;
+  top: $nav-height;
+  left: 0;
+  bottom: 0;
+
+  padding: {
+    top: 1rem;
+  }
+
+  width: $aside-width;
+  background-color: $aside-bg-color;
+}
+
+.aside {
+
+  $bottom-color: #292929;
+  $top-color: #464646;
+
+  &-today {
+
+    padding-bottom: 1rem;
+    border-bottom: 1px solid $bottom-color;
+
+    &-week, &-ym, &-date, &-time {
+      display: block;
+    }
+
+    &-date {
+      line-height: 1.15;
+      > strong {
+        font-size: 3rem;
+      }
+      > i {
+        margin-left: -.2rem;
+        font-size: 16px;
+        font-style: normal;
+        color: #656565;
+      }
+    }
+
+    &-ym {
+      font-size: 14px;
+    }
+
+    &-time {
+      margin-top: .5rem;
+      line-height: 1.5;
+      font-size: 0;
+
+      &-hour {
+        font-size: 22px;
+        color: #bbb;
+      }
+      &-second {
+        margin-left: .1rem;
+        font-size: 18px;
+        color: #777;
+      }
+    }
+  }
+
+  &-menu {
+
+    > li {
+
+      border-bottom: 1px solid $bottom-color;
+
+      & + li {
+        border-top: 1px solid $top-color;
+      }
+
+      > a {
+        display: block;
+        padding: .5rem;
+        text-align: center;
+        color: #9c9c9c;
+      }
+
+      &:hover, &.active {
+        > a {
+          background-color: #313131;
+        }
+      }
+
+      &.active {
+        > a {
+          color: #dea436;
+        }
+      }
+    }
+  }
+
+}

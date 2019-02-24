@@ -75,7 +75,8 @@ public interface _WorkSQL {
     int updateWork(Statement stmt, Map<String, Object> dataMap);
 
     // ************************ 거래처 ************************ //
-    @Selector("SELECT name, owner, address FROM hancomee_customer WHERE name LIKE :%name%")
+    @Selector("SELECT this.* " +
+            "FROM hancomee_customer this WHERE this.name LIKE :%name% ORDER BY this.name")
     List<Map<String, Object>> customerSearch(Statement stmt, @Value("name") Object name);
 
     @Insert(value = "hancomee_customer", lastId = true)

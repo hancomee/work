@@ -1,9 +1,6 @@
 package com.hancomee.web.controller.support;
 
 import com.boosteel.nativedb.core.support.Pager;
-import com.hancomee.web.controller.ListController;
-
-import java.util.Map;
 
 public class WorkList extends Pager {
     private int[] price;

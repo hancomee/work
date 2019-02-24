@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <title>계산서</title>
+    <link rel="stylesheet" href="/dist/work/bill.css">
+
+    <script src="/lib/js/es6-promise.js"></script>
+
+    <script type="text/html" data-template="customer">
+        <table class="company-info table-border">
+            <tbody>
+            <tr>
+                <th rowspan="4" data-directive=" | type"></th>
+                <th>등록번호</th>
+                <td data-directive="biz_num" colspan="3"></td>
+            </tr>
+            <tr>
+                <th>상호</th>
+                <td data-directive="name"></td>
+                <th>대표자</th>
+                <td data-directive="ceo"></td>
+            </tr>
+            <tr>
+                <th>소재지</th>
+                <td data-directive="address" colspan="3"></td>
+            </tr>
+            <tr>
+                <th>업태</th>
+                <td data-directive="biz_con"></td>
+                <th>종목</th>
+                <td data-directive="biz_type"></td>
+            </tr>
+            </tbody>
+        </table>
+    </script>
+
+    <script type="text/html" data-template="items">
+        <tr>
+            <td data-directive="subject"></td>
+            <td data-directive="detail"></td>
+            <td data-directive="count" class="text-center"></td>
+            <td data-directive="price | number" class="text-right"></td>
+            <td data-directive="vat | number" class="text-right"></td>
+            <td data-directive="total | number" class="text-right"></td>
+            <td data-directive="memo"></td>
+        </tr>
+    </script>
+
+    <script type="text/html" data-template="simple-items">
+        <tr>
+            <td data-directive="subject">명함</td>
+            <td data-directive="count" class="text-center">1</td>
+            <td data-directive="price | number" class="text-right">15,000</td>
+            <td data-directive="vat | number" class="text-right">1,500</td>
+            <td data-directive="total | number" class="text-right">16,500</td>
+        </tr>
+    </script>
+
+</head>
+<body>
+
+<nav>
+    <span class="page-name">양식지</span>
+    <span data-bill="estimate">견적서</span>
+    <span data-bill="account">거래명세표</span>
+    <span data-bill="receipt">간이영수증</span>
+</nav>
+
+<#include "./modules/aside.html">
+
+<main>
+
+    <!-- 견적서 -->
+    <div id="estimate" class="bill">
+
+        <div class="bill-header">
+            <strong>견적서</strong>
+            <span>(공급받는자 보관용)</span>
+        </div>
+
+        <div class="recipient">
+            <strong data-directive="customer.name"></strong>
+            <span>귀하</span>
+        </div>
+
+
+        <div class="bill-container div-2">
+            <div class="sum">
+                <table>
+                    <tbody>
+                    <tr>
+                        <td class="memo" colspan="3"><b>하기와 같이 견적합니다.</b></td>
+                    </tr>
+                    <tr class="price">
+                        <td>단가</td>
+                        <td data-directive="price | number" class="value"></td>
+                        <td class="unit">원</td>
+                    </tr>
+                    <tr class="vat">
+                        <td>부가세</td>
+                        <td data-directive="vat | number" class="value"></td>
+                        <td class="unit">원</td>
+                    </tr>
+                    <tr class="total">
+                        <td>합계</td>
+                        <td data-directive="total | number" class="value"></td>
+                        <td class="unit">원</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="customer" data-mapping="$hancome" data-template="customer"></div>
+        </div>
+
+
+        <div>
+            <div class="bill-title">▲품목 세부</div>
+            <div class="bill-container">
+                <table class="item-list table-border">
+                    <thead>
+                    <tr>
+                        <th>품명</th>
+                        <th>규격</th>
+                        <th>수량</th>
+                        <th>단가</th>
+                        <th>부가세</th>
+                        <th>금액</th>
+                        <th>적요</th>
+                    </tr>
+                    </thead>
+                    <tbody data-mapping="items" data-template="items"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <div class="bill-title">▲견적</div>
+            <div class="bill-container work-text">
+                <pre data-directive="text"></pre>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 거래명세표 -->
+    <div id="account" class="bill">
+
+        <div class="bill-header">
+            <strong>거래명세표</strong>
+            <span>(공급받는자 보관용)</span>
+        </div>
+
+        <div class="bill-container div-2">
+            <div data-mapping="customer" data-template="customer"></div>
+            <div data-mapping="$hancome" data-template="customer"></div>
+        </div>
+
+
+        <div class="bill-container">
+            <table class="item-list table-border">
+                <thead>
+                <tr>
+                    <th>품명</th>
+                    <th>규격</th>
+                    <th>수량</th>
+                    <th>단가</th>
+                    <th>부가세</th>
+                    <th>금액</th>
+                    <th>적요</th>
+                </tr>
+                </thead>
+                <tbody data-mapping="items" data-template="items"></tbody>
+            </table>
+        </div>
+
+        <div class="bill-container">
+            <table class="table-border total-table">
+                <tbody>
+                <tr>
+                    <th>금액</th>
+                    <td data-directive="price | number"></td>
+                    <th>세액</th>
+                    <td data-directive="vat | number"></td>
+                    <th>합계</th>
+                    <td data-directive="total | number"></td>
+                    <th>인수자</th>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 간이영수증 -->
+    <div id="receipt" class="bill">
+
+        <div class="bill-header">
+            <strong>간이영수증</strong>
+            <span>(공급받는자용)</span>
+        </div>
+
+        <div class="recipient">
+            <strong data-directive="customer.name"></strong>
+            <span>귀하</span>
+        </div>
+
+        <div class="bill-container" data-mapping="$hancome" data-template="customer"></div>
+
+        <div class="bill-container">
+            <table class="table-border">
+                <thead>
+                <tr>
+                    <th>품명</th>
+                    <th>수량</th>
+                    <th>단가</th>
+                    <th>부가세</th>
+                    <th>금액</th>
+                </tr>
+                </thead>
+                <tbody data-mapping="items" data-template="simple-items"></tbody>
+            </table>
+        </div>
+
+        <div class="bill-container">
+            <table class="table-border total-table">
+                <tbody>
+                <tr>
+                    <th class="label">금액</th>
+                    <td data-directive="price | number"></td>
+                    <th class="label">세액</th>
+                    <td data-directive="vat | number"></td>
+                    <th class="label">합계</th>
+                    <td data-directive="total | number"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<script src="/dist/work/bill.js"></script>
+</body>
+</html>

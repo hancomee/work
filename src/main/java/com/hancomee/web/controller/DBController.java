@@ -19,11 +19,19 @@ public class DBController {
     // ***************************** 거래처 ************************************* //
     @RequestMapping(value = "customer", method = RequestMethod.POST)
     @ResponseBody
-    public void customer(@RequestBody Map<String, Object> map) throws Exception {
-        System.out.println(map);
-        sql.updatCustomer(map);
+    public Object customer(@RequestBody Map<String, Object> map) throws Exception {
+        if(!map.containsKey("id"))
+            return sql.createCustomer(map);
+
+        sql.updateCustomer(map);
+        return map.get("id");
     }
 
+    @RequestMapping(value = "customer/{search}", method = RequestMethod.GET)
+    @ResponseBody
+    public Object customerSearch(@PathVariable("search") String search) throws Exception {
+        return sql.searchCustomer(search);
+    }
 
     // Work 수정
     @RequestMapping(value = "update/state/{id}/{state}", method = RequestMethod.POST)

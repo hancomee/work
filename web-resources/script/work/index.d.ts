@@ -1,4 +1,4 @@
-interface ServerData<T> {
+interface ListData<T> {
 
     state: number
     page: number
@@ -7,19 +7,17 @@ interface ServerData<T> {
     totalPages: number
     contents: T[]
 
+    orders: string
+    states: {name: string, count: number, price: number, index: number}[]
     count: number[]
     price: number[]
+
 }
 
 type UploadData = File | Blob
 type UploadObject = { name: string, data: UploadData }
 
-type MappingDirective = {
-    [index: string]: (ele: HTMLElement, data) => void
-}
-
-type MappingTemplate = {
-    [index: string]: (target: HTMLElement, data) => HTMLElement
-}
+type MappingDirective = (ele: HTMLElement, data) => void
+type MappingTemplate = (target: HTMLElement, data) => HTMLElement
 
 

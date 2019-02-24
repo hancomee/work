@@ -81,10 +81,12 @@ export namespace Search {
             if (isPlainObject(value)) {
                 array.push(toSearch(value, prefix + key + '.'));
             }
+            // ie는 encodeURIComponent를 안해주면 ajax 에러가 난다.
             else if (Array.isArray(value)) {
                 array = array.concat(value.map(v => key + '=' + encodeURIComponent(v)));
             }
-            else array.push(prefix + key + '=' + encodeURIComponent(value));
+            else
+                array.push(prefix + key + '=' + encodeURIComponent(value));
         }
 
         return array.join("&");

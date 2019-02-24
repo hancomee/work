@@ -8,6 +8,12 @@ export function _indexOf(obj: ArrayLike<any>, v) {
 }
 
 
+export function _range<T>(i: number, l: number, handler: (v: number, t: T) => any, t?: T) {
+    for (; i < l; i++)
+        handler(i, t);
+    return t;
+}
+
 // index 위치에 있는 원소를 move 위치로 옮기기
 export function _move<T>(obj: ArrayLike<T>, index: number, move: number): T[] {
 
@@ -16,11 +22,11 @@ export function _move<T>(obj: ArrayLike<T>, index: number, move: number): T[] {
     r[move] = obj[index];
 
     // 역방향 이동
-    if(index > move) {
-        for(;i<l;i++) {
-            if(i !== index) {
-                if(i < move) r[i] = obj[i];
-                else if(i > index) r[i] = obj[i];
+    if (index > move) {
+        for (; i < l; i++) {
+            if (i !== index) {
+                if (i < move) r[i] = obj[i];
+                else if (i > index) r[i] = obj[i];
                 else r[i + 1] = obj[i];
             }
         }
@@ -28,10 +34,10 @@ export function _move<T>(obj: ArrayLike<T>, index: number, move: number): T[] {
 
     // 정방향 이동
     else {
-        for(;i<l;i++) {
-            if(i !== index) {
-                if(i < index) r[i] = obj[i];
-                else if(i > move) r[i] = obj[i];
+        for (; i < l; i++) {
+            if (i !== index) {
+                if (i < index) r[i] = obj[i];
+                else if (i > move) r[i] = obj[i];
                 else r[i - 1] = obj[i];
             }
         }

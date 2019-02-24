@@ -1,28 +1,21 @@
 import {Access} from "../access";
 import primitive = Access.primitive;
 import {Formats} from "../format";
+import expValParse = Formats.expValParse;
 
 let dummy = [null, null], dum = {},
     directive = Formats.getDirective();
-
-// datetime : 'yyyy-MM-dd'
-function $opt(str: string) {
-    if (!str) return dummy;
-    let [d, o] = str.split(' : ');
-    return [d, o ? primitive(o) : undefined];
-}
 
 
 // [create] ==> func(data, directive)
 function createExp(str: string) {
 
-    let [_prop, _dir] = str.split(' | '),
-        prop = _prop[0] === '_' ? _prop : '_.' + _prop,
-        [dir, opt] = $opt(_dir),
-        func = new Function('_', 'return _ == null ? null : (' + prop + ');')
+    let [_prop, dir, opt] = expValParse(str),
+        prop = (_prop[0] === '_' ||  _prop[0] === '$') ? _prop : '_.' + _prop,
+        func = new Function('_', '$', 'return _ == null ? null : (' + prop + ');')
 
-    return (data, directive) => {
-        let v = func(data);
+    return (data, directive, opData) => {
+        let v = func(data, opData);
 
         if (directive[dir])
             v = directive[dir](v, opt);
@@ -74,10 +67,13 @@ export function _replaceHTML(html: string) {
 
     }
 
-    return (obj, dir = directive) => {
+    return (obj, dir?, opt?) => {
+
+        if(dir == null) dir = directive;
+
         let i = 0, f = func, l = fi, r = [];
         for (; i < l; i++) {
-            r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, dir);
+            r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, dir, opt);
         }
         return r.join('');
     }

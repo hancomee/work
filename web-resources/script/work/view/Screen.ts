@@ -3,7 +3,6 @@ import {WorkFile, WorkItem} from "../_core/Work";
 import {Calendar} from "../../../lib/core/calendar";
 import {EventsGroup} from "../../../lib/core/events";
 import {Mapping} from "../_support/Mapping";
-import $render = Mapping.$render;
 import {DOM} from "../../../lib/core/dom";
 import className = DOM.className;
 
@@ -13,7 +12,7 @@ let directive = {
     },
     name(ele: HTMLAnchorElement, v: Screen) {
         let {img} = v;
-        if(img) {
+        if (img) {
             ele.href = v.path + img.getSaveName();
             ele.textContent = img.getOrigName();
         } else {
@@ -30,7 +29,7 @@ let directive = {
     }
 }
 
-export class Screen {
+export class Screen extends Mapping {
 
     private index = 0
     private wheelEvent: EventsGroup
@@ -41,8 +40,12 @@ export class Screen {
     total: number
     img: WorkFile
 
+    directive = directive
 
     constructor(public element: HTMLElement, public path: string) {
+        super();
+
+        this.data = this;   // 자신을 data로 사용한다.
 
         let closeBtn = element.querySelector('.screen-nav-close');
         closeBtn.addEventListener('click', () => this.off());
@@ -84,9 +87,7 @@ export class Screen {
             className(element, 'has-image', true);
         }
 
-
-        console.log(element.className);
-        $render(element, this, directive, null);
+        super.$render(element);
         return this;
     }
 

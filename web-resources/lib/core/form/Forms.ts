@@ -1,5 +1,5 @@
 import {r_number} from "../_regexp/number";
-import {_remap} from "../_func/remap";
+import {_remap} from "../_util/remap";
 import {r_inputs} from "../_regexp/inputs";
 import {Calendar} from "../calendar";
 import {Access} from "../access";

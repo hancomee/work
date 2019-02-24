@@ -145,7 +145,11 @@ public class _WorkManager {
         db.doStmt(stmt -> SQL.updateWork(stmt, data));
     }
 
-    public void updatCustomer(Map<String, Object> map) {
+    public Object createCustomer(Map<String, Object> map) {
+        return db.doStmtR(stmt -> SQL.insertCustomer(stmt, map));
+    }
+
+    public void updateCustomer(Map<String, Object> map) {
         db.doStmt(stmt -> SQL.updateCustomer(stmt, map));
     }
 

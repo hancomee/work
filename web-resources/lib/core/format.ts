@@ -7,6 +7,7 @@ import {r_number} from "./_regexp/number";
 
 export namespace Formats {
 
+    import primitive = Access.primitive;
     let rr = /:([\w.]+)/g,
         second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24,
         __day = ["일", "월", "화", "수", "목", "금", "토"],
@@ -56,6 +57,27 @@ export namespace Formats {
 
     })(['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']);
 
+    // value | number : 'asdf'
+    export function expValParse(s: string) {
+        let r = [], i = s.indexOf(' | ');
+
+        if(i === -1) r[0] = s;
+        else {
+            r[0] = s.substring(0, i);
+            s = s.substring(i + 3, s.length);
+
+            // : 를 찾는다.
+            i = s.indexOf(' : ');
+            if(i === -1) {
+                r[1] = s;
+            }
+            else {
+                r[1] = s.substring(0, i);
+                r[2] = primitive(s.substring(i + 3, s.length));
+            }
+        }
+        return r;
+    }
 
     export let moneyToKor = (function (hanA, danA) {
 
@@ -84,21 +106,6 @@ export namespace Formats {
         ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"]
     );
 
-    let directive = {
-        datetime: datetime,
-        duration: duration,
-        filesize: filesize,
-        moneyToKor: moneyToKor
-    };
-
-    export function getDirective(obj?) {
-        let r = Object.create(directive), p;
-        if (obj) {
-            for (p in obj) r[p] = obj[p];
-            return r;
-        }
-        return r;
-    }
 
     export function duration(date, now = new Date().getTime()) {
         var duration = now - (typeof date === 'number' ? date : new Date(date).getTime());
@@ -214,4 +221,21 @@ export namespace Formats {
 
         return '0';
     };
+
+    let directive = {
+        number: number,
+        datetime: datetime,
+        duration: duration,
+        filesize: filesize,
+        moneyToKor: moneyToKor
+    };
+
+    export function getDirective(obj?) {
+        let r = Object.create(directive), p;
+        if (obj) {
+            for (p in obj) r[p] = obj[p];
+            return r;
+        }
+        return r;
+    }
 }

@@ -109,7 +109,7 @@ input.form-error {
   }
 
   &-content {
-    flex-grow: 1;
+    flex: 1 1 auto;
   }
 
   &-table {
@@ -156,7 +156,7 @@ input.form-error {
           height: 4rem;
 
           > input {
-            padding: 1rem .5rem;
+            padding: 0 .5rem;
             height: 1.75rem;
             width: 100%;
             @extend .view-input;
@@ -524,6 +524,10 @@ input.form-error {
     &-textarea {
       display: flex;
       margin-top: .5rem;
+
+      > textarea {
+        flex-shrink: 1;
+      }
 
       > .textarea-btn {
         display: flex;

@@ -2,7 +2,7 @@ import {StringBuffer} from "./support/StringBuffer";
 import "../../lib/core/component/toggle";
 import {Access} from "./access";
 import {_forEach} from "./_func/array";
-import {_newApply} from "./_func/newApply";
+import {_newApply} from "./_util/newApply";
 import {r_number} from "./_regexp/number";
 import read = Access.read;
 import primitive = Access.primitive;
@@ -177,10 +177,10 @@ export namespace HTML {
         }
         // ③ querySelector()
         else {
-             return context.querySelector(selector);
+            return context.querySelector(selector);
         }
     }
-    
+
     export function _Q(ele, selector: string) {
         return ele.querySelector(selector);
     }

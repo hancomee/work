@@ -95,3 +95,11 @@ declare namespace iSPA {
         close(): Promise<any> | void
     }
 }
+
+interface DropdownEvent extends Event {
+    data: {
+        isOpen: boolean
+        dropdown: HTMLElement
+        target: HTMLElement
+    }
+}

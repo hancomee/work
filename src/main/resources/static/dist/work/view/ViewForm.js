@@ -60,14 +60,14 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Access;
@@ -126,6 +126,227 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    /**
+     * Created by hellofunc on 2017-03-01.
+     */
+    var Formats;
+    (function (Formats) {
+        var primitive = access_1.Access.primitive;
+        var rr = /:([\w.]+)/g, second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
+        // 숫자 자리수 맞추기
+        zeroFill = function (t) { return _zf(t) + t; }, _switch = {
+            'yyyy': function (d) { return d.getFullYear(); },
+            'yy': function (d) { return zeroFill(d.getFullYear() % 1000); },
+            'M': function (d) { return d.getMonth() + 1; },
+            'MM': function (d) { return zeroFill(d.getMonth() + 1); },
+            'd': function (d) { return d.getDate(); },
+            'dd': function (d) { return zeroFill(d.getDate()); },
+            'E': function (d) { return __day[d.getDay()]; },
+            'HH': function (d) { return zeroFill(d.getHours()); },
+            'hh': function (d) { return zeroFill(d.getHours()); },
+            'mm': function (d) { return zeroFill(d.getMinutes()); },
+            'ss': function (d) { return zeroFill(d.getSeconds()); },
+            'a/p': function (d) { return d.getHours() < 12 ? "오전" : "오후"; },
+        };
+        // 숫자 받아서 파일 크기로... (천단위 쉼표)
+        // unit은 단위를 덧붙일 것인지
+        Formats.filesize = (function (array) {
+            var r = /\B(?=(?:\d{3})+(?!\d))/g;
+            return function (size, unit) {
+                if (unit === void 0) { unit = true; }
+                var t = typeof size;
+                if (t !== 'number') {
+                    if (t !== 'string' || !/^\d+$/.test(size))
+                        return '';
+                    size = parseInt(size);
+                }
+                if (size === 0)
+                    return '0 bytes';
+                var result = Math.floor(Math.log(size) / Math.log(1024));
+                return String((size / Math.pow(1024, result)).toFixed(2)).replace(r, ',')
+                    + (unit ? " " + array[result] : '');
+            };
+        })(['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']);
+        // value | number : 'asdf'
+        function expValParse(s) {
+            var r = [], i = s.indexOf(' | ');
+            if (i === -1)
+                r[0] = s;
+            else {
+                r[0] = s.substring(0, i);
+                s = s.substring(i + 3, s.length);
+                // : 를 찾는다.
+                i = s.indexOf(' : ');
+                if (i === -1) {
+                    r[1] = s;
+                }
+                else {
+                    r[1] = s.substring(0, i);
+                    r[2] = primitive(s.substring(i + 3, s.length));
+                }
+            }
+            return r;
+        }
+        Formats.expValParse = expValParse;
+        Formats.moneyToKor = (function (hanA, danA) {
+            return function (val) {
+                if (typeof val === 'number')
+                    val = val.toString();
+                if (typeof val === 'string' && /^\d+$/.test(val)) {
+                    var result = '', han = void 0, str = void 0, i = 0, l = val.length;
+                    for (; i < l; i++) {
+                        str = '';
+                        han = hanA[val[l - (i + 1)]];
+                        if (han != "")
+                            str = han + danA[i];
+                        if (i == 4)
+                            str += "만";
+                        if (i == 8)
+                            str += "억";
+                        result = str + result;
+                    }
+                    return result || '';
+                }
+                return '';
+            };
+        })(["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십"], ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"]);
+        function duration(date, now) {
+            if (now === void 0) { now = new Date().getTime(); }
+            var duration = now - (typeof date === 'number' ? date : new Date(date).getTime());
+            if (duration > day)
+                return Math.floor(duration / day) + '일 전';
+            if (duration > hour)
+                return Math.floor(duration / hour) + '시간 전';
+            if (duration > minute)
+                return Math.floor(duration / minute) + '분 전';
+            if (duration > second)
+                return Math.floor(duration / second) + '초 전';
+        }
+        Formats.duration = duration;
+        function datetime(_date, f) {
+            if (!_date)
+                return '';
+            var d = typeof _date === 'number' ? new Date(_date) : _date, temp;
+            if (!f)
+                return datetimeFull(d);
+            return f.replace(r_datetime, function ($1) {
+                if (temp = _switch[$1])
+                    return temp(d);
+                else
+                    return $1;
+            });
+        }
+        Formats.datetime = datetime;
+        ;
+        function datetimeFull(val) {
+            var m = val.getMonth() + 1, d = val.getDate(), h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
+            return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
+                _zf(h), h, ':', _zf(s), s, ':', _zf(M), M].join('');
+        }
+        function date(val) {
+            var m = val.getMonth() + 1, d = val.getDate();
+            return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d].join('');
+        }
+        Formats.date = date;
+        function replaceAll(str, val) {
+            var v;
+            if (val == null)
+                return str;
+            return str.replace(rr, function (_, prop) {
+                v = access_1.Access.access(val, prop);
+                return v == null ? '' : v;
+            });
+        }
+        Formats.replaceAll = replaceAll;
+        function replace(__value, rg, literal, matcher) {
+            var pos = 0, result = __value.replace(rg, function (all, match, index) {
+                if (index)
+                    literal(__value.substring(pos, index));
+                pos = index + all.length;
+                return matcher.apply(this, arguments);
+                ;
+            });
+            if (pos < __value.length)
+                literal(__value.substring(pos, __value.length));
+            return result;
+        }
+        Formats.replace = replace;
+        // {{obj}}
+        function replaceByObj(str, obj) {
+            var f;
+            return str.replace(/{{[^{}]+}}/g, function (_, g) {
+                f = obj[g];
+                if (f == null)
+                    return '';
+                else if (typeof f === 'function')
+                    return f.call(obj);
+                else
+                    return '';
+            });
+        }
+        Formats.replaceByObj = replaceByObj;
+        // HTML 이스케이프
+        Formats._htmlEscape = (function () {
+            var escape = /&lt;|&gt;|&nbsp;|&amp;|&quot;|&apos;/g;
+            function _change(c) {
+                switch (c) {
+                    case '&lt;':
+                        return '<';
+                    case '&gt;':
+                        return '>';
+                    case '&nbsp;':
+                        return ' ';
+                    case '&amp;':
+                        return '&';
+                    case '&quot;':
+                        return '"';
+                    case '&apos;':
+                        return '\'';
+                    default:
+                        return c;
+                }
+            }
+            return function (str) {
+                return str.replace(escape, function (s) { return _change(s); });
+            };
+        })();
+        var r_num_replace = /\B(?=(\d{3})+(?!\d))/g;
+        Formats.number = function (val) {
+            if (typeof val === 'number')
+                val = val.toString();
+            if (typeof val === 'string' && number_1.r_number.test(val))
+                return val.replace(r_num_replace, ",");
+            return '0';
+        };
+        var directive = {
+            number: Formats.number,
+            datetime: datetime,
+            duration: duration,
+            filesize: Formats.filesize,
+            moneyToKor: Formats.moneyToKor
+        };
+        function getDirective(obj) {
+            var r = Object.create(directive), p;
+            if (obj) {
+                for (p in obj)
+                    r[p] = obj[p];
+                return r;
+            }
+            return r;
+        }
+        Formats.getDirective = getDirective;
+    })(Formats = exports.Formats || (exports.Formats = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -135,9 +356,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 2 */,
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -372,216 +593,36 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 5 */,
 /* 6 */,
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    /**
-     * Created by hellofunc on 2017-03-01.
-     */
-    var Formats;
-    (function (Formats) {
-        var rr = /:([\w.]+)/g, second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
-        // 숫자 자리수 맞추기
-        zeroFill = function (t) { return _zf(t) + t; }, _switch = {
-            'yyyy': function (d) { return d.getFullYear(); },
-            'yy': function (d) { return zeroFill(d.getFullYear() % 1000); },
-            'M': function (d) { return d.getMonth() + 1; },
-            'MM': function (d) { return zeroFill(d.getMonth() + 1); },
-            'd': function (d) { return d.getDate(); },
-            'dd': function (d) { return zeroFill(d.getDate()); },
-            'E': function (d) { return __day[d.getDay()]; },
-            'HH': function (d) { return zeroFill(d.getHours()); },
-            'hh': function (d) { return zeroFill(d.getHours()); },
-            'mm': function (d) { return zeroFill(d.getMinutes()); },
-            'ss': function (d) { return zeroFill(d.getSeconds()); },
-            'a/p': function (d) { return d.getHours() < 12 ? "오전" : "오후"; },
-        };
-        // 숫자 받아서 파일 크기로... (천단위 쉼표)
-        // unit은 단위를 덧붙일 것인지
-        Formats.filesize = (function (array) {
-            var r = /\B(?=(?:\d{3})+(?!\d))/g;
-            return function (size, unit) {
-                if (unit === void 0) { unit = true; }
-                var t = typeof size;
-                if (t !== 'number') {
-                    if (t !== 'string' || !/^\d+$/.test(size))
-                        return '';
-                    size = parseInt(size);
-                }
-                if (size === 0)
-                    return '0 bytes';
-                var result = Math.floor(Math.log(size) / Math.log(1024));
-                return String((size / Math.pow(1024, result)).toFixed(2)).replace(r, ',')
-                    + (unit ? " " + array[result] : '');
-            };
-        })(['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']);
-        Formats.moneyToKor = (function (hanA, danA) {
-            return function (val) {
-                if (typeof val === 'number')
-                    val = val.toString();
-                if (typeof val === 'string' && /^\d+$/.test(val)) {
-                    var result = '', han = void 0, str = void 0, i = 0, l = val.length;
-                    for (; i < l; i++) {
-                        str = '';
-                        han = hanA[val[l - (i + 1)]];
-                        if (han != "")
-                            str = han + danA[i];
-                        if (i == 4)
-                            str += "만";
-                        if (i == 8)
-                            str += "억";
-                        result = str + result;
-                    }
-                    return result || '';
-                }
-                return '';
-            };
-        })(["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십"], ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"]);
-        var directive = {
-            datetime: datetime,
-            duration: duration,
-            filesize: Formats.filesize,
-            moneyToKor: Formats.moneyToKor
-        };
-        function getDirective(obj) {
-            var r = Object.create(directive), p;
-            if (obj) {
-                for (p in obj)
-                    r[p] = obj[p];
-                return r;
-            }
-            return r;
-        }
-        Formats.getDirective = getDirective;
-        function duration(date, now) {
-            if (now === void 0) { now = new Date().getTime(); }
-            var duration = now - (typeof date === 'number' ? date : new Date(date).getTime());
-            if (duration > day)
-                return Math.floor(duration / day) + '일 전';
-            if (duration > hour)
-                return Math.floor(duration / hour) + '시간 전';
-            if (duration > minute)
-                return Math.floor(duration / minute) + '분 전';
-            if (duration > second)
-                return Math.floor(duration / second) + '초 전';
-        }
-        Formats.duration = duration;
-        function datetime(_date, f) {
-            if (!_date)
-                return '';
-            var d = typeof _date === 'number' ? new Date(_date) : _date, temp;
-            if (!f)
-                return datetimeFull(d);
-            return f.replace(r_datetime, function ($1) {
-                if (temp = _switch[$1])
-                    return temp(d);
-                else
-                    return $1;
-            });
-        }
-        Formats.datetime = datetime;
-        ;
-        function datetimeFull(val) {
-            var m = val.getMonth() + 1, d = val.getDate(), h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
-            return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
-                _zf(h), h, ':', _zf(s), s, ':', _zf(M), M].join('');
-        }
-        function date(val) {
-            var m = val.getMonth() + 1, d = val.getDate();
-            return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d].join('');
-        }
-        Formats.date = date;
-        function replaceAll(str, val) {
-            var v;
-            if (val == null)
-                return str;
-            return str.replace(rr, function (_, prop) {
-                v = access_1.Access.access(val, prop);
-                return v == null ? '' : v;
-            });
-        }
-        Formats.replaceAll = replaceAll;
-        function replace(__value, rg, literal, matcher) {
-            var pos = 0, result = __value.replace(rg, function (all, match, index) {
-                if (index)
-                    literal(__value.substring(pos, index));
-                pos = index + all.length;
-                return matcher.apply(this, arguments);
-                ;
-            });
-            if (pos < __value.length)
-                literal(__value.substring(pos, __value.length));
-            return result;
-        }
-        Formats.replace = replace;
-        // {{obj}}
-        function replaceByObj(str, obj) {
-            var f;
-            return str.replace(/{{[^{}]+}}/g, function (_, g) {
-                f = obj[g];
-                if (f == null)
-                    return '';
-                else if (typeof f === 'function')
-                    return f.call(obj);
-                else
-                    return '';
-            });
-        }
-        Formats.replaceByObj = replaceByObj;
-        // HTML 이스케이프
-        Formats._htmlEscape = (function () {
-            var escape = /&lt;|&gt;|&nbsp;|&amp;|&quot;|&apos;/g;
-            function _change(c) {
-                switch (c) {
-                    case '&lt;':
-                        return '<';
-                    case '&gt;':
-                        return '>';
-                    case '&nbsp;':
-                        return ' ';
-                    case '&amp;':
-                        return '&';
-                    case '&quot;':
-                        return '"';
-                    case '&apos;':
-                        return '\'';
-                    default:
-                        return c;
-                }
-            }
-            return function (str) {
-                return str.replace(escape, function (s) { return _change(s); });
-            };
-        })();
-        var r_num_replace = /\B(?=(\d{3})+(?!\d))/g;
-        Formats.number = function (val) {
-            if (typeof val === 'number')
-                val = val.toString();
-            if (typeof val === 'string' && number_1.r_number.test(val))
-                return val.replace(r_num_replace, ",");
-            return '0';
-        };
-    })(Formats = exports.Formats || (exports.Formats = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
+/* 7 */,
 /* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
     var datetime = format_1.Formats.datetime;
-    var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"];
+    var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"], __month = function (year, month, val) {
+        var i = 1;
+        if (val < 0)
+            val = val * (i = -1);
+        while (val-- > 0) {
+            month = month + i;
+            if (month > 11) {
+                year++;
+                month = 0;
+            }
+            else if (month < 0) {
+                year--;
+                month = 11;
+            }
+        }
+        return [year, month];
+    };
     var Month = /** @class */ (function () {
         // month는 0부터
         function Month(year, month) {
@@ -589,20 +630,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.month = month;
         }
         Month.prototype.move = function (val) {
-            var _b = this, year = _b.year, month = _b.month, i = 1;
-            if (val < 0)
-                val = val * (i = -1);
-            while (val-- > 0) {
-                month = month + i;
-                if (month > 11) {
-                    year++;
-                    month = 0;
-                }
-                else if (month < 0) {
-                    year--;
-                    month = 11;
-                }
-            }
+            var _b = __month(this.year, this.month, val), year = _b[0], month = _b[1];
             return new Month(year, month);
         };
         Month.prototype.toArray = function () {
@@ -671,26 +699,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Calendar.prototype.$month = function (num) {
             if (!num)
                 return this;
-            var _a = this, y = _a.year, m = _a.month, date = _a.date, expectMonth = m + num, // 희망하는 달
-            len = y * 12 + expectMonth, // 년도를 달로 고쳐서 숫자를 만든다.
-            result = new Calendar(new Date(len / 12, len % 12, date));
-            /*
-             *  만약 this가 10월 31일 이라면, 달만 더하면 11월 31일이 되는데,
-             *  11월 31일은 없으므로 12월 1일이 되어버린다.
-             *  따라서 이를 보정한다.
-             *  해당하는 달이 될때까지 날짜를 빼나간다.
-             */
-            var i = 11;
-            expectMonth = expectMonth % 12;
-            expectMonth = expectMonth < 0 ? 11 : expectMonth;
-            while (result.month !== expectMonth) {
-                result = result.$date(-1);
-                // 로직에 문제는 없지만 혹시 모르니까 추가해둔다.
-                // 여기서 무한루프에 빠지면 디버깅이 존나 힘들것이므로..
-                if (i-- < 0)
-                    throw new Error('무한루프에 빠질 위험이 있습니다!!');
-            }
-            return result;
+            var date = this.date, _b = __month(this.year, this.month, num), year = _b[0], month = _b[1], lastDate = new Date(year, month + 1, -1).getDate();
+            return new Calendar(new Date(year, month, date > lastDate ? lastDate : date));
         };
         Calendar.prototype.$year = function (num) {
             if (!num)
@@ -698,11 +708,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var _a = this, year = _a.year, month = _a.month, date = _a.date;
             return new Calendar(new Date(year + num, month, date));
         };
+        // 주차를 알려준다.
+        Calendar.prototype.$week = function () {
+            var _b = this, day = _b.day, date = _b.date, year = _b.year, month = _b.month, firstDate = this.getFirstDate().day, // 첫번째 요일
+            lastDate = this.getLastDate().date, // 마지막 일
+            current = Math.ceil((firstDate + date) / 7), total = Math.ceil((firstDate + lastDate) / 7); // 총 주차 수
+            return [current, total];
+        };
         Calendar.prototype.getFirstDate = function () {
             return new Calendar(new Date(this.year, this.month, 1));
         };
         Calendar.prototype.getLastDate = function () {
-            return new Calendar(new Date(this.year, this.month + 1, 0));
+            var _b = __month(this.year, this.month, 1), year = _b[0], month = _b[1];
+            return new Calendar(new Date(year, month, 0));
         };
         Calendar.prototype.setTime = function (value) {
             if (value === void 0) {
@@ -718,16 +736,25 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             enumerable: true,
             configurable: true
         });
-        Calendar.prototype.year_kr = function () {
-            return this.year + '';
+        Calendar.prototype.year_kr = function (str) {
+            if (str === void 0) { str = '년'; }
+            return this.year + str;
         };
-        Calendar.prototype.month_kr = function () {
-            var month = this.month + 1;
-            return (month < 10 ? '0' : '') + month;
+        Calendar.prototype.month_kr = function (str, zerofill) {
+            if (str === void 0) { str = '월'; }
+            if (zerofill === void 0) { zerofill = true; }
+            var month = this.month + 1, val = month.toString();
+            if (zerofill)
+                val = (month < 10 ? '0' : '') + month;
+            return val + str;
         };
-        Calendar.prototype.date_kr = function () {
-            var date = this.date;
-            return (date < 10 ? '0' : '') + date;
+        Calendar.prototype.date_kr = function (str, zerofill) {
+            if (str === void 0) { str = '일'; }
+            if (zerofill === void 0) { zerofill = true; }
+            var date = this.date, val = date.toString();
+            if (zerofill)
+                val = (date < 10 ? '0' : '') + date;
+            return val + str;
         };
         Calendar.prototype.day_kr = function () {
             return __day[this.day];
@@ -810,6 +837,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return date(dd);
         }
         Calendar.isodate = isodate;
+        function _day(date, opt) {
+            if (opt === void 0) { opt = 'kr'; }
+            return __day[date.getDay()];
+        }
+        Calendar._day = _day;
     })(Calendar = exports.Calendar || (exports.Calendar = {}));
     exports.Calendar = Calendar;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
@@ -817,9 +849,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 10 */,
-/* 11 */,
-/* 12 */
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -833,11 +866,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */,
 /* 16 */,
-/* 17 */
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -850,7 +886,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(18), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(24), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -886,10 +922,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 18 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(19), __webpack_require__(20), __webpack_require__(9), __webpack_require__(0), __webpack_require__(12), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(25), __webpack_require__(26), __webpack_require__(11), __webpack_require__(0), __webpack_require__(15), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
@@ -1325,7 +1361,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 19 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1344,7 +1380,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 20 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
