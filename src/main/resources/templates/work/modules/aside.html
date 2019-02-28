@@ -1,6 +1,6 @@
 <aside>
 
-    <div class="aside-today text-center">
+    <div class="aside-today text-center aside-row">
         <span class="aside-today-week" data-val="week"></span>
         <div class="aside-today-date">
             <strong data-val="date"></strong>
@@ -14,11 +14,19 @@
     </div>
 
     <ul class="aside-menu">
-        <li data-url="/work/intro"><a href="">메인</a></li>
-        <li data-url="/work/list"><a href="/work/list">리스트</a></li>
-        <li data-url="/work/todo"><a href="">할일</a></li>
-        <li data-url="/work/money"><a href="">미수금</a></li>
+        <li class="aside-row" data-url="/work/list"><a href="/work/list">작업리스트</a></li>
+        <li class="aside-row" data-url="/work/receivable"><a href="/work/receivable">미수금</a></li>
     </ul>
+
+    <!--<div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="todo">
+        <span data-toggle="dropdown">간편메모</span>
+        <div class="pop-up"><#include "./aside/todo.html"></div>
+    </div>
+
+    <div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="m3">
+        <span data-toggle="dropdown">헤배계산</span>
+        <div class="pop-up"></div>
+    </div>-->
 
 </aside>
 <script src="/dist/work/modules/aside.js"></script>

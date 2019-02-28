@@ -6,28 +6,23 @@
 @import "./_modules/nav";
 @import "./_modules/aside";
 @import "./base/file-icon";
-
-$default-color: #999;
+@import "utilities";
 
 body, input, textarea, pre {
   font-family: "Roboto", "Nanum Gothic";
 }
 
-a {
-  &:hover, &:visited {
-    text-decoration: none;
-  }
-}
+
 
 body {
   overflow-y: scroll;
   padding: {
     top: $nav-height;
-    left: $aside-width;
+    left: $aside-width-response;
     bottom: 5rem;
   }
   background-color: #f9f9f9;
-  color: $default-color;
+  color: $font-color-normal;
 
   &[data-block="true"], &[data-block="close"] {
     &:after {
@@ -55,6 +50,11 @@ body {
     opacity: 0;
     z-index: -1;
   }
+
+  // 전체창 띄울때 body부분 스크롤 방지
+  &.scroll-lock {
+    overflow: hidden;
+  }
 }
 
 .page-name {
@@ -62,25 +62,46 @@ body {
     left: -1rem;
     right: 1rem;
   }
-  width: $aside-width;
+  width: $aside-width-response;
   text-align: center;
   font-weight: bold;
   font-size: 18px;
 }
 
-input, textarea {
-  color: $default-color;
-  &:focus {
-    outline: 0;
+
+%fixed-screen {
+
+  display: none;
+
+  &.on {
+    display: block;
+  }
+
+  &, &:after {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  &:after {
+    display: block;
+    z-index: -1;
+    content: '';
+    background-color: black;
+    opacity: .88;
   }
 }
 
-[data-toggle], [data-event] {
-  cursor: pointer;
-}
-
-ul, ol, li {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+@media (min-width: 1441px) {
+  body {
+    padding-left: $aside-width;
+  }
+  aside {
+    width: $aside-width;
+  }
+  .page-name {
+    width: $aside-width;
+  }
 }

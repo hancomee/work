@@ -12,33 +12,84 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
 import java.sql.SQLTimeoutException;
+import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class TTEST {
 
-    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hancomee?useOldAliasMetadataBehavior=true", "root", "ko9984");
+    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
 
     @Test
     public void copy() throws Exception {
-        Path p = Paths.get(getClass().getClassLoader().getResource("work.sql").toURI());
-        SQL sql = db.createRepository(SQL.class, new RepositoryConfig().addSQL(p));
+        db.doWork(s -> {
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("state", "6");
-        map.put("title", "당일판");
-        map.put("customerName", "화장");
-        map.put("itemSubject", "명함");
-        map.put("st", "2017-07-17");
-        map.put("et", "2017-08-31");
+            Statement stmt1 = s.createStatement(),
+                    stmt3 = s.createStatement(),
+                    stmt4 = s.createStatement();
 
-        out(sql.list(map));
-        out("");
-        out(sql.state(map));
-        out("");
-        out(sql.count(map));
+            try (ResultSet rs = stmt1.executeQuery("SELECT id, uuid FROM hancomee_work")) {
+
+                while (rs.next()) {
+
+                    String id = rs.getString("id"),
+                            uuid = rs.getString("uuid");
+
+                    compute(stmt3, stmt4, id, uuid);
+                }
+            }
+
+
+        });
+    }
+
+    private void compute(Statement s, Statement s2, String id, String uuid) throws Exception {
+
+        int work_itemLen = 0, work_vat = 0, work_total = 0,
+                count, price, vat, total, itemId;
+
+        try (ResultSet rs = s.executeQuery(
+                "SELECT id, count, price, vat, total FROM hancomee_workitem WHERE work_id = " + id)) {
+            while (rs.next()) {
+
+                /*
+                 *  ① vat가 기입되어 있을 경우 :
+                 *     (count * price) / 10 = vat
+                 *     (count * price) + vat = total
+                 *
+                 *  ② vat가 기입되어 있지 않을 경우 :
+                 *     (count * price) = total
+                 *
+                 */
+                itemId = rs.getInt("id");
+                count = rs.getInt("count");
+                price = rs.getInt("price");
+
+                vat = (count * price) / 10;
+                total = (count * price) + vat;
+
+                s2.executeUpdate("UPDATE hancomee_workitem " +
+                        "SET vat = " + vat + ", total = " + total + " WHERE id = " + itemId);
+
+                work_itemLen++;
+                work_vat += vat;
+                work_total += total;
+
+            }
+        }
+
+        s2.executeUpdate("UPDATE hancomee_work SET vat = " + work_vat +
+                ", total = " + work_total + ", item_len = " + work_itemLen + " WHERE id = " + id);
+        /*if(work_total > 0 && work_vat > 0) {
+            out("\n\n\n" + id + " / " + uuid + "\n------------------------");
+            out(price + "\t" + vat + "\t" + total);
+            out(work_itemLen + "\t" + work_vat + "\t" + work_total);
+        }*/
+
     }
 
     interface SQL {

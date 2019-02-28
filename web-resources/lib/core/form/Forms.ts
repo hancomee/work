@@ -281,6 +281,7 @@ export class Forms {
         if(parent) parent.removeChild(element);
         return element;
     }
+
 }
 
 

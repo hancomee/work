@@ -2,14 +2,19 @@ package com.hancomee.web.controller;
 
 import com.boosteel.nativedb.NativeDB;
 import com.boosteel.nativedb.core.support.RepositoryConfig;
+import com.hancomee.web.controller.support.ReceivableList;
 import com.hancomee.web.controller.support.WorkList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,13 +23,21 @@ import java.util.Map;
 @Component
 public class _WorkManager {
 
-    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hancomee?useOldAliasMetadataBehavior=true", "root", "ko9984");
+    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
     private _WorkSQL SQL;
 
-    public _WorkManager() {
+    public _WorkManager() throws Exception {
+        System.out.println("-----------------------------------------------------------");
+
+        /*
+         *  jar 실행시 path를 가지고 오는 방법은 좀 더럽다.
+         *  AsStream을 통해서만 파일을 가지고 올 수 있다.
+         */
+
         SQL = db.createRepository(
                 _WorkSQL.class,
-                new RepositoryConfig().addSQL(getClass().getClassLoader().getResource("work.sql"))
+                new RepositoryConfig()
+                        .addSQL(_WorkManager.class.getClassLoader().getResourceAsStream("work.sql"))
         );
     }
 
@@ -34,6 +47,50 @@ public class _WorkManager {
         return this.db;
     }
 
+    /*
+     *  작업 추가하기
+     *  반환값은 uuid
+     *
+     *  폴더도 미리 만들어놓는다.
+     *
+     */
+    private static final Path ROOT = Paths.get("D:\\work");
+
+    // 새작업만들기
+    public String createWork(Map<String, Object> map) {
+        return db.doStmtR(stmt -> {
+            String uuid = SQL.createUUID(stmt);
+
+                    /*year = uuid.substring(0, 4),
+                    month = uuid.substring(5, 7),
+                    num = uuid.substring(7, uuid.length());
+
+            // 폴더 생성
+            Files.createDirectories(ROOT.resolve(year).resolve(month).resolve(num));*/
+
+            map.put("uuid", uuid);
+            SQL.insertWork(stmt, map);
+
+            return uuid;
+        });
+    }
+
+    // 작업 아예 삭제하기
+    public _WorkManager removeWork(Object workId) {
+
+        db.doStmt(stmt -> {
+            // 모든 메모 삭제
+            SQL.deleteAllMemo(stmt, workId);
+            // 모든 파일 삭제
+            SQL.deleteAllRef(stmt, workId);
+            // 모든 아이템 삭제
+            SQL.deleteAllWorkItem(stmt, workId);
+
+            SQL.deleteWork(stmt, workId);
+        });
+
+        return this;
+    }
 
     // 작업 리스트 가지고 오기
     public WorkList getWorkList(WorkList list, Map<String, Object> map) {
@@ -41,8 +98,23 @@ public class _WorkManager {
 
             if(map.get("state") == null) map.put("state", 0);
 
+            String
+                    duration = map.get("duration").toString(),
+                    today = LocalDate.now().toString();
+
+            // duration=today
+            if(duration.equals("today")) {
+                map.put("st", today);
+                map.put("et", today);
+            }
             list.setArray(parseState(SQL.stateAll(stmt, map)));
-            return SQL.listAll(stmt, list, map);
+            SQL.listAll(stmt, list, map);
+
+            // 당일판
+            map.put("st", today);
+            map.put("et", today);
+            list.setToday(parseState(SQL.stateAll(stmt, map))[0]);
+            return list;
         });
     }
 
@@ -164,7 +236,14 @@ public class _WorkManager {
     }
 
     public void deleteRef(int id) {
-        db.doStmt(stmt -> SQL.deleteRef(stmt, id));
+        db.doStmt(stmt -> {
+            try(ResultSet rs = stmt.executeQuery("SELECT work_id FROM hancomee_workfile_ref WHERE id = " + id)) {
+                rs.next();
+                SQL.deleteRef(stmt, id);
+                SQL.refreshRef(stmt, rs.getInt(1));
+            }
+
+        });
     }
 
     public void deletePrint(int id) {
@@ -229,13 +308,13 @@ public class _WorkManager {
     }
 
 
-    public int saveMemo(Object workId, Map<String, Object> memoData) {
+    public Object saveMemo(Object workId, Map<String, Object> memoData) {
         return db.doStmtR(stmt -> {
             Object id = memoData.get("id");
             if (id == null) id = SQL.insertMemo(stmt, memoData, workId);
             else SQL.updateMemo(stmt, id, memoData.get("value"));
             SQL.refreshMemo(stmt, workId);
-            return Integer.parseInt(id.toString());
+            return id;
         });
     }
 
@@ -247,46 +326,9 @@ public class _WorkManager {
         });
     }
 
-    /*
-     *  작업 추가하기
-     *  반환값은 uuid
-     *
-     *  폴더도 미리 만들어놓는다.
-     *
-     */
-    private static final Path ROOT = Paths.get("D:\\work");
 
-    public String addWork(int customerId, String title) {
-        return db.doStmtR(stmt -> {
-            // 2018-1000065
-            String uuid = SQL.createUUID(stmt),
-                    year = uuid.substring(0, 4),
-                    month = uuid.substring(5, 7),
-                    num = uuid.substring(7, uuid.length());
-
-            // 폴더 생성
-            Files.createDirectories(ROOT.resolve(year).resolve(month).resolve(num));
-
-            SQL.insertWork(stmt, uuid, customerId, title);
-            return uuid;
-        });
+    public Object receivableList(Map<String, Object> map) {
+        return SQL.receivableList(map);
     }
 
-
-    // 작업 아예 삭제하기
-    public _WorkManager removeWork(int workId) {
-
-        db.doStmt(stmt -> {
-            // 모든 메모 삭제
-            SQL.deleteAllMemo(stmt, workId);
-            // 모든 파일 삭제
-            SQL.deleteAllRef(stmt, workId);
-            // 모든 아이템 삭제
-            SQL.deleteAllWorkItem(stmt, workId);
-
-            SQL.deleteWork(stmt, workId);
-        });
-
-        return this;
-    }
 }

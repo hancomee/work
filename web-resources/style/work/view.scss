@@ -2,9 +2,10 @@
 @import "view/file-upload";
 @import "view/screen";
 
+@import "view/image-screen";
+@import "view/confirm-box";
+
 $view-gray-bgcolor: #f9f9f9;
-$view-border-color-m: #ddd;
-$view-border-color-l: #ccc;
 
 #view {
 
@@ -14,7 +15,7 @@ $view-border-color-l: #ccc;
 
   background-color: white;
   border-radius: .5rem;
-  border: 1px solid $view-border-color-l;
+  border: 1px solid $border-color-darken;
 }
 
 // 확인버튼
@@ -37,12 +38,17 @@ input.form-error {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 1px solid $view-border-color-l;
+    bottom: 1px solid $border-color-darken;
   }
   color: #6ca9c7;
 
   &:focus {
     border-color: #929191;
+  }
+
+  &[disabled] {
+    border: 0;
+    background-color: white;
   }
 }
 
@@ -51,10 +57,57 @@ input.form-error {
   &-row {
   }
 
+
+  // 작업상황, 삭제버튼 등
+  &-meta {
+    display: flex;
+    margin: {
+      top: -1rem;
+      bottom: 2rem;
+    }
+    font-size: 14px;
+
+    &-state {
+      margin-left: auto;
+
+      &-btn {
+
+        &:after {
+          display: inline-block;
+          position: relative;
+          top: -3px;
+          left: 2px;
+          content: '';
+          @include border-arrow-down(5px, #888);
+        }
+      }
+      &-menu {
+        > li {
+          padding: .3rem .5rem;
+          cursor: pointer;
+          &.active {
+            background-color: #4e80a9;
+            color: white;
+            cursor: default;
+          }
+        }
+      }
+    }
+
+    &-remove {
+      margin-left: 2rem;
+      color: #e01818;
+      cursor: pointer;
+      &:hover {
+        color: #9a0000;
+      }
+    }
+  }
+
   &-header {
     display: flex;
     margin: {
-      top: 6rem;
+      top: 5rem;
       bottom: .5rem;
     }
     align-items: center;
@@ -114,7 +167,7 @@ input.form-error {
 
   &-table {
     width: 100%;
-    border: 1px solid $view-border-color-l;
+    border: 1px solid $border-color-darken;
 
     > thead, > tbody {
       > tr {
@@ -123,14 +176,20 @@ input.form-error {
           font-size: 14px;
           background-color: $view-gray-bgcolor;
         }
+
+        > th, > td {
+          word-break: break-all;
+          white-space: normal;
+        }
+
         > td, > th {
           & + td, & + th {
-            border-left: 1px solid $view-border-color-m;
+            border-left: 1px solid $border-color-normal;
           }
         }
 
         & + tr {
-          border-top: 1px solid $view-border-color-m;
+          border-top: 1px solid $border-color-normal;
         }
       }
     }
@@ -183,38 +242,11 @@ input.form-error {
   }
 }
 
-#image-screen {
 
-  display: none;
-  position: fixed;
-  z-index: 1080;
-
-  &, &:after {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-  }
-
-  &:after {
-    position: absolute;
-    display: block;
-    background-color: black;
-    opacity: .9;
-    z-index: -1;
-    content: '';
-  }
-
-  &.on {
-    display: block;
-  }
-
-  > img {
-    position: relative;
-  }
-}
 
 .work {
+
+
 
   &-textarea {
 
@@ -222,7 +254,7 @@ input.form-error {
       padding: 1rem;
       width: 100%;
       height: 10rem;
-      border: 1px solid $view-border-color-l;
+      border: 1px solid $border-color-darken;
       resize: none;
       background-color: #fbfbfb;
     }
@@ -287,19 +319,39 @@ input.form-error {
 
     background-color: #f1f1f1;
     text-align: right;
+    border: 1px solid #ddd;
+    border-left: 0;
 
-    &-price {
-      font-size: 2rem;
-    }
+    &-value {
 
-    &-vat {
-      font-size: 1.5rem;
-    }
+      > table {
+        width: 100%;
+        > tbody {
+          > tr {
+            > td {
+              text-align: right;
+            }
+          }
+        }
+      }
 
-    &-total {
-      font-size: 3rem;
-      font-weight: bold;
+      .table-label {
+        width: 1%;
+        white-space: nowrap;
+      }
 
+      &-price {
+        font-size: 2rem;
+      }
+
+      &-vat {
+        font-size: 1.5rem;
+      }
+
+      &-total {
+        font-size: 3rem;
+        font-weight: bold;
+      }
     }
 
   }
@@ -485,7 +537,7 @@ input.form-error {
   }
 
   &-memo, &-files {
-    border-top: 1px solid $view-border-color-l;
+    border-top: 1px solid $border-color-darken;
   }
 
   &-memo {
@@ -503,7 +555,7 @@ input.form-error {
         }
 
         & + &, & + [data-form-mapping] {
-          border-top: 1px solid $view-border-color-m;
+          border-top: 1px solid $border-color-normal;
         }
 
         & + [data-form-mapping] {
@@ -537,7 +589,7 @@ input.form-error {
 
         width: 100px;
         text-align: center;
-        border: 1px solid $view-border-color-l;
+        border: 1px solid $border-color-darken;
         border-left: 0;
       }
 
@@ -556,7 +608,7 @@ input.form-error {
     display: flex;
     flex-wrap: wrap;
 
-    border-top: 1px solid $view-border-color-l;
+    border-top: 1px solid $border-color-darken;
 
     &-list {
       position: relative;
@@ -600,50 +652,9 @@ input.form-error {
         color: #f95454;
       }
     }
-
-  }
-
-}
-
-#confirm-box {
-
-  display: none;
-  position: absolute;
-  z-index: 1040;
-
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid #c3c3c3;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 3px 3px 9px #e8e8e8;
-
-  &.on {
-    display: block;
   }
 }
 
-.confirm-box {
 
-  &-content {
-    margin-bottom: .5rem;
-  }
 
-  &-btn {
-    display: inline-block;
-    padding: .3rem 1rem;
-    border-radius: 3px;
-    color: white;
-    cursor: pointer;
-
-    &-submit {
-      border: 1px solid #8a2626;
-      background-color: #af2f2f;
-    }
-
-    &-cancel {
-      border: 1px solid #868686;
-      background-color: #797979;
-    }
-  }
-}
+@import "view/bill";

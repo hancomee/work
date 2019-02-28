@@ -10,10 +10,11 @@ let
     active: HTMLElement,
 
     act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
-        let eventType;
+        let eventType,
+            dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
 
         className(dropdown, r_open, flag);
-        className(dropdown.getElementsByClassName('dropdown-menu')[0], r_open, flag);
+        dropdownMenu && className(dropdownMenu, r_open, flag);
 
         // dropdown 이벤트
         if ((eventType = dropdown.getAttribute('data-dropdown-event')) != null) {

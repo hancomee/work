@@ -1,10 +1,19 @@
-
 $nav-height: 50px;
 $nav-bg-color: #333;
 
+// 좁은 화면에서는 aside를 좀 줄인다
+$aside-width-response: 100px;
 $aside-width: 150px;
 $aside-bg-color: #353535;
 
 $nav-font-color: #888;
+$aside-cont-color: $nav-font-color;
 
-$font-color: #999;
+$font-color-lighten: #aaa;
+$font-color-normal: #888;
+$font-color-darken: #444;
+
+$border-color-tiny: #f9f9f9;
+$border-color-lighten: #ddd;
+$border-color-normal: #ccc;
+$border-color-darken: #bbb;

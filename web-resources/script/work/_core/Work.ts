@@ -1,52 +1,8 @@
 import {$extend} from "../../../lib/core/core";
 import {Formats} from "../../../lib/core/format";
 import datetime = Formats.datetime;
+import {$delete, $get, $post} from "./_ajax";
 
-
-function $get(url: string): Promise<any> {
-    return new Promise((resolve, error) => {
-        let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) resolve(JSON.parse(xhr.responseText));
-                else error(xhr);
-            }
-        }
-        xhr.open('GET', url, true);
-        xhr.send(null);
-    });
-}
-
-
-function $post(url: string, data): Promise<any> {
-    return new Promise((resolve, error) => {
-        let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200)
-                    resolve(xhr.responseText && JSON.parse(xhr.responseText));
-                else error(xhr);
-            }
-        }
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(data));
-    });
-}
-
-function $delete(url: string): Promise<any> {
-    return new Promise((resolve, error) => {
-        let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) resolve();
-                else error(xhr);
-            }
-        }
-        xhr.open('DELETE', url, true);
-        xhr.send(null);
-    });
-}
 
 
 let
@@ -112,7 +68,10 @@ let
             // draft, print는 json 변환에는 제외시킨다.
             print: false,
             draft: false,
-            memo: false
+
+            memo(v) {
+                if(typeof v === 'string') this['memo'] = v;
+            }
         }
 
         return (data) => $extend({}, data, $$);
@@ -165,9 +124,9 @@ export class Work {
     }
 
     addMemo(v: WorkMemo) {
-        console.log(v);
         this.memo.push(v);
         this.memo_len = this.memo.length;
+        v.setWork(this);
         return this;
     }
 
@@ -180,7 +139,7 @@ export class Work {
     compute() {
         let price = 0, vat = 0, total = 0;
         this.items.forEach(item => {
-            price += item.price;
+            price += (item.price * item.count);
             vat += item.vat;
             total += item.total;
         });
@@ -287,7 +246,7 @@ export class Customer {
     memo: string
     mobile: string
     name: string
-    owner: string
+    ceo: string
     tel: string
 
     constructor(data?) {
@@ -342,6 +301,10 @@ export namespace Work {
         items: WorkItem[]
     }
 
+    export function createWork(data): Promise<string> {
+        return $post('/work/db/create', data);
+    }
+
     export function updateState(id, state) {
         return $post('/work/db/update/state/' + id + '/' + state, null);
     }
@@ -361,7 +324,7 @@ export namespace Work {
     // 리스트 로딩
     export function list(query: string): Promise<ListData<WorkListValue>> {
         return $post('/work/list?' + query, null).then((e: ListData<any>) => {
-            let {contents, price, count} = e;
+            let {contents, price, count, today} = e;
             e.contents = contents.map(values => {
                 return {
                     work: new Work(values.work),
@@ -374,13 +337,17 @@ export namespace Work {
                     index: i,
                     name: $state[i],
                     count: v,
-                    price: price[i]
+                    price: price[i],
+                    today: today[i]
                 }
             });
             return e;
         });
     }
 
+    export function remove(id) {
+        return $delete('/work/db/remove/' + id);
+    }
 
     export function update(val, work: Work) {
         return $post('/work/db/update/' + work.id, val).then(() => $extend(work, val));
@@ -388,7 +355,8 @@ export namespace Work {
 
     // 전체 로딩
     export function get(workUUID: string): Promise<Work> {
-        return $get('/work/view?uuid=' + workUUID).then((data: { work: any, items: any[] }) => {
+        // 캐시 방시
+        return $get('/work/view?uuid=' + workUUID + '&' + new Date().getTime()).then((data: { work: any, items: any[] }) => {
 
             if (data.work) {
                 let work = new Work(data.work);
@@ -398,6 +366,7 @@ export namespace Work {
             else return null;
         })
     }
+
 }
 
 

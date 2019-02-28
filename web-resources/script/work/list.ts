@@ -21,11 +21,10 @@ class ListManager extends Search {
 
     $data: ListData<WorkListValue>
 
+    duration = 'all'
     size = 8
     page = 1
     state = 0
-    st: string
-    et: string
     search: string
     searchType = 'customerName'
     orders = '<work.datetime'
@@ -55,14 +54,15 @@ let
     $directive = {
 
         // 시안파일 background-image 적용하기
-        draft(ele: HTMLElement, v: WorkListValue) {
-            let {work: {uuid}} = v;
+        draft(ele: HTMLAnchorElement, v: WorkListValue) {
+            let {work, work: {uuid}} = v;
             if (v.draft) {
                 let path = Work.toPath(uuid);
-                ele.style.backgroundImage = 'url("http://www.hancomee.com/workdata/' +
+                ele.style.backgroundImage = 'url("/workdata/' +
                     path + v.draft.getSaveName() +
                     '")'
             }
+            ele.href = "/work/view/" + work.uuid;
         },
 
         // 제목에 href 달기
@@ -96,16 +96,27 @@ let
         .addHTML(document.head),
 
     // 로딩
+    limit = 2,
     $load = () => {
         let query = $manager.reset().toString();
         Work.list(query).then(v => {
 
+            // 데이터가 없고, 1page가 아닐 경우 최대 2번까지 페이지를 줄이면서 재로딩한다.
+            if (!v.contents.length && $manager.page > 1) {
+                if (limit) {
+                    limit--;
+                    $manager.run({page: $manager.page - 1});
+                }
+                else $manager.run({page: 1});
+                return;
+            }
+
+            limit = 2;
             $manager.$data = v;
 
             query = decodeURIComponent(query);
             $mapping.setData(v).$render(main);
             $alert.forEach(v => v($manager, query));
-            console.log(v);
         })
     },
 
@@ -122,7 +133,7 @@ let
 
             $alert[$resetIndex++] = (manager, query) => {
                 // data-load == active 갱신
-                _forEach(ele.querySelectorAll('[data-load]'), (e) => {
+                _forEach(document.body.querySelectorAll('[data-load]'), (e) => {
                     // [data-load-match]를 우선시한다.
                     let match = e.getAttribute('data-load-match') || e.getAttribute('data-load'),
                         r = _everyTrue(match.split("&"), (v) => query.indexOf(v) !== -1);
@@ -199,8 +210,9 @@ let
             // 검색어 입력 후 엔터!
             input.addEventListener('keyup', (e: KeyboardEvent) => {
                 if (e.keyCode === 13) {
-                    if (input.value) $manager.run({
-                        search: input.value,
+                    let value = input.value.trim();
+                    if (value) $manager.run({
+                        search: value,
                         page: 1
                     })
                     else $manager.run({
@@ -211,7 +223,7 @@ let
             })
 
             // rendering 될때마다 input값 확인
-            $alert[$resetIndex++] = () => {
+                $alert[$resetIndex++] = () => {
                 let {searchType} = $manager;
                 btn.textContent = searchTypes[searchType];
                 input.value = $manager.search || '';

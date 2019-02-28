@@ -14,12 +14,14 @@
         </li>
     </script>
 
-
     <!-- 작업 현황 -->
     <script data-html="state" type="text/html">
         <div class="state-list-item" data-load="state={{index}}&page=1" data-load-match="state={{index}}">
             <span class="state-list-item-name">{{name}}</span>
-            <span class="state-list-item-count">{{count | number}}</span>
+            <div class="state-list-item-count">
+                <i>{{today | number}}</i>
+                <strong>{{count | number}}</strong>
+            </div>
             <span class="state-list-item-price">{{price | number}}</span>
         </div>
     </script>
@@ -28,7 +30,7 @@
     <script data-template="work" type="text/html">
         <div class="col-3">
             <div class="work-list">
-                <div class="work-list-thumb" data-directive=" | draft"></div>
+                <a class="work-list-thumb" data-directive=" | draft"></a>
                 <div class="work-list-state dropdown" data-directive="work | state">
                     <div class="work-list-datetime"
                          data-directive="work.datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></div>
@@ -72,6 +74,12 @@
         </ul>
     </div>
 
+    <div class="ctrl-btns">
+        <ul class="ctrl-btns-list">
+            <li data-load="duration=all">전체</li>
+            <li data-load="duration=today">당일</li>
+        </ul>
+    </div>
 
     <div class="ctrl-search" data-pre-processor="search">
         <div class="ctrl-search-option dropdown">

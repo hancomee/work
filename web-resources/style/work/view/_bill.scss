@@ -1,0 +1,274 @@
+
+
+$border-color-normal: #aaa;
+$border-color-darken: #888;
+
+#bill {
+  @extend %fixed-screen;
+  overflow-y: scroll;
+  z-index: 1045;
+}
+
+.bill {
+
+  position: relative;
+  margin: 1rem auto;
+
+  width: 210mm;
+
+  font-size: 9pt;
+  background: {
+    repeat: no-repeat;
+    size: contain;
+  }
+  background-color: white;
+
+
+  table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+
+    // 품목 상세 등 테이블
+    &.item-list {
+      > thead {
+        > tr {
+          > th {
+            text-align: center;
+            @include table-col(18, 18, 10, 12, 15, 10, 17);
+          }
+        }
+      }
+    }
+
+    > thead, > tbody, > tfoot {
+      > tr {
+        > th {
+          text-align: center;
+          font-weight: bold;
+          background-color: #f3f3f3;
+        }
+        > td, > th {
+          padding: 2mm 2mm;
+          font-size: 8pt;
+          word-break: break-all;
+          white-space: normal;
+        }
+      }
+    }
+  }
+
+  // 테이블 볼더
+  table.table-border {
+
+    > thead + tbody {
+      > tr {
+        > td {
+          border-top: 1px solid $border-color-normal;
+        }
+      }
+    }
+
+    > tfoot {
+      > tr {
+        > th, > td {
+          border-top: 1px solid $border-color-normal;
+        }
+      }
+    }
+
+    > tbody, > thead, > tfoot {
+      > tr {
+        > td, > th {
+          & + td, & + th {
+            border-left: 1px solid $border-color-normal;
+          }
+        }
+        & + tr {
+          > td, > th {
+            border-top: 1px solid $border-color-normal;
+          }
+        }
+      }
+    }
+  }
+
+  // 한컴기획 정보
+  .company-info {
+
+    width: 100%;
+    height: 100%;
+
+
+    // 공급받는자 / 공급자 구분
+    .customer {
+      display: none;
+    }
+
+    // 도장
+    .sign {
+      position: relative;
+      > img {
+        position: absolute;
+        top: -2mm;
+        left: 12mm;
+        width: 12mm;
+        height: 12mm;
+      }
+    }
+
+    &.send {
+      .customer {
+        display: inline;
+      }
+      .supplier {
+        display: none;
+      }
+      .sign > img {
+        display: none;
+      }
+    }
+
+
+
+    > tbody {
+      > tr {
+
+        > th {
+          width: 7.5%;
+          border-left: 1px solid $border-color-normal;
+          letter-spacing: -1px;
+          text-align: center;
+          white-space: nowrap;
+
+          &[rowspan="4"] {
+            width: 5%;
+            border-left: 0;
+          }
+        }
+
+        > td {
+          width: 40%;
+          font-size: 7pt;
+
+          &[colspan="3"] {
+            width: 87.5%;
+          }
+        }
+      }
+    }
+  }
+
+  &-footer {
+
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 3mm;
+
+    &-panel {
+      .label {
+        padding-right: 1.5mm;
+        margin-right: 1mm;
+        border-right: 1px solid #ddd;
+        font-size: 7pt;
+      }
+
+      & + & {
+        margin-left: 5mm;
+      }
+    }
+  }
+}
+
+.bill-header {
+  padding: 5mm 0;
+  text-align: center;
+
+  > strong, > span {
+    display: block;
+  }
+  > strong {
+    font-size: 20pt;
+  }
+  > span {
+    font-size: 8pt;
+  }
+}
+
+.bill-container {
+  border: {
+    left: 1px solid $border-color-normal;
+    right: 1px solid $border-color-normal;
+    top: 2px solid $border-color-darken;
+    bottom: 2px solid $border-color-darken;
+  }
+
+  & + & {
+    border-top: 0;
+  }
+
+  &.div-2 {
+    display: flex;
+    > div {
+      width: 50%;
+      & + div {
+        border-left: 1px solid $border-color-normal;
+      }
+    }
+  }
+}
+
+
+@import "_bill/estimate";
+@import "_bill/account";
+@import "_bill/receipt";
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 210mm;
+    height: 297mm;
+    background-color: white;
+  }
+
+  body {
+    > * {
+      display: none;
+    }
+
+    /*
+     *  스크롤 영역도 프린트에 잡히므로 없앤다.
+     *  또한 검은색 배경인 :after도 없앤다.
+     */
+    #bill {
+      display: block;
+      overflow: hidden;
+      &:after {
+        display: none;
+      }
+    }
+  }
+
+  .bill {
+    margin: 5mm auto 0;
+  }
+
+  .page {
+    margin: 0;
+    border: initial;
+    width: initial;
+    min-height: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: avoid;
+  }
+}

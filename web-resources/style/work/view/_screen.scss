@@ -1,39 +1,18 @@
 $screen-nav-height: 60px;
 
-%position {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
 #screen {
-
-  display: none;
+  @extend %fixed-screen;
   z-index: 1045;
-
-  &.on {
-    display: block;
-  }
-
-  &, &:after {
-    @extend %position;
-  }
-
-  &:after {
-    display: block;
-    content: '';
-    z-index: -1;
-    background-color: black;
-    opacity: .87;
-  }
 }
 
 .screen {
 
   &-nav, &-body {
-    @extend %position;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   &-nav {

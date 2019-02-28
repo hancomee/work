@@ -5,19 +5,19 @@ function _func(prop: string, ele: Element, s: string, opt?, data?) {
     let type = typeof opt,
         list = ele[prop](s), l = list.length;
 
-    switch (type) {
-        case 'number' :
-            return list[opt];
-        case 'function' :
-            let i = 0;
-            for (; i < l; i++)
-                opt.call(ele, list[i], i, data);
-            return data;
-        default :
-            let r = [];
-            while (l-- > 0) r[l] = list[l];
-            return r;
+    if (type === 'number') return list[opt];
+
+    let i = l, r = [];
+    while (i-- > 0) r[i] = list[i];
+
+    if (type === 'function') {
+        i++;
+        for (; i < l; i++)
+            opt.call(ele, r[i], i, data);
+        return data;
     }
+
+    return r;
 }
 
 
@@ -57,22 +57,25 @@ export function getElementsByTagName(ele: Element, s: string, opt?, data?) {
 export function getElementsByAttr<T>(target: HTMLElement,
                                      attrName: string,
                                      handler: (r: T, e: HTMLElement, v: string, i: number) => any, r?: T): T
-export function getElementsByAttr(target: HTMLElement,
-                                  attrName: string,
-                                  directive: { [index: string]: (ele: HTMLElement, target: HTMLElement) => void })
+export function getElementsByAttr<R extends HTMLElement, T>(target: HTMLElement,
+                                     attrName: string,
+                                     directive: { [index: string]: (ele: R, target: HTMLElement, data: T) => void }, data?: T): R
 export function getElementsByAttr(target, attrName, c, d?) {
 
-    if (typeof c === 'function') {
-        let i = 0;
-        _forEach(target.querySelectorAll('[' + attrName + ']'), (e: HTMLElement) => {
-            c(d, e, e.getAttribute(attrName), i++);
-        });
-        return d;
-    }
-    else {
-        _forEach(target.querySelectorAll('[' + attrName + ']'), (e: HTMLElement) => {
-            c[e.getAttribute(attrName)](e, target);
-        });
+    let i = 0,
+        list = target.querySelectorAll('[' + attrName + ']'),
+        l = list.length;
+
+    if (l) {
+        if (typeof c === 'function') {
+            for (; i < l; i++)
+                c(d, list[i], list[i].getAttribute(attrName), i);
+            return d;
+        }
+        else {
+            for (; i < l; i++)
+                c[list[i].getAttribute(attrName)](list[i], target, d)
+        }
     }
 
     return target;

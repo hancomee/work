@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 30);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1067,8 +1067,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /***/ }),
 /* 6 */,
 /* 7 */,
-/* 8 */,
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
@@ -1129,488 +1128,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var datetime = format_1.Formats.datetime;
-    function $get(url) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve(JSON.parse(xhr.responseText));
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('GET', url, true);
-            xhr.send(null);
-        });
-    }
-    function $post(url, data) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('POST', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify(data));
-        });
-    }
-    function $delete(url) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve();
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('DELETE', url, true);
-            xhr.send(null);
-        });
-    }
-    var $disassemble = {
-        activetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        datetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        updatetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        // list용
-        customer: function (v) {
-            this.customer = new Customer(v);
-        },
-        refs: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addRef(new WorkFile(a)); });
-        },
-        print: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addPrint(new WorkFile(a)); });
-        },
-        draft: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addDraft(new WorkFile(a)); });
-        },
-        // work용
-        // customer에도 같은 이름이 있으므로 이를 구분하는 분기가 있다.
-        memo: function (v) {
-            var _this = this;
-            if (Array.isArray(v))
-                this.memo = v.map(function (a) { return new WorkMemo(a).setWork(_this); });
-            else
-                this.memo = v;
-        },
-        uuid: function (v) {
-            this.uuid = v;
-        },
-    }, 
-    // 객체를 json data로 변경할때
-    $assemble = (function () {
-        var $$ = {
-            activetime: function (v) {
-                return datetime(v);
-            },
-            datetime: function (v) {
-                return datetime(v);
-            },
-            updatetime: function (v) {
-                return datetime(v);
-            },
-            // work객체는 work_id로 바꾼다.
-            work: function (v) {
-                v && (this['work_id'] = v.id);
-            },
-            // draft, print는 json 변환에는 제외시킨다.
-            print: false,
-            draft: false,
-            memo: false
-        };
-        return function (data) { return core_1.$extend({}, data, $$); };
-    })();
-    //********************** Class **********************//
-    var Work = /** @class */ (function () {
-        function Work(data) {
-            this.price = 0;
-            this.total = 0;
-            this.vat = 0;
-            this.file_len = 0;
-            this.item_len = 0;
-            this.memo_len = 0;
-            this.refs = [];
-            this.memo = [];
-            this.items = [];
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        Work.prototype.addRef = function (v) {
-            this.refs.push(v);
-            this.file_len = this.refs.length;
-            return this;
-        };
-        Work.prototype.removeRef = function (v) {
-            var refs = this.refs;
-            refs.splice(refs.indexOf(v), 1);
-            this.file_len = refs.length;
-            return this;
-        };
-        Work.prototype.addMemo = function (v) {
-            console.log(v);
-            this.memo.push(v);
-            this.memo_len = this.memo.length;
-            return this;
-        };
-        Work.prototype.removeMemo = function (v) {
-            var memo = this.memo;
-            memo.splice(memo.indexOf(v), 1);
-            this.memo_len = memo.length;
-        };
-        Work.prototype.compute = function () {
-            var price = 0, vat = 0, total = 0;
-            this.items.forEach(function (item) {
-                price += item.price;
-                vat += item.vat;
-                total += item.total;
-            });
-            this.price = price;
-            this.vat = vat;
-            this.total = total;
-            return this;
-        };
-        Work.prototype.addItem = function (item) {
-            this.item_len = this.items.push(item);
-            return this.compute();
-        };
-        Work.prototype.removeItem = function (item) {
-            var items = this.items;
-            items.splice(items.indexOf(item), 1);
-            this.item_len = items.length;
-            return this.compute();
-        };
-        return Work;
-    }());
-    exports.Work = Work;
-    var WorkMemo = /** @class */ (function () {
-        function WorkMemo(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        WorkMemo.prototype.setWork = function (work) {
-            this.work = work;
-            return this;
-        };
-        return WorkMemo;
-    }());
-    exports.WorkMemo = WorkMemo;
-    var WorkItem = /** @class */ (function () {
-        /*
-         *  draft와 print에 path를 넣어주기 위해서 어쩔 수 없이 work를 생성인자로..
-         */
-        function WorkItem(work, data) {
-            this.work = work;
-            this.count = 0;
-            this.detail = '';
-            this.memo = '';
-            this.price = 0;
-            this.total = 0;
-            this.vat = 0;
-            this.priority = 0;
-            this.draft = [];
-            this.print = [];
-            data && core_1.$extend(this, data, $disassemble);
-            work.addItem(this);
-        }
-        WorkItem.prototype.addDraft = function (v) {
-            this.draft.push(v);
-            return this;
-        };
-        WorkItem.prototype.removeDraft = function (v) {
-            var draft = this.draft;
-            draft.splice(draft.indexOf(v), 1);
-            return this;
-        };
-        WorkItem.prototype.addPrint = function (v) {
-            // 인쇄파일은 나중에 등록한 파일이 맨 먼저 나오게 한다.
-            this.print.unshift(v);
-            return this;
-        };
-        WorkItem.prototype.removePrint = function (v) {
-            var print = this.print;
-            print.splice(print.indexOf(v), 1);
-            return this;
-        };
-        return WorkItem;
-    }());
-    exports.WorkItem = WorkItem;
-    var Customer = /** @class */ (function () {
-        function Customer(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        Customer.prototype.setId = function (id) {
-            this.id = id;
-            return this;
-        };
-        return Customer;
-    }());
-    exports.Customer = Customer;
-    var WorkFile = /** @class */ (function () {
-        function WorkFile(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        WorkFile.prototype.setId = function (id) {
-            this.id = id;
-            return this;
-        };
-        WorkFile.prototype.getOrigName = function () {
-            return this.original_name + '.' + this.filetype;
-        };
-        WorkFile.prototype.getSaveName = function () {
-            return this.save_name + '.' + this.filetype;
-        };
-        return WorkFile;
-    }());
-    exports.WorkFile = WorkFile;
-    // ***************************** namespace ***************************** //
-    (function (Work) {
-        Work.$state = '작업대기 시안검토 시안완료 제작중 입고 납품 완료'.split(' ');
-        function updateState(id, state) {
-            return $post('/work/db/update/state/' + id + '/' + state, null);
-        }
-        Work.updateState = updateState;
-        // 2018-0600442 ==> 2018/06/00442
-        function toPath(uuid) {
-            var _a = uuid.split(/-/), y = _a[0], m = _a[1];
-            return y + '/' + m.substring(0, 2) + '/' + m.substring(2) + '/';
-        }
-        Work.toPath = toPath;
-        function stateStr(num) {
-            return Work.$state[typeof num === 'number' ? num : num.state];
-        }
-        Work.stateStr = stateStr;
-        // 리스트 로딩
-        function list(query) {
-            return $post('/work/list?' + query, null).then(function (e) {
-                var contents = e.contents, price = e.price, count = e.count;
-                e.contents = contents.map(function (values) {
-                    return {
-                        work: new Work(values.work),
-                        customer: new Customer(values.customer),
-                        draft: values.draft.id ? new WorkFile(values.draft) : null
-                    };
-                });
-                e.states = count.map(function (v, i) {
-                    return {
-                        index: i,
-                        name: Work.$state[i],
-                        count: v,
-                        price: price[i]
-                    };
-                });
-                return e;
-            });
-        }
-        Work.list = list;
-        function update(val, work) {
-            return $post('/work/db/update/' + work.id, val).then(function () { return core_1.$extend(work, val); });
-        }
-        Work.update = update;
-        // 전체 로딩
-        function get(workUUID) {
-            return $get('/work/view?uuid=' + workUUID).then(function (data) {
-                if (data.work) {
-                    var work_1 = new Work(data.work);
-                    data.items.forEach(function (item) { return new WorkItem(work_1, item); });
-                    return work_1;
-                }
-                else
-                    return null;
-            });
-        }
-        Work.get = get;
-    })(Work = exports.Work || (exports.Work = {}));
-    exports.Work = Work;
-    (function (Customer) {
-        function search(key) {
-            return $get('/work/db/customer/' + key).then(function (v) {
-                return v.map(function (val) { return new Customer(val); });
-            });
-        }
-        Customer.search = search;
-        function save(data) {
-            return $post('/work/db/customer', data);
-        }
-        Customer.save = save;
-    })(Customer = exports.Customer || (exports.Customer = {}));
-    exports.Customer = Customer;
-    /*
-     * 메모 입출력은 그냥 간단하게 하자
-     */
-    (function (WorkMemo) {
-        function save(work, memo) {
-            return $post('/work/db/memo/' + work.id, $assemble(memo))
-                .then(function (id) {
-                memo.id = id;
-                return memo;
-            });
-        }
-        WorkMemo.save = save;
-        function remove(memo, work) {
-            return $delete('/work/db/memo/' + memo.id + '/' + work.id);
-        }
-        WorkMemo.remove = remove;
-    })(WorkMemo = exports.WorkMemo || (exports.WorkMemo = {}));
-    exports.WorkMemo = WorkMemo;
-    (function (WorkItem) {
-        function save(v, workId) {
-            return $post('/work/db/item/' + workId, $assemble(v)).then(function (id) {
-                v.id = id;
-            });
-        }
-        WorkItem.save = save;
-        function priority(ids) {
-            return $post('/work/db/item/priority', ids).then(function (v) {
-                console.log(v);
-            });
-        }
-        WorkItem.priority = priority;
-        function remove(v) {
-            return $delete('/work/db/item/' + v.id);
-        }
-        WorkItem.remove = remove;
-    })(WorkItem = exports.WorkItem || (exports.WorkItem = {}));
-    exports.WorkItem = WorkItem;
-    (function (WorkFile) {
-        function $get(id) {
-            return new Promise(function (o, x) {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/upload/progress' + (id ? '/' + id : ''));
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            o(id ? parseInt(xhr.responseText) : xhr.responseText);
-                        }
-                    }
-                };
-                xhr.send(null);
-            });
-        }
-        // File Upload Logic
-        function $upload(data, handler) {
-            // ① 고유 키를 받아온다.
-            return $get().then(function (id) {
-                var total = 0, // uploading한 총 파일용량
-                time = 10, // sending 체크 시간
-                xhr = new XMLHttpRequest(), 
-                // 서버측 다운로드 경과
-                tHandler = function () {
-                    $get(id).then(function (d) {
-                        if (total !== -1 && total !== d) {
-                            handler.sending(d, total);
-                            setTimeout(tHandler, time);
-                        }
-                        else {
-                            handler.sending(total, total);
-                        }
-                    });
-                };
-                // 서버 send progress
-                xhr.upload.onprogress = function (e) {
-                    handler.uploading(e.loaded, e.total);
-                };
-                xhr.upload.onloadend = function (e) {
-                    handler.uploading(e.total, e.total);
-                    total = e.total;
-                    setTimeout(tHandler, time);
-                };
-                return new Promise(function (o, x) {
-                    xhr.open('POST', '/upload/file/' + id);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                total = -1; // 위의 setTimeout 핸들러를 멈추기 위한 값
-                                o(id);
-                            }
-                        }
-                    };
-                    xhr.send(data);
-                });
-            });
-        }
-        function uploadFile(path, file, handler) {
-            var formData = new FormData();
-            formData.append('path', 'D:/work/' + path);
-            formData.append('file', file.data, file.name);
-            return $upload(formData, handler).then(function (id) {
-                handler.done();
-                return id;
-            });
-        }
-        WorkFile.uploadFile = uploadFile;
-        function uploadTest(data) {
-            var formData = new FormData();
-            formData.append('file', data, data['name']);
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                }
-            };
-            xhr.open('POST', '/upload/file/test', true);
-            xhr.send(formData);
-        }
-        WorkFile.uploadTest = uploadTest;
-        function saveFile(type, ownId, workFile) {
-            return $post('/work/db/' + type + '/' + ownId, $assemble(workFile))
-                .then(function (id) { return workFile.setId(id); });
-        }
-        WorkFile.saveFile = saveFile;
-        function removeFile(type, id) {
-            return $delete('/work/db/' + type + '/' + id);
-        }
-        WorkFile.removeFile = removeFile;
-        function create(file, orig_name, save_name) {
-            var i = orig_name.lastIndexOf('.');
-            return new WorkFile({
-                datetime: new Date(),
-                original_name: orig_name.slice(0, i),
-                save_name: save_name,
-                filetype: orig_name.slice(i + 1),
-                size: file.size,
-                content_type: file.type
-            });
-        }
-        WorkFile.create = create;
-    })(WorkFile = exports.WorkFile || (exports.WorkFile = {}));
-    exports.WorkFile = WorkFile;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 11 */,
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(0), __webpack_require__(5), __webpack_require__(9), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(0), __webpack_require__(5), __webpack_require__(8), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var access = access_1.Access.access;
@@ -1783,7 +1304,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 13 */
+/* 10 */,
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
@@ -1791,20 +1313,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     Object.defineProperty(exports, "__esModule", { value: true });
     function _func(prop, ele, s, opt, data) {
         var type = typeof opt, list = ele[prop](s), l = list.length;
-        switch (type) {
-            case 'number':
-                return list[opt];
-            case 'function':
-                var i = 0;
-                for (; i < l; i++)
-                    opt.call(ele, list[i], i, data);
-                return data;
-            default:
-                var r = [];
-                while (l-- > 0)
-                    r[l] = list[l];
-                return r;
+        if (type === 'number')
+            return list[opt];
+        var i = l, r = [];
+        while (i-- > 0)
+            r[i] = list[i];
+        if (type === 'function') {
+            i++;
+            for (; i < l; i++)
+                opt.call(ele, r[i], i, data);
+            return data;
         }
+        return r;
     }
     function getElementById(id) {
         return document.getElementById(id);
@@ -1847,9 +1367,514 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function $get(url) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(JSON.parse(xhr.responseText));
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('GET', url, true);
+            xhr.send(null);
+        });
+    }
+    exports.$get = $get;
+    function $post(url, data) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+        });
+    }
+    exports.$post = $post;
+    function $delete(url) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve();
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('DELETE', url, true);
+            xhr.send(null);
+        });
+    }
+    exports.$delete = $delete;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var datetime = format_1.Formats.datetime;
+    var $disassemble = {
+        activetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        datetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        updatetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        // list용
+        customer: function (v) {
+            this.customer = new Customer(v);
+        },
+        refs: function (v) {
+            var _this = this;
+            v.forEach(function (a) { return _this.addRef(new WorkFile(a)); });
+        },
+        print: function (v) {
+            var _this = this;
+            v.forEach(function (a) { return _this.addPrint(new WorkFile(a)); });
+        },
+        draft: function (v) {
+            var _this = this;
+            v.forEach(function (a) { return _this.addDraft(new WorkFile(a)); });
+        },
+        // work용
+        // customer에도 같은 이름이 있으므로 이를 구분하는 분기가 있다.
+        memo: function (v) {
+            var _this = this;
+            if (Array.isArray(v))
+                this.memo = v.map(function (a) { return new WorkMemo(a).setWork(_this); });
+            else
+                this.memo = v;
+        },
+        uuid: function (v) {
+            this.uuid = v;
+        },
+    }, 
+    // 객체를 json data로 변경할때
+    $assemble = (function () {
+        var $$ = {
+            activetime: function (v) {
+                return datetime(v);
+            },
+            datetime: function (v) {
+                return datetime(v);
+            },
+            updatetime: function (v) {
+                return datetime(v);
+            },
+            // work객체는 work_id로 바꾼다.
+            work: function (v) {
+                v && (this['work_id'] = v.id);
+            },
+            // draft, print는 json 변환에는 제외시킨다.
+            print: false,
+            draft: false,
+            memo: function (v) {
+                if (typeof v === 'string')
+                    this['memo'] = v;
+            }
+        };
+        return function (data) { return core_1.$extend({}, data, $$); };
+    })();
+    //********************** Class **********************//
+    var Work = /** @class */ (function () {
+        function Work(data) {
+            this.price = 0;
+            this.total = 0;
+            this.vat = 0;
+            this.file_len = 0;
+            this.item_len = 0;
+            this.memo_len = 0;
+            this.refs = [];
+            this.memo = [];
+            this.items = [];
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        Work.prototype.addRef = function (v) {
+            this.refs.push(v);
+            this.file_len = this.refs.length;
+            return this;
+        };
+        Work.prototype.removeRef = function (v) {
+            var refs = this.refs;
+            refs.splice(refs.indexOf(v), 1);
+            this.file_len = refs.length;
+            return this;
+        };
+        Work.prototype.addMemo = function (v) {
+            console.log(v);
+            this.memo.push(v);
+            this.memo_len = this.memo.length;
+            return this;
+        };
+        Work.prototype.removeMemo = function (v) {
+            var memo = this.memo;
+            memo.splice(memo.indexOf(v), 1);
+            this.memo_len = memo.length;
+        };
+        Work.prototype.compute = function () {
+            var price = 0, vat = 0, total = 0;
+            this.items.forEach(function (item) {
+                price += (item.price * item.count);
+                vat += item.vat;
+                total += item.total;
+            });
+            this.price = price;
+            this.vat = vat;
+            this.total = total;
+            return this;
+        };
+        Work.prototype.addItem = function (item) {
+            this.item_len = this.items.push(item);
+            return this.compute();
+        };
+        Work.prototype.removeItem = function (item) {
+            var items = this.items;
+            items.splice(items.indexOf(item), 1);
+            this.item_len = items.length;
+            return this.compute();
+        };
+        return Work;
+    }());
+    exports.Work = Work;
+    var WorkMemo = /** @class */ (function () {
+        function WorkMemo(data) {
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        WorkMemo.prototype.setWork = function (work) {
+            this.work = work;
+            return this;
+        };
+        return WorkMemo;
+    }());
+    exports.WorkMemo = WorkMemo;
+    var WorkItem = /** @class */ (function () {
+        /*
+         *  draft와 print에 path를 넣어주기 위해서 어쩔 수 없이 work를 생성인자로..
+         */
+        function WorkItem(work, data) {
+            this.work = work;
+            this.count = 0;
+            this.detail = '';
+            this.memo = '';
+            this.price = 0;
+            this.total = 0;
+            this.vat = 0;
+            this.priority = 0;
+            this.draft = [];
+            this.print = [];
+            data && core_1.$extend(this, data, $disassemble);
+            work.addItem(this);
+        }
+        WorkItem.prototype.addDraft = function (v) {
+            this.draft.push(v);
+            return this;
+        };
+        WorkItem.prototype.removeDraft = function (v) {
+            var draft = this.draft;
+            draft.splice(draft.indexOf(v), 1);
+            return this;
+        };
+        WorkItem.prototype.addPrint = function (v) {
+            // 인쇄파일은 나중에 등록한 파일이 맨 먼저 나오게 한다.
+            this.print.unshift(v);
+            return this;
+        };
+        WorkItem.prototype.removePrint = function (v) {
+            var print = this.print;
+            print.splice(print.indexOf(v), 1);
+            return this;
+        };
+        return WorkItem;
+    }());
+    exports.WorkItem = WorkItem;
+    var Customer = /** @class */ (function () {
+        function Customer(data) {
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        Customer.prototype.setId = function (id) {
+            this.id = id;
+            return this;
+        };
+        return Customer;
+    }());
+    exports.Customer = Customer;
+    var WorkFile = /** @class */ (function () {
+        function WorkFile(data) {
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        WorkFile.prototype.setId = function (id) {
+            this.id = id;
+            return this;
+        };
+        WorkFile.prototype.getOrigName = function () {
+            return this.original_name + '.' + this.filetype;
+        };
+        WorkFile.prototype.getSaveName = function () {
+            return this.save_name + '.' + this.filetype;
+        };
+        return WorkFile;
+    }());
+    exports.WorkFile = WorkFile;
+    // ***************************** namespace ***************************** //
+    (function (Work) {
+        Work.$state = '작업대기 시안검토 시안완료 제작중 입고 납품 완료'.split(' ');
+        function createWork(data) {
+            return _ajax_1.$post('/work/db/create', data);
+        }
+        Work.createWork = createWork;
+        function updateState(id, state) {
+            return _ajax_1.$post('/work/db/update/state/' + id + '/' + state, null);
+        }
+        Work.updateState = updateState;
+        // 2018-0600442 ==> 2018/06/00442
+        function toPath(uuid) {
+            var _a = uuid.split(/-/), y = _a[0], m = _a[1];
+            return y + '/' + m.substring(0, 2) + '/' + m.substring(2) + '/';
+        }
+        Work.toPath = toPath;
+        function stateStr(num) {
+            return Work.$state[typeof num === 'number' ? num : num.state];
+        }
+        Work.stateStr = stateStr;
+        // 리스트 로딩
+        function list(query) {
+            return _ajax_1.$post('/work/list?' + query, null).then(function (e) {
+                var contents = e.contents, price = e.price, count = e.count, today = e.today;
+                e.contents = contents.map(function (values) {
+                    return {
+                        work: new Work(values.work),
+                        customer: new Customer(values.customer),
+                        draft: values.draft.id ? new WorkFile(values.draft) : null
+                    };
+                });
+                e.states = count.map(function (v, i) {
+                    return {
+                        index: i,
+                        name: Work.$state[i],
+                        count: v,
+                        price: price[i],
+                        today: today[i]
+                    };
+                });
+                return e;
+            });
+        }
+        Work.list = list;
+        function remove(id) {
+            return _ajax_1.$delete('/work/db/remove/' + id);
+        }
+        Work.remove = remove;
+        function update(val, work) {
+            return _ajax_1.$post('/work/db/update/' + work.id, val).then(function () { return core_1.$extend(work, val); });
+        }
+        Work.update = update;
+        // 전체 로딩
+        function get(workUUID) {
+            // 캐시 방시
+            return _ajax_1.$get('/work/view?uuid=' + workUUID + '&' + new Date().getTime()).then(function (data) {
+                if (data.work) {
+                    var work_1 = new Work(data.work);
+                    data.items.forEach(function (item) { return new WorkItem(work_1, item); });
+                    return work_1;
+                }
+                else
+                    return null;
+            });
+        }
+        Work.get = get;
+    })(Work = exports.Work || (exports.Work = {}));
+    exports.Work = Work;
+    (function (Customer) {
+        function search(key) {
+            return _ajax_1.$get('/work/db/customer/' + key).then(function (v) {
+                return v.map(function (val) { return new Customer(val); });
+            });
+        }
+        Customer.search = search;
+        function save(data) {
+            return _ajax_1.$post('/work/db/customer', data);
+        }
+        Customer.save = save;
+    })(Customer = exports.Customer || (exports.Customer = {}));
+    exports.Customer = Customer;
+    /*
+     * 메모 입출력은 그냥 간단하게 하자
+     */
+    (function (WorkMemo) {
+        function save(work, memo) {
+            return _ajax_1.$post('/work/db/memo/' + work.id, $assemble(memo))
+                .then(function (id) {
+                memo.id = id;
+                return memo;
+            });
+        }
+        WorkMemo.save = save;
+        function remove(memo, work) {
+            return _ajax_1.$delete('/work/db/memo/' + memo.id + '/' + work.id);
+        }
+        WorkMemo.remove = remove;
+    })(WorkMemo = exports.WorkMemo || (exports.WorkMemo = {}));
+    exports.WorkMemo = WorkMemo;
+    (function (WorkItem) {
+        function save(v, workId) {
+            return _ajax_1.$post('/work/db/item/' + workId, $assemble(v)).then(function (id) {
+                v.id = id;
+            });
+        }
+        WorkItem.save = save;
+        function priority(ids) {
+            return _ajax_1.$post('/work/db/item/priority', ids).then(function (v) {
+                console.log(v);
+            });
+        }
+        WorkItem.priority = priority;
+        function remove(v) {
+            return _ajax_1.$delete('/work/db/item/' + v.id);
+        }
+        WorkItem.remove = remove;
+    })(WorkItem = exports.WorkItem || (exports.WorkItem = {}));
+    exports.WorkItem = WorkItem;
+    (function (WorkFile) {
+        function $get(id) {
+            return new Promise(function (o, x) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/upload/progress' + (id ? '/' + id : ''));
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            o(id ? parseInt(xhr.responseText) : xhr.responseText);
+                        }
+                    }
+                };
+                xhr.send(null);
+            });
+        }
+        // File Upload Logic
+        function $upload(data, handler) {
+            // ① 고유 키를 받아온다.
+            return $get().then(function (id) {
+                var total = 0, // uploading한 총 파일용량
+                time = 10, // sending 체크 시간
+                xhr = new XMLHttpRequest(), 
+                // 서버측 다운로드 경과
+                tHandler = function () {
+                    $get(id).then(function (d) {
+                        if (total !== -1 && total !== d) {
+                            handler.sending(d, total);
+                            setTimeout(tHandler, time);
+                        }
+                        else {
+                            handler.sending(total, total);
+                        }
+                    });
+                };
+                // 서버 send progress
+                xhr.upload.onprogress = function (e) {
+                    handler.uploading(e.loaded, e.total);
+                };
+                xhr.upload.onloadend = function (e) {
+                    handler.uploading(e.total, e.total);
+                    total = e.total;
+                    setTimeout(tHandler, time);
+                };
+                return new Promise(function (o, x) {
+                    xhr.open('POST', '/upload/file/' + id);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                total = -1; // 위의 setTimeout 핸들러를 멈추기 위한 값
+                                o(id);
+                            }
+                        }
+                    };
+                    xhr.send(data);
+                });
+            });
+        }
+        function uploadFile(path, file, handler) {
+            var formData = new FormData();
+            formData.append('path', 'D:/work/' + path);
+            formData.append('file', file.data, file.name);
+            return $upload(formData, handler).then(function (id) {
+                handler.done();
+                return id;
+            });
+        }
+        WorkFile.uploadFile = uploadFile;
+        function uploadTest(data) {
+            var formData = new FormData();
+            formData.append('file', data, data['name']);
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                }
+            };
+            xhr.open('POST', '/upload/file/test', true);
+            xhr.send(formData);
+        }
+        WorkFile.uploadTest = uploadTest;
+        function saveFile(type, ownId, workFile) {
+            return _ajax_1.$post('/work/db/' + type + '/' + ownId, $assemble(workFile))
+                .then(function (id) { return workFile.setId(id); });
+        }
+        WorkFile.saveFile = saveFile;
+        function removeFile(type, id) {
+            return _ajax_1.$delete('/work/db/' + type + '/' + id);
+        }
+        WorkFile.removeFile = removeFile;
+        function create(file, orig_name, save_name) {
+            var i = orig_name.lastIndexOf('.');
+            return new WorkFile({
+                datetime: new Date(),
+                original_name: orig_name.slice(0, i),
+                save_name: save_name,
+                filetype: orig_name.slice(i + 1),
+                size: file.size,
+                content_type: file.type
+            });
+        }
+        WorkFile.create = create;
+    })(WorkFile = exports.WorkFile || (exports.WorkFile = {}));
+    exports.WorkFile = WorkFile;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 14 */,
 /* 15 */,
-/* 16 */
+/* 16 */,
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -2048,7 +2073,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 17 */,
 /* 18 */,
 /* 19 */,
 /* 20 */,
@@ -2058,10 +2082,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /* 24 */,
 /* 25 */,
 /* 26 */,
-/* 27 */
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(10), __webpack_require__(12), __webpack_require__(16), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, selector_1, Work_1, Mapping_1, location_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(13), __webpack_require__(9), __webpack_require__(17), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, selector_1, Work_1, Mapping_1, location_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var datetime = format_1.Formats.datetime;
@@ -2107,7 +2134,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     biz_con: '서비스',
                     biz_num: '124-53-35359',
                     biz_type: '광고기획인쇄',
-                    ceo: '고정철',
+                    owner: '고정철',
                 };
                 $mapping.setData($work);
                 selector_1.getElementsByClassName(document.body, 'bill', function (e) {

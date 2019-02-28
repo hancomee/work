@@ -7,6 +7,7 @@ import {Formats} from "../../../lib/core/format";
 import expValParse = Formats.expValParse;
 import number = Formats.number;
 import datetime = Formats.datetime;
+import {Events} from "../../../lib/core/events";
 
 type MappingDirectives = { [index: string]: MappingDirective };
 type MappingTemplates = { [index: string]: MappingTemplate };
@@ -26,6 +27,10 @@ let defaultDirective = (function () {
         },
         datetime(ele: HTMLElement, v, p) {
             ele.textContent = datetime(v, p);
+        },
+        // 문자열을 통해 엘리먼트 체크
+        exp(ele: HTMLElement, v, opt) {
+
         }
     }
 
@@ -40,9 +45,7 @@ function $$mapping(prefix: string, val: any) {
 function render(ele: HTMLElement, mapping: string,
                 data, $val, Mapping) {
 
-    let
-        i = 0, childs = _makeArray(ele.children), l = childs.length,
-        $mapping = ele.getAttribute('data-mapping'),
+    let $mapping = ele.getAttribute('data-mapping'),
         attrVal: string;
 
     if ($mapping != null) {
@@ -69,7 +72,7 @@ function render(ele: HTMLElement, mapping: string,
     /*
      *  element.clone(true)
      */
-    else if ((attrVal = ele.getAttribute('data-template')) != null) {
+    if ((attrVal = ele.getAttribute('data-template')) != null) {
 
         let temple = Mapping.template[attrVal],
             fragment = document.createDocumentFragment();
@@ -79,7 +82,7 @@ function render(ele: HTMLElement, mapping: string,
         // ① 배열인 경우
         if (isAlikeArray($val)) {
             _forEach($val, (v, p) => {
-                let c = temple(ele, v),
+                let c = temple(v, ele),
                     prop = $$mapping(mapping, p);
 
                 render(c, prop, data, v, Mapping);
@@ -104,7 +107,7 @@ function render(ele: HTMLElement, mapping: string,
         let html = Mapping.html[attrVal],
             htmls = [], pos = 0;
 
-        if (Array.isArray($val)) {
+        if (isAlikeArray($val)) {
             _forEach($val, (v, p) => htmls[pos++] = html(v));
         } else htmls[pos++] = html($val);
 
@@ -112,12 +115,31 @@ function render(ele: HTMLElement, mapping: string,
     }
 
     /*
-     *
+     *  단순 clone
      */
-    for (; i < l; i++) {
-        if (childs[i].nodeType === 1)
-            render(<HTMLElement>childs[i], mapping, data, $val, Mapping);
+    else if ((attrVal = ele.getAttribute('data-replace')) != null) {
+        let
+            /*
+             *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
+             */
+            noRender = attrVal[0] === '!',
+            clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val, ele);
+
+        render(clone, mapping, data, $val, Mapping);
+
+        // clone 엘리먼트에 data-replace를 붙이지 않으므로, 다음번 렌더링부터는 건너띤다
+        noRender || clone.setAttribute('data-replace', attrVal);
+
+        ele.parentElement.replaceChild(clone, ele);
     }
+    else {
+        let i = 0, childs = ele.children, l = childs.length
+        for (; i < l; i++) {
+            if (childs[i].nodeType === 1)
+                render(<HTMLElement>childs[i], mapping, data, $val, Mapping);
+        }
+    }
+
 };
 
 export class Mapping {

@@ -1,6 +1,7 @@
 package com.hancomee.web.controller;
 
 import com.boosteel.nativedb.core.anno.*;
+import com.hancomee.web.controller.support.ReceivableList;
 import com.hancomee.web.controller.support.WorkList;
 
 import java.sql.ResultSet;
@@ -65,11 +66,9 @@ public interface _WorkSQL {
     String createUUID(Statement statement);
 
     @Save(value = "INSERT INTO hancomee_work (customer_id, uuid, title) " +
-            "VALUES (:customer_id, :uuid, :title)",
+            "VALUES (:customer_id{i}, :uuid, :title)",
             lastId = true)
-    int insertWork(Statement stmt, @Value("uuid") String uuid,
-                   @Value("customer_id") int customerId,
-                   @Value("title") String title);
+    int insertWork(Statement stmt, Map<String, Object> dataMap);
 
     @Update(value = "hancomee_work", where = "id = :id{i}")
     int updateWork(Statement stmt, Map<String, Object> dataMap);
@@ -183,4 +182,8 @@ public interface _WorkSQL {
 
     @Insert(value = WORK_ITEM, lastId = true)
     int insertItem(Statement stmt, Map<String, Object> map, @Value("work_id") Object workId);
+
+
+    @Selector(value="#select.receivable")
+    List<Map<String, Object>> receivableList(Map<String, Object> map);
 }

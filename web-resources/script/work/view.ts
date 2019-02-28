@@ -19,14 +19,18 @@ import {ImageScreen} from "./view/ImageScreen";
 import {ViewForm} from "./view/ViewForm";
 import {Mapping} from "./_support/Mapping";
 import {ConfirmBox} from "./_support/ComfirmBox";
+import {getElementsByTagName, querySelectorAll} from "../../lib/core/_dom/selector";
+import {$bill} from "./view/Bill";
+import {r_number} from "../../lib/core/_regexp/number";
+import {selectAll} from "../../lib/core/_dom/_select";
 import createHTML = DOM.createHTML;
 import dataEvent = Events.dataEvent;
 import access = Access.access;
 import className = DOM.className;
 import number = Formats.number;
-import eventProperty = Events.eventProperty;
 import simpleTrigger = Events.simpleTrigger;
 import filesize = Formats.filesize;
+import acceptKeys = Events.acceptKeys;
 
 class EventObject {
 
@@ -108,7 +112,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                     dropdown.innerHTML = print.map((p, i) =>
                         $$templates['print']({
                             index: i, data: p,
-                            path: $path + p.getSaveName() + '?attachment=' + p.getOrigName()
+                            path: '/workdata/' + $path + p.getSaveName() + '?attachment=' + p.getOrigName()
                         })
                     ).join('');
                 } else {
@@ -135,12 +139,12 @@ function $init($uuid: string, $path: string, $work: Work) {
                         ele.appendChild(__adjustTo(ele, image, true));
                         image.onload = null;
                     }
-                    image.src = $path + v.getSaveName();
+                    image.src = '/workdata/' + $path + v.getSaveName();
                 }
                 // ② 일반 파일
                 else {
                     ele.classList.add('file-icon-' + v.filetype);
-                    ele.href = $path + v.getSaveName() + '?attachment=' + v.getOrigName();
+                    ele.href = '/workdata/' + $path + v.getSaveName() + '?attachment=' + v.getOrigName();
                 }
             },
         },
@@ -151,20 +155,106 @@ function $init($uuid: string, $path: string, $work: Work) {
             .addTemplate(Mapping.createTemplates(document.head)),
 
         /*
-         *   data-event-register="{name}"
+         *   data-pre-processor="{name}"
          *
          */
-        eventRegister = {
+        preProcessor = {
 
             $attach(e: HTMLElement) {
-                _forEach(e.querySelectorAll('[data-event-register]'), (e) => {
-                    this[e.getAttribute('data-event-register')](e);
+
+                if (e.hasAttribute('data-pre-processor'))
+                    this[e.getAttribute('data-pre-processor')](e);
+
+                _forEach(e.querySelectorAll('[data-pre-processor]'), (e) => {
+                    this[e.getAttribute('data-pre-processor')](e);
                 });
                 return e;
             },
 
-            // **************** 이벤트 종류
+
+            state(ele: HTMLElement) {
+
+                let {$state} = Work,
+                    [span, ul] = selectAll(ele, ['<0> span', '<0> ul']),
+                    current = $work.state.toString(),
+                    $active = (i: string) => {
+                        span.textContent = $state[current = i];
+                        _forEach(ul.children, (e: HTMLElement) => {
+                            if (e.getAttribute('data-dismiss') == i)
+                                e.classList.add('active');
+                            else e.classList.remove('active');
+                        });
+                    };
+
+                ul.innerHTML = $state.reduce((r, v, i) => {
+                    r[i] = '<li data-dismiss="' + i + '">' + v + '</li>';
+                    return r;
+                }, []).join('');
+
+                ul.addEventListener('click', (e) => {
+                    let i = e.target['getAttribute']('data-dismiss');
+                    if (current !== i)
+                        Work.updateState($work.id, i).then(() => {
+                            $active(i);
+                        });
+                });
+
+                $active(current);
+
+
+            },
+            // 작업 삭제 버튼
+            remove(ele: HTMLElement) {
+                ele.addEventListener('click', (e) => {
+                    $confirm.on(e, (flag) => {
+                        if (flag) Work.remove($work.id).then(() => {
+                            location.href = '/work/list';
+                        })
+                    })
+                });
+            },
+
+            // 숫자만 써지게 한다.
             number: FormEvent.numbers,
+
+            /*
+             *   ① count와 price가 입력될때마다 vat, total을 계산해넣는다.
+             *   ② vat 자체를 수정할 경우에는 total만 변경한다
+             */
+            compute(tr: HTMLElement) {
+                // [count, price, vat, total]
+                let inputs = querySelectorAll(tr, '[data-compute]', (e, i, a) => {
+                        a[e.getAttribute('data-compute')] = e;
+                    }, []),
+                    read = (value: string) => {
+                        if (r_number.test(value)) return parseInt(value);
+                        return 0;
+                    },
+                    processor = [
+                        (val: number[]) => val[0] == null ? read(inputs[0].value) : val[0],
+                        (val: number[]) => val[1] == null ? read(inputs[1].value) : val[1],
+                        (val: number[]) => {
+                            if (val[2] == null) {
+                                let [c, p] = val;
+                                inputs[2].value = (val[2] = (c * p) / 10).toString()
+                            }
+                            return val[2];
+                        },
+                        (val: number[]) => inputs[3].value = (val[0] * val[1] + val[2]) + ''
+                    ];
+                // keyup 이벤트
+                _forEach(inputs, (input, i) => {
+                    acceptKeys(input, (val) => {
+                        if (!val.trim()) val = '0';
+                        if (r_number.test(val)) {
+                            let values = [];
+                            values[i] = read(val);
+                            _forEach(processor, (func, i) => values[i] = func(values))
+                        }
+                    }, false);
+                });
+
+            },
 
             // 메모 textarea와 버튼을 일원화시키기
             memoForm(ele: HTMLElement) {
@@ -259,6 +349,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                     $fileUpload('draft', $screen.item.id, workFileData, (workFile) => {
                         $screen.item.addDraft(workFile);
                         $screen.render();
+                        $mapping.$render($screen.mapper);
                     })
                 });
             },
@@ -294,7 +385,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             // <script data-form="{}"> 순회
             _forEach(list, (e: HTMLScriptElement) => {
                 $forms[e.getAttribute('data-form')] =
-                    new ViewForm(eventRegister.$attach(createHTML(e.innerText)));
+                    new ViewForm(preProcessor.$attach(createHTML(e.innerText)));
             });
             return $forms;
         })(document.head.querySelectorAll('script[data-form]')),
@@ -324,7 +415,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             _reduce(files, (promise, file, i) => {
                 return promise.then(() => {
                     return WorkFile
-                        .uploadFile('files',
+                        .uploadFile($path,
                             file, $uploadProgress.start(file.name, i))
                         .then(id => WorkFile.saveFile(type, ownId,
                             WorkFile.create(file.data, file.name, id)))
@@ -359,17 +450,17 @@ function $init($uuid: string, $path: string, $work: Work) {
                 },
             },
             memo: {
-                create(data, obj: Work) {
+                create(data, work: Work) {
                     let memo = new WorkMemo({
                         value: data,
                         datetime: new Date()
                     });
-                    return WorkMemo.save(obj, memo)
-                        .then(memo => obj.addMemo(memo));
+                    return WorkMemo.save(work, memo)
+                        .then(memo => work.addMemo(memo));
                 },
                 update(data, own: WorkMemo) {
                     console.log(data);
-                    data['id'] = own.id;
+                    data.id = own.id;
                     return WorkMemo.save(own.work, data)
                         .then(() => own.value = data.value);
                 },
@@ -382,6 +473,7 @@ function $init($uuid: string, $path: string, $work: Work) {
 
             items: {
                 update(data, own: WorkItem) {
+                    console.log(data);
                     let {work} = own;
                     data['id'] = own.id;
                     return WorkItem.save(data, work.id)
@@ -532,7 +624,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                     if (type === 'print') item.addPrint(file);
                     else item.addDraft(file);
                     $screen.render();
-                    $mapping.$render($screen.mapper);
+                    $mapping.$render($screen.mapper);   // 해당 아이템 엘리먼트도 갱신
                 });
             });
         },
@@ -585,7 +677,6 @@ function $init($uuid: string, $path: string, $work: Work) {
         EventObject.$dispatcher,
         (t: HTMLElement, o: EventObject) => {
             let p;
-            eventProperty(t, o);
             if (!o.mapping && (p = t.getAttribute('data-mapping'))) {
                 o.mapping = p;
             }
@@ -601,14 +692,23 @@ function $init($uuid: string, $path: string, $work: Work) {
     $mapping.$render(document.querySelector('nav'));
 
     // 폼 이벤트
-    eventRegister.$attach(body);
+    preProcessor.$attach(body);
 }
 
 
 Work.get(/([^\/]+)\/*$/.exec(location.pathname)[1]).then($work => {
     if ($work) {
         console.log($work);
-        $init($work.uuid, 'http://localhost/local/work/files/', $work);
+        $init($work.uuid, Work.toPath($work.uuid), $work);
+
+        // 견적서 띄우기
+        (function (nav: HTMLElement) {
+            nav.addEventListener('click', (e) => {
+                let type = e.target['getAttribute']('data-bill');
+                if (type) $bill($work, type);
+            });
+        })(getElementsByTagName(document.body, 'nav', 0))
+
     }
 });
 

@@ -5,7 +5,7 @@
 
 import {NameMap} from "./collections/NameMap";
 import {Arrays} from "./arrays";
-import {__makeArray} from "./core";
+import {__makeArray, __returnTrue} from "./core";
 import {Access} from "./access";
 
 type ISwitch = ko.types.event.Switch;
@@ -19,7 +19,7 @@ export namespace iEvents {
             [index: string]: (t: T) => any
         }
 
-        export type dispatcher<T> = (target: HTMLElement, obj: T) => any;
+        export type dispatcher<T> = (target: HTMLElement, obj: T, attrValue: string, e: Event) => any;
     }
 }
 
@@ -178,11 +178,12 @@ export namespace Events {
     }
 
 
-    export function acceptKeys(target: HTMLInputElement | HTMLTextAreaElement, handler) {
+    // noDuplicationd : 같은 문자열 입력은 무시
+    export function acceptKeys(target: HTMLInputElement | HTMLTextAreaElement, handler, noDuplication = true) {
         let key: string = null;
         return new Events(target, 'keyup', (e: KeyboardEvent) => {
             let {value} = target;
-            if (value !== key) {
+            if (!noDuplication || value !== key) {
                 key = value;
                 handler(value, e);
             }
@@ -351,7 +352,7 @@ export namespace Events {
      */
     let r_read_split = /,\s*/;
 
-    export function eventProperty(target: HTMLElement, obj) {
+    function eventProperty(target: HTMLElement, obj) {
 
         let v: string;
 
@@ -376,26 +377,50 @@ export namespace Events {
     type DIRECTIVE<T> = iEvents.dataEvent.directive<T>
     type DISPATCHER<T> = iEvents.dataEvent.dispatcher<T>
 
+    function getObject() {
+        return {}
+    }
 
+    export function dataEvent(element: HTMLElement, type: string, attr: string, directive)
+    export function dataEvent<T>(element: HTMLElement, type: string, attr: string,
+                                 getObj: (e: Event) => T, directive: DIRECTIVE<T>)
     export function dataEvent<T>(element: HTMLElement,
                                  type: string,                  // 이벤트 타입
                                  attr: string,                  // 이벤트
                                  getObj: (e: Event) => T,       // directive에 전달될 데이터
                                  dispatcher: DISPATCHER<T>,     // loop 핸들러
-                                 directive?: DIRECTIVE<T>
-    ) {
+                                 directive: DIRECTIVE<T>
+    )
+    export function dataEvent(element: HTMLElement, type: string, attr: string,
+                              getObj?, dispatcher?, directive?) {
+
+        // arguments : 4
+        if(!dispatcher) {
+            directive = getObj;
+            getObj = getObject;
+            dispatcher = __returnTrue;
+        }
+        // arguments : 5
+        else if(!directive) {
+            directive = dispatcher;
+            dispatcher = __returnTrue;
+        }
 
         return new Events(element, type, (e) => {
             let
                 target = <HTMLElement>e.target,
+                attrValue = target.getAttribute(attr),
                 dir = directive[target.getAttribute(attr)];
 
             if (dir) {
                 let obj = getObj(e), limit = element, h = dispatcher;
-                while (target && (limit !== target) && (h(target, obj) !== false)) {
+                while (target && (limit !== target)) {
+
+                    eventProperty(element, obj);
+                    if(h(target, obj, attrValue, e) === false) break;
                     target = target.parentElement
                 }
-                dir(obj);
+                dir.call(dir, obj);
             }
         });
     }

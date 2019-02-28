@@ -3,6 +3,8 @@ package com.hancomee.web.controller.support;
 import com.boosteel.nativedb.core.support.Pager;
 
 public class WorkList extends Pager {
+
+    private int[] today;
     private int[] price;
     private int[] count;
 
@@ -13,6 +15,14 @@ public class WorkList extends Pager {
         return this;
     }
 
+    public int[] getToday() {
+        return today;
+    }
+
+    public WorkList setToday(int[] today) {
+        this.today = today;
+        return this;
+    }
 
     public int[] getPrice() {
         return price;

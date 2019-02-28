@@ -1,0 +1,44 @@
+
+
+.todo {
+
+  [data-todo] {
+    margin-left: .6rem;
+    float: right;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  &-add {
+
+    margin: 1rem;
+
+    > textarea {
+      padding: .5rem;
+      width: 100%;
+      height: 6rem;
+      background-color: #545252;
+      border: 1px solid #313131;
+      color: #b9b9b9;
+    }
+
+  }
+
+  &-list {
+    padding: 1rem;
+
+    &-item {
+
+      padding: .7rem 0;
+
+      & + & {
+        border-top: 1px solid #585858;
+      }
+
+      > pre {
+        margin: 0;
+        color: #b9b9b9;
+      }
+    }
+  }
+}

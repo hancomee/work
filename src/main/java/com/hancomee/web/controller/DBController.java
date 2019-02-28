@@ -16,6 +16,20 @@ public class DBController {
     @Autowired
     _WorkManager sql;
 
+    // ***************************** Work ************************************* //
+    @RequestMapping(value = "create", method = RequestMethod.POST)
+    @ResponseBody
+    public Object createWork(@RequestBody Map<String, Object> map) throws Exception {
+        return "\"" + sql.createWork(map) + "\"";
+    }
+
+    @RequestMapping(value = "remove/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void removeWork(@PathVariable("id") Object id) throws Exception {
+        sql.removeWork(id);
+    }
+
+
     // ***************************** 거래처 ************************************* //
     @RequestMapping(value = "customer", method = RequestMethod.POST)
     @ResponseBody

@@ -9,7 +9,7 @@
 
     <!------------------  ▼ [data-template] ▼  -------------------->
     <script type="text/html" data-template="print">
-        <div class="work-items-print-list" data-directiveue="index:{{index}}">
+        <div class="work-items-print-list" data-value="index:{{index}}">
             <div class="work-items-print-list-anchor">
                 <a href="{{path}}" class="work-items-print-list-icon file-icon file-icon-{{data.filetype}}"></a>
                 <span class="work-items-print-list-name">{{data.getOrigName()}}</span>
@@ -30,8 +30,8 @@
             <td data-directive="detail"></td>
             <td data-directive="count" class="text-right"></td>
             <td data-directive="price | number" class="text-right"></td>
-            <td data-directive="vat | number" class="text-right"></td>
             <td data-directive="total | number" class="text-right"></td>
+            <td data-directive="vat | number" class="text-right"></td>
             <td>
                 <div>
                     <span class="work-items-btn" data-event="screen" data-directive=" | draft">시안</span>
@@ -157,13 +157,13 @@
     </script>
 
     <script type="text/html" data-form="items">
-        <tr>
+        <tr data-pre-processor="compute">
             <td><input name="subject" required></td>
             <td><input name="detail"></td>
-            <td class="text-right"><input name="count" data-type="number" data-event-register="number"></td>
-            <td class="text-right"><input name="price" data-type="number" data-event-register="number"></td>
-            <td class="text-right"><input name="vat" data-type="number" data-event-register="number"></td>
-            <td class="text-right"><input name="total" data-type="number" data-event-register="number"></td>
+            <td class="text-right"><input name="count" data-compute="0" data-type="number" data-pre-processor="number"></td>
+            <td class="text-right"><input name="price" data-compute="1" data-type="number" data-pre-processor="number"></td>
+            <td class="text-right"><input name="total" data-compute="3"  data-type="number" data-pre-processor="number" disabled></td>
+            <td class="text-right"><input name="vat" data-compute="2" data-type="number" data-pre-processor="number"></td>
             <td><input name="memo"></td>
             <td class="ctrl">
                 <span class="view-btn form-btn" data-event="confirm">확인</span>
@@ -209,7 +209,6 @@
     <span class="page-name">작업상세</span>
 
     <div class="nav-btns" data-mapper="info" data-follow="items,memo,refs">
-        <span class="nav-btn-title">작업갯수</span>
         <span class="active nav-resource">작업수<b data-directive="item_len | len"></b></span>
         <span class="nav-resource">작업메모<b data-directive="memo_len | len"></b></span>
         <span class="nav-resource">참고파일<b data-directive="file_len | len"></b></span>
@@ -217,11 +216,11 @@
 
 
     <div class="nav-right nav-btns">
-        <span class="nav-btn-title">프린트</span>
-        <a href="" data-href="estimate" data-directive="uuid | href" class="nav-btn">견적서</a>
-        <a href="" data-href="account" data-directive="uuid | href" class="nav-btn">거래명세표</a>
-        <a href="" data-href="receipt" data-directive="uuid | href" class="nav-btn">간이영수증</a>
+        <span data-bill="estimate" class="nav-btn">견적서</span>
+        <span data-bill="account" class="nav-btn">거래명세표</span>
+        <span data-bill="receipt" class="nav-btn">간이영수증</span>
     </div>
+
 </nav>
 
 <#include "./modules/aside.html">
@@ -229,6 +228,16 @@
 <main>
 
     <div id="view">
+
+        <div class="view-meta">
+            <div class="dropdown view-meta-state" data-pre-processor="state">
+                <span data-toggle="dropdown" class="view-meta-state-btn"></span>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <ul class="view-meta-state-menu"></ul>
+                </div>
+            </div>
+            <div class="view-meta-remove" data-pre-processor="remove">×작업삭제</div>
+        </div>
 
         <div class="view-row" data-mapper="title">
 
@@ -320,15 +329,31 @@
                 </div>
 
                 <div class="view-content work-sum" data-follow="items">
-                    <div class="work-sum-price" data-directive="price | number"></div>
-                    <div class="work-sum-vat" data-directive="vat | number"></div>
-                    <div class="work-sum-total" data-directive="total | number"></div>
+                    <div class="work-sum-info"></div>
+                    <div class="work-sum-value">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="table-label">단가</td>
+                                <td class="work-sum-value-price" data-directive="price | number"></td>
+                            </tr>
+                            <tr>
+                                <td class="table-label">부가세</td>
+                                <td class="work-sum-value-vat" data-directive="vat | number"></td>
+                            </tr>
+                            <tr>
+                                <td class="table-label">합계</td>
+                                <td class="work-sum-value-total" data-directive="total | number"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="view-row" data-mapping="items"
-             data-mapper="items" data-event-register="itemSort">
+             data-mapper="items" data-pre-processor="itemSort">
 
             <div class="view-header">
                 <span class="view-header-subject">작업리스트</span>
@@ -346,8 +371,8 @@
                             <th>규격</th>
                             <th class="text-right">수량</th>
                             <th class="text-right">단가</th>
-                            <th class="text-right">부가세</th>
                             <th class="text-right">금액</th>
+                            <th class="text-right">부가세</th>
                             <th>비고</th>
                             <th>...</th>
                         </tr>
@@ -390,7 +415,7 @@
                 <div class="view-content work-memo">
                     <div class="work-memo-list" data-template="memo">
                     </div>
-                    <div class="work-memo-textarea" data-element="target" data-event-register="memoForm">
+                    <div class="work-memo-textarea" data-element="target" data-pre-processor="memoForm">
                         <textarea class="work-textarea-wide"></textarea>
                         <span data-event="addMemo" class="textarea-btn">등록</span>
                     </div>
@@ -404,12 +429,12 @@
             <div class="view-header">
                 <span class="view-header-subject">작업파일</span>
                 <span class="view-btns">
-                    <span class="view-btn" data-event="upload" data-directiveue="type:ref">추가</span>
+                    <span class="view-btn" data-event="upload" data-value="type:ref">추가</span>
                 </span>
             </div>
 
             <div class="view-container" data-mapping="refs">
-                <div class="view-content work-refs" data-template="refs" data-event-register="imageScreen">
+                <div class="view-content work-refs" data-template="refs" data-pre-processor="imageScreen">
                 </div>
             </div>
         </div>
@@ -422,8 +447,8 @@
 <div id="screen" data-mapper="screen">
     <div class="screen-nav">
         <div class="screen-nav-left">
-            <div class="screen-upload-btn" data-event="screenFile" data-directiveue="type:draft">시안 업로드</div>
-            <div class="screen-upload-btn" data-event="screenFile" data-directiveue="type:print">인쇄파일 업로드</div>
+            <div class="screen-upload-btn" data-event="screenFile" data-value="type:draft">시안 업로드</div>
+            <div class="screen-upload-btn" data-event="screenFile" data-value="type:print">인쇄파일 업로드</div>
         </div>
 
         <div class="screen-nav-center text-center">
@@ -437,10 +462,10 @@
                 <span> / </span>
                 <strong data-directive="total"></strong>
             </div>
-            <div class="screen-nav-close">닫기</div>
+            <div class="screen-nav-close cursor-pointer">닫기</div>
         </div>
     </div>
-    <div class="screen-body" data-event-register="pasteImage">
+    <div class="screen-body" data-pre-processor="pasteImage">
         <div class="screen-image" data-directive=" | render"></div>
     </div>
 </div>
@@ -474,6 +499,8 @@
         <span class="confirm-box-btn confirm-box-btn-cancel" data-cancel>취소</span>
     </div>
 </div>
+
+<#include "./view/bill.html">
 
 <script src="/dist/work/view.js"></script>
 </body>

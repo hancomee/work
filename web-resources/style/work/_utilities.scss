@@ -1,0 +1,39 @@
+a {
+  &:hover, &:visited {
+    text-decoration: none;
+  }
+}
+
+
+input, textarea {
+  color: $font-color-normal;
+  &:focus {
+    outline: 0;
+  }
+}
+
+[data-toggle], [data-event] {
+  cursor: pointer;
+}
+
+ul, ol, li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hide {
+  display: none !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.white-nowrap {
+  white-space: nowrap !important;;
+}
+
+.white-normal {
+  white-space: normal !important;;
+}

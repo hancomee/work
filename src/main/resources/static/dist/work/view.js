@@ -60,14 +60,14 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 38);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Access;
@@ -126,7 +126,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.r_number = /^[+-]?\d+$/;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -344,201 +356,160 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_number = /^[+-]?\d+$/;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var indexOf = Array.prototype.indexOf;
-    function _indexOf(obj, v) {
-        var l = obj.length;
-        while (l-- > 0)
-            if (obj[l] === v)
-                return l;
-        return -1;
-    }
-    exports._indexOf = _indexOf;
-    function _range(i, l, handler, t) {
-        for (; i < l; i++)
-            handler(i, t);
-        return t;
-    }
-    exports._range = _range;
-    // index 위치에 있는 원소를 move 위치로 옮기기
-    function _move(obj, index, move) {
-        var r = [], i = 0, l = obj.length;
-        r[move] = obj[index];
-        // 역방향 이동
-        if (index > move) {
-            for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < move)
-                        r[i] = obj[i];
-                    else if (i > index)
-                        r[i] = obj[i];
-                    else
-                        r[i + 1] = obj[i];
+    var Arrays;
+    (function (Arrays) {
+        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
+        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
+        function cols(array, col, callback) {
+            var limit = array.length, i = 0, colNum, row = -1;
+            if (col < 1)
+                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
+            for (; i < limit; i++) {
+                if ((colNum = i % col) === 0)
+                    row++;
+                if (callback.call(array, array[i], i, i % col, row) === false)
+                    return;
+            }
+        }
+        Arrays.cols = cols;
+        function slice(array, col, callback) {
+            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
+            for (; i < len; i++) {
+                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
+            }
+            return result;
+        }
+        Arrays.slice = slice;
+        /*
+         *  DataTransferItemList 때문에 만든 함수
+         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
+         *  *사용법은 로직 참고
+         */
+        function promiseMap(array, handler) {
+            return new Promise(function (resolve, _) {
+                var check, len = check = array.length, result = [];
+                var _loop_1 = function () {
+                    var index = len;
+                    handler(array[index], function (d) {
+                        result[index] = d;
+                        --check === 0 && resolve(result);
+                    });
+                };
+                while (len-- > 0) {
+                    _loop_1();
                 }
+            });
+        }
+        Arrays.promiseMap = promiseMap;
+        // 숫자배열을 만들어준다.
+        // 시작넘버부터 객수
+        function rangeBySize(start, size) {
+            var array = [];
+            for (var l = start + size; start < l; start++) {
+                array.push(start);
+            }
+            return array;
+        }
+        Arrays.rangeBySize = rangeBySize;
+        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
+        function range_atob(start, lastNum) {
+            var reverse = start > lastNum ? true : false, array = [];
+            /*
+             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
+             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
+             */
+            if (reverse) {
+                var temp = start;
+                start = lastNum;
+                lastNum = temp;
+            }
+            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
+                array.push(i + start);
+            }
+            return reverse ? array.reverse() : array;
+        }
+        Arrays.range_atob = range_atob;
+        // drive 배열의 원소만큼 루프를 돌린다.
+        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
+        function _with(drive, driven, callback) {
+            if (drive == null)
+                return;
+            for (var i = 0; i < drive.length; i++) {
+                callback.call(drive, drive[i], driven, i);
             }
         }
-        // 정방향 이동
-        else {
+        Arrays._with = _with;
+        function fill(length, v) {
+            if (v === void 0) { v = null; }
+            var i = 0, array = [], handler = v;
+            if (typeof v !== 'function')
+                handler = function () { return v; };
+            for (; i < length; i++) {
+                array[i] = handler.call(array, i);
+            }
+            return array;
+        }
+        Arrays.fill = fill;
+        // 배열을 length의 갯수만큼 나눈다.
+        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
+        function split(target, length) {
+            var result = [], temp, pos;
+            for (var i = 0, l = target.length; i < l; i++) {
+                pos = i % length;
+                if (!pos)
+                    result.push(temp = []);
+                temp[pos] = target[i];
+            }
+            return result;
+        }
+        Arrays.split = split;
+        // target의 앞부터 다 맞으면 오케이
+        function startWith(key, target) {
+            var i = 0, l = key.length;
+            if (target.length < l)
+                return false;
             for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < index)
-                        r[i] = obj[i];
-                    else if (i > move)
-                        r[i] = obj[i];
-                    else
-                        r[i - 1] = obj[i];
-                }
+                if (key[i] !== target[i])
+                    return false;
             }
+            return true;
         }
-        return r;
-    }
-    exports._move = _move;
-    function _makeArray(obj) {
-        var r = [], l = obj.length;
-        while (l-- > 0)
-            r[l] = obj[l];
-        return r;
-    }
-    exports._makeArray = _makeArray;
-    function _filter(obj, filter) {
-        var r = [], i = 0, l = obj.length, pos = 0;
-        for (; i < l; i++)
-            if (filter(obj[i], i))
-                r[pos++] = obj[i];
-        return r;
-    }
-    exports._filter = _filter;
-    function _forEach(obj, h) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (h(obj[i], i++) === false)
-                return obj;
-        }
-        return obj;
-    }
-    exports._forEach = _forEach;
-    function _selector(obj, h) {
-        var i = 0, l = obj.length, v;
-        while (i < l) {
-            if (h(v = obj[i], i++))
-                return v;
-        }
-        return undefined;
-    }
-    exports._selector = _selector;
-    function _forEachReverse(obj, h) {
-        var i = obj.length;
-        while (i-- > 0) {
-            if (h(obj[i], i) === false)
-                break;
-        }
-        return obj;
-    }
-    exports._forEachReverse = _forEachReverse;
-    function _reduce(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            r = h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduce = _reduce;
-    function _reduceN(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduceN = _reduceN;
-    function _map(obj, h) {
-        var r = [], i = 0, l = obj.length;
-        while (i < l) {
-            r[i] = h(obj[i], i++);
-        }
-        return r;
-    }
-    exports._map = _map;
-    function _colMap(values, size, handler) {
-        var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r[rIndex] = handler(v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r[rIndex] = handler(v, rIndex++));
-        return r;
-    }
-    exports._colMap = _colMap;
-    function _colReduce(values, size, handler, r) {
-        var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r = handler(r, v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r = handler(r, v, rIndex++));
-        return r;
-    }
-    exports._colReduce = _colReduce;
-    function _in(obj, filter, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === r)
-                return r;
-        }
-        return !r;
-    }
-    // true가 하나라도 있으면
-    function _inTrue(obj, filter) {
-        return _in(obj, filter, true);
-    }
-    exports._inTrue = _inTrue;
-    function _inFalse(obj, filter) {
-        return _in(obj, filter, false);
-    }
-    exports._inFalse = _inFalse;
-    function _everyTrue(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === false)
+        Arrays.startWith = startWith;
+        function endWith(key, target) {
+            var i = 0, l = key.length, r = target.length - l;
+            if (r < 0)
                 return false;
+            for (; i < l; i++, r++) {
+                if (key[i] !== target[r])
+                    return false;
+            }
+            return true;
         }
-        return true;
-    }
-    exports._everyTrue = _everyTrue;
-    function _everyFalse(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === true)
+        Arrays.endWith = endWith;
+        // 값 비교
+        function equals(a, b) {
+            if (a === b)
+                return true;
+            if (a == null || b == null)
                 return false;
+            if (a.length != b.length)
+                return false;
+            // If you don't care about the order of the elements inside
+            // the array, you should sort both arrays here.
+            for (var i = 0, l = a.length; i < l; i++) {
+                if (a[i] !== b[i])
+                    return false;
+            }
+            return true;
         }
-        return true;
-    }
-    exports._everyFalse = _everyFalse;
+        Arrays.equals = equals;
+    })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1071,154 +1042,183 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Arrays;
-    (function (Arrays) {
-        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
-        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
-            var limit = array.length, i = 0, colNum, row = -1;
-            if (col < 1)
-                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
-            for (; i < limit; i++) {
-                if ((colNum = i % col) === 0)
-                    row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
-                    return;
-            }
-        }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
-            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
-            for (; i < len; i++) {
-                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
-            }
-            return result;
-        }
-        Arrays.slice = slice;
-        /*
-         *  DataTransferItemList 때문에 만든 함수
-         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
-         *  *사용법은 로직 참고
-         */
-        function promiseMap(array, handler) {
-            return new Promise(function (resolve, _) {
-                var check, len = check = array.length, result = [];
-                var _loop_1 = function () {
-                    var index = len;
-                    handler(array[index], function (d) {
-                        result[index] = d;
-                        --check === 0 && resolve(result);
-                    });
-                };
-                while (len-- > 0) {
-                    _loop_1();
-                }
-            });
-        }
-        Arrays.promiseMap = promiseMap;
-        // 숫자배열을 만들어준다.
-        // 시작넘버부터 객수
-        function rangeBySize(start, size) {
-            var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
-            }
-            return array;
-        }
-        Arrays.rangeBySize = rangeBySize;
-        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
-            var reverse = start > lastNum ? true : false, array = [];
-            /*
-             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
-             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
-             */
-            if (reverse) {
-                var temp = start;
-                start = lastNum;
-                lastNum = temp;
-            }
-            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
-                array.push(i + start);
-            }
-            return reverse ? array.reverse() : array;
-        }
-        Arrays.range_atob = range_atob;
-        // drive 배열의 원소만큼 루프를 돌린다.
-        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
-            if (drive == null)
-                return;
-            for (var i = 0; i < drive.length; i++) {
-                callback.call(drive, drive[i], driven, i);
-            }
-        }
-        Arrays._with = _with;
-        function fill(length, v) {
-            if (v === void 0) { v = null; }
-            var i = 0, array = [], handler = v;
-            if (typeof v !== 'function')
-                handler = function () { return v; };
-            for (; i < length; i++) {
-                array[i] = handler.call(array, i);
-            }
-            return array;
-        }
-        Arrays.fill = fill;
-        // 배열을 length의 갯수만큼 나눈다.
-        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
-            var result = [], temp, pos;
-            for (var i = 0, l = target.length; i < l; i++) {
-                pos = i % length;
-                if (!pos)
-                    result.push(temp = []);
-                temp[pos] = target[i];
-            }
-            return result;
-        }
-        Arrays.split = split;
-        // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
-            var i = 0, l = key.length;
-            if (target.length < l)
-                return false;
+    var indexOf = Array.prototype.indexOf;
+    function _indexOf(obj, v) {
+        var l = obj.length;
+        while (l-- > 0)
+            if (obj[l] === v)
+                return l;
+        return -1;
+    }
+    exports._indexOf = _indexOf;
+    function _range(i, l, handler, t) {
+        for (; i < l; i++)
+            handler(i, t);
+        return t;
+    }
+    exports._range = _range;
+    // index 위치에 있는 원소를 move 위치로 옮기기
+    function _move(obj, index, move) {
+        var r = [], i = 0, l = obj.length;
+        r[move] = obj[index];
+        // 역방향 이동
+        if (index > move) {
             for (; i < l; i++) {
-                if (key[i] !== target[i])
-                    return false;
+                if (i !== index) {
+                    if (i < move)
+                        r[i] = obj[i];
+                    else if (i > index)
+                        r[i] = obj[i];
+                    else
+                        r[i + 1] = obj[i];
+                }
             }
-            return true;
         }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
-            var i = 0, l = key.length, r = target.length - l;
-            if (r < 0)
-                return false;
-            for (; i < l; i++, r++) {
-                if (key[i] !== target[r])
-                    return false;
+        // 정방향 이동
+        else {
+            for (; i < l; i++) {
+                if (i !== index) {
+                    if (i < index)
+                        r[i] = obj[i];
+                    else if (i > move)
+                        r[i] = obj[i];
+                    else
+                        r[i - 1] = obj[i];
+                }
             }
-            return true;
         }
-        Arrays.endWith = endWith;
-        // 값 비교
-        function equals(a, b) {
-            if (a === b)
-                return true;
-            if (a == null || b == null)
-                return false;
-            if (a.length != b.length)
-                return false;
-            // If you don't care about the order of the elements inside
-            // the array, you should sort both arrays here.
-            for (var i = 0, l = a.length; i < l; i++) {
-                if (a[i] !== b[i])
-                    return false;
+        return r;
+    }
+    exports._move = _move;
+    function _makeArray(obj) {
+        var r = [], l = obj.length;
+        while (l-- > 0)
+            r[l] = obj[l];
+        return r;
+    }
+    exports._makeArray = _makeArray;
+    function _filter(obj, filter) {
+        var r = [], i = 0, l = obj.length, pos = 0;
+        for (; i < l; i++)
+            if (filter(obj[i], i))
+                r[pos++] = obj[i];
+        return r;
+    }
+    exports._filter = _filter;
+    function _forEach(obj, h) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (h(obj[i], i++) === false)
+                return obj;
+        }
+        return obj;
+    }
+    exports._forEach = _forEach;
+    function _selector(obj, h) {
+        var i = 0, l = obj.length, v;
+        while (i < l) {
+            if (h(v = obj[i], i++))
+                return v;
+        }
+        return undefined;
+    }
+    exports._selector = _selector;
+    function _forEachReverse(obj, h) {
+        var i = obj.length;
+        while (i-- > 0) {
+            if (h(obj[i], i) === false)
+                break;
+        }
+        return obj;
+    }
+    exports._forEachReverse = _forEachReverse;
+    function _reduce(obj, h, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            r = h(r, obj[i], i++);
+        }
+        return r;
+    }
+    exports._reduce = _reduce;
+    function _reduceN(obj, h, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            h(r, obj[i], i++);
+        }
+        return r;
+    }
+    exports._reduceN = _reduceN;
+    function _map(obj, h) {
+        var r = [], i = 0, l = obj.length;
+        while (i < l) {
+            r[i] = h(obj[i], i++);
+        }
+        return r;
+    }
+    exports._map = _map;
+    function _colMap(values, size, handler) {
+        var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+        while (index < l) {
+            if (index % size === 0) {
+                v && (r[rIndex] = handler(v, rIndex++));
+                v = [];
+                vIndex = 0;
             }
-            return true;
+            v[vIndex++] = values[index++];
         }
-        Arrays.equals = equals;
-    })(Arrays = exports.Arrays || (exports.Arrays = {}));
+        v && (r[rIndex] = handler(v, rIndex++));
+        return r;
+    }
+    exports._colMap = _colMap;
+    function _colReduce(values, size, handler, r) {
+        var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+        while (index < l) {
+            if (index % size === 0) {
+                v && (r = handler(r, v, rIndex++));
+                v = [];
+                vIndex = 0;
+            }
+            v[vIndex++] = values[index++];
+        }
+        v && (r = handler(r, v, rIndex++));
+        return r;
+    }
+    exports._colReduce = _colReduce;
+    function _in(obj, filter, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === r)
+                return r;
+        }
+        return !r;
+    }
+    // true가 하나라도 있으면
+    function _inTrue(obj, filter) {
+        return _in(obj, filter, true);
+    }
+    exports._inTrue = _inTrue;
+    function _inFalse(obj, filter) {
+        return _in(obj, filter, false);
+    }
+    exports._inFalse = _inFalse;
+    function _everyTrue(obj, filter) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === false)
+                return false;
+        }
+        return true;
+    }
+    exports._everyTrue = _everyTrue;
+    function _everyFalse(obj, filter) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === true)
+                return false;
+        }
+        return true;
+    }
+    exports._everyFalse = _everyFalse;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1240,7 +1240,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(6), __webpack_require__(4), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(3), __webpack_require__(4), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1384,11 +1384,13 @@ var __extends = (this && this.__extends) || (function () {
             return group;
         }
         Events.map = map;
-        function acceptKeys(target, handler) {
+        // noDuplicationd : 같은 문자열 입력은 무시
+        function acceptKeys(target, handler, noDuplication) {
+            if (noDuplication === void 0) { noDuplication = true; }
             var key = null;
             return new Events(target, 'keyup', function (e) {
                 var value = target.value;
-                if (value !== key) {
+                if (!noDuplication || value !== key) {
                     key = value;
                     handler(value, e);
                 }
@@ -1557,20 +1559,32 @@ var __extends = (this && this.__extends) || (function () {
             }
             return obj;
         }
-        Events.eventProperty = eventProperty;
-        function dataEvent(element, type, // 이벤트 타입
-        attr, // 이벤트
-        getObj, // directive에 전달될 데이터
-        dispatcher, // loop 핸들러
-        directive) {
+        function getObject() {
+            return {};
+        }
+        function dataEvent(element, type, attr, getObj, dispatcher, directive) {
+            // arguments : 4
+            if (!dispatcher) {
+                directive = getObj;
+                getObj = getObject;
+                dispatcher = core_1.__returnTrue;
+            }
+            // arguments : 5
+            else if (!directive) {
+                directive = dispatcher;
+                dispatcher = core_1.__returnTrue;
+            }
             return new Events(element, type, function (e) {
-                var target = e.target, dir = directive[target.getAttribute(attr)];
+                var target = e.target, attrValue = target.getAttribute(attr), dir = directive[target.getAttribute(attr)];
                 if (dir) {
                     var obj = getObj(e), limit = element, h = dispatcher;
-                    while (target && (limit !== target) && (h(target, obj) !== false)) {
+                    while (target && (limit !== target)) {
+                        eventProperty(element, obj);
+                        if (h(target, obj, attrValue, e) === false)
+                            break;
                         target = target.parentElement;
                     }
-                    dir(obj);
+                    dir.call(dir, obj);
                 }
             });
         }
@@ -1593,7 +1607,7 @@ var __extends = (this && this.__extends) || (function () {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
@@ -1641,7 +1655,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expValParse = format_1.Formats.expValParse;
@@ -1702,10 +1716,264 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(0), __webpack_require__(5), __webpack_require__(9), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var access = access_1.Access.access;
+    var expValParse = format_1.Formats.expValParse;
+    var number = format_1.Formats.number;
     var datetime = format_1.Formats.datetime;
+    function isAlikeArray(target) {
+        if (target && typeof target.length === 'number') {
+            return true;
+        }
+        return false;
+    }
+    var defaultDirective = (function () {
+        var directive = {
+            number: function (ele, v) {
+                ele.textContent = number(v);
+            },
+            datetime: function (ele, v, p) {
+                ele.textContent = datetime(v, p);
+            },
+            // 문자열을 통해 엘리먼트 체크
+            exp: function (ele, v, opt) {
+            }
+        };
+        return function () { return Object.create(directive); };
+    })();
+    function $$mapping(prefix, val) {
+        return prefix ? prefix + '.' + val : val;
+    }
+    function render(ele, mapping, data, $val, Mapping) {
+        var $mapping = ele.getAttribute('data-mapping'), attrVal;
+        if ($mapping != null) {
+            $val = access(data, mapping = $mapping);
+        }
+        /*
+         *
+         */
+        if (attrVal = ele.getAttribute('data-directive')) {
+            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
+            if (v == null)
+                ele.textContent = '';
+            else if (filter != null)
+                directive[filter] && directive[filter].call(Mapping, ele, v, primitive);
+            else
+                ele.textContent = v.toString();
+        }
+        /*
+         *  element.clone(true)
+         */
+        if ((attrVal = ele.getAttribute('data-template')) != null) {
+            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
+            ele.textContent = '';
+            // ① 배열인 경우
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) {
+                    var c = temple_1(v, ele), prop = $$mapping(mapping, p);
+                    render(c, prop, data, v, Mapping);
+                    c.setAttribute('data-mapping', prop);
+                    fragment_1.appendChild(c);
+                });
+            }
+            // ② 단일 객체
+            else {
+                var c = temple_1(ele, $val);
+                render(c, mapping, data, $val, Mapping);
+                c.setAttribute('data-mapping', mapping);
+                fragment_1.appendChild(c);
+            }
+            ele.appendChild(fragment_1);
+        }
+        /*
+         *  html 문자열
+         */
+        else if ((attrVal = ele.getAttribute('data-html')) != null) {
+            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
+            }
+            else
+                htmls_1[pos_1++] = html_1($val);
+            ele.innerHTML = htmls_1.join('');
+        }
+        /*
+         *  단순 clone
+         */
+        else if ((attrVal = ele.getAttribute('data-replace')) != null) {
+            var 
+            /*
+             *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
+             */
+            noRender = attrVal[0] === '!', clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val, ele);
+            render(clone, mapping, data, $val, Mapping);
+            // clone 엘리먼트에 data-replace를 붙이지 않으므로, 다음번 렌더링부터는 건너띤다
+            noRender || clone.setAttribute('data-replace', attrVal);
+            ele.parentElement.replaceChild(clone, ele);
+        }
+        else {
+            var i = 0, childs = ele.children, l = childs.length;
+            for (; i < l; i++) {
+                if (childs[i].nodeType === 1)
+                    render(childs[i], mapping, data, $val, Mapping);
+            }
+        }
+    }
+    ;
+    var Mapping = /** @class */ (function () {
+        function Mapping() {
+            this.html = {};
+            this.directive = defaultDirective();
+            this.template = {};
+        }
+        Mapping.prototype.setData = function (data) {
+            this.data = data;
+            return this;
+        };
+        Mapping.prototype.addHTML = function (target) {
+            var html = this.html;
+            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
+                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
+            });
+            return this;
+        };
+        Mapping.prototype.addTemplate = function (a, b) {
+            if (typeof a === 'string')
+                this.template[a] = b;
+            else if (a.nodeType === 1)
+                this.addTemplate(Mapping.createTemplates(a));
+            else {
+                var template = this.template, p = void 0;
+                for (p in a)
+                    template[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.addDirective = function (a, b) {
+            if (typeof a === 'string')
+                this.directive[a] = b;
+            else {
+                var directive = this.directive, p = void 0;
+                for (p in a)
+                    directive[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.$render = function (ele, data) {
+            if (data === void 0) { data = this.data; }
+            render(ele, null, data, data, this);
+            return this;
+        };
+        Mapping.prototype.$follow = function (name) {
+            var _this = this;
+            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
+                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
+                    _this.$render(e);
+                }
+            });
+            return this;
+        };
+        return Mapping;
+    }());
+    exports.Mapping = Mapping;
+    /*
+     *    ① 이 루프는 데이터 구조를 모두 알고 있다는 전제하에 쓰여진다.
+     *
+     */
+    (function (Mapping) {
+        var createHTML = dom_1.DOM.createHTML;
+        function createTemplate(obj, target) {
+            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
+            obj[name] = function () { return html.cloneNode(true); };
+            return obj;
+        }
+        function createTemplates(target) {
+            var $templates = {};
+            if (target.hasAttribute('data-template'))
+                return createTemplate($templates, target);
+            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
+                createTemplate($templates, e);
+            });
+            return $templates;
+        }
+        Mapping.createTemplates = createTemplates;
+    })(Mapping = exports.Mapping || (exports.Mapping = {}));
+    exports.Mapping = Mapping;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function _func(prop, ele, s, opt, data) {
+        var type = typeof opt, list = ele[prop](s), l = list.length;
+        if (type === 'number')
+            return list[opt];
+        var i = l, r = [];
+        while (i-- > 0)
+            r[i] = list[i];
+        if (type === 'function') {
+            i++;
+            for (; i < l; i++)
+                opt.call(ele, r[i], i, data);
+            return data;
+        }
+        return r;
+    }
+    function getElementById(id) {
+        return document.getElementById(id);
+    }
+    exports.getElementById = getElementById;
+    function querySelector(ele, s) {
+        return ele.querySelector(s);
+    }
+    exports.querySelector = querySelector;
+    function querySelectorAll(ele, s, opt, data) {
+        return _func('querySelectorAll', ele, s, opt, data);
+    }
+    exports.querySelectorAll = querySelectorAll;
+    function getElementsByClassName(ele, s, opt, data) {
+        return _func('getElementsByClassName', ele, s, opt, data);
+    }
+    exports.getElementsByClassName = getElementsByClassName;
+    function getElementsByTagName(ele, s, opt, data) {
+        return _func('getElementsByTagName', ele, s, opt, data);
+    }
+    exports.getElementsByTagName = getElementsByTagName;
+    function getElementsByAttr(target, attrName, c, d) {
+        var i = 0, list = target.querySelectorAll('[' + attrName + ']'), l = list.length;
+        if (l) {
+            if (typeof c === 'function') {
+                for (; i < l; i++)
+                    c(d, list[i], list[i].getAttribute(attrName), i);
+                return d;
+            }
+            else {
+                for (; i < l; i++)
+                    c[list[i].getAttribute(attrName)](list[i], target, d);
+            }
+        }
+        return target;
+    }
+    exports.getElementsByAttr = getElementsByAttr;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     function $get(url) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -1721,6 +1989,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             xhr.send(null);
         });
     }
+    exports.$get = $get;
     function $post(url, data) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -1737,6 +2006,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             xhr.send(JSON.stringify(data));
         });
     }
+    exports.$post = $post;
     function $delete(url) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -1752,434 +2022,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             xhr.send(null);
         });
     }
-    var $disassemble = {
-        activetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        datetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        updatetime: function (v) {
-            if (!v)
-                return null;
-            return v instanceof Date ? v : new Date(v);
-        },
-        // list용
-        customer: function (v) {
-            this.customer = new Customer(v);
-        },
-        refs: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addRef(new WorkFile(a)); });
-        },
-        print: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addPrint(new WorkFile(a)); });
-        },
-        draft: function (v) {
-            var _this = this;
-            v.forEach(function (a) { return _this.addDraft(new WorkFile(a)); });
-        },
-        // work용
-        // customer에도 같은 이름이 있으므로 이를 구분하는 분기가 있다.
-        memo: function (v) {
-            var _this = this;
-            if (Array.isArray(v))
-                this.memo = v.map(function (a) { return new WorkMemo(a).setWork(_this); });
-            else
-                this.memo = v;
-        },
-        uuid: function (v) {
-            this.uuid = v;
-        },
-    }, 
-    // 객체를 json data로 변경할때
-    $assemble = (function () {
-        var $$ = {
-            activetime: function (v) {
-                return datetime(v);
-            },
-            datetime: function (v) {
-                return datetime(v);
-            },
-            updatetime: function (v) {
-                return datetime(v);
-            },
-            // work객체는 work_id로 바꾼다.
-            work: function (v) {
-                v && (this['work_id'] = v.id);
-            },
-            // draft, print는 json 변환에는 제외시킨다.
-            print: false,
-            draft: false,
-            memo: false
-        };
-        return function (data) { return core_1.$extend({}, data, $$); };
-    })();
-    //********************** Class **********************//
-    var Work = /** @class */ (function () {
-        function Work(data) {
-            this.price = 0;
-            this.total = 0;
-            this.vat = 0;
-            this.file_len = 0;
-            this.item_len = 0;
-            this.memo_len = 0;
-            this.refs = [];
-            this.memo = [];
-            this.items = [];
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        Work.prototype.addRef = function (v) {
-            this.refs.push(v);
-            this.file_len = this.refs.length;
-            return this;
-        };
-        Work.prototype.removeRef = function (v) {
-            var refs = this.refs;
-            refs.splice(refs.indexOf(v), 1);
-            this.file_len = refs.length;
-            return this;
-        };
-        Work.prototype.addMemo = function (v) {
-            console.log(v);
-            this.memo.push(v);
-            this.memo_len = this.memo.length;
-            return this;
-        };
-        Work.prototype.removeMemo = function (v) {
-            var memo = this.memo;
-            memo.splice(memo.indexOf(v), 1);
-            this.memo_len = memo.length;
-        };
-        Work.prototype.compute = function () {
-            var price = 0, vat = 0, total = 0;
-            this.items.forEach(function (item) {
-                price += item.price;
-                vat += item.vat;
-                total += item.total;
-            });
-            this.price = price;
-            this.vat = vat;
-            this.total = total;
-            return this;
-        };
-        Work.prototype.addItem = function (item) {
-            this.item_len = this.items.push(item);
-            return this.compute();
-        };
-        Work.prototype.removeItem = function (item) {
-            var items = this.items;
-            items.splice(items.indexOf(item), 1);
-            this.item_len = items.length;
-            return this.compute();
-        };
-        return Work;
-    }());
-    exports.Work = Work;
-    var WorkMemo = /** @class */ (function () {
-        function WorkMemo(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        WorkMemo.prototype.setWork = function (work) {
-            this.work = work;
-            return this;
-        };
-        return WorkMemo;
-    }());
-    exports.WorkMemo = WorkMemo;
-    var WorkItem = /** @class */ (function () {
-        /*
-         *  draft와 print에 path를 넣어주기 위해서 어쩔 수 없이 work를 생성인자로..
-         */
-        function WorkItem(work, data) {
-            this.work = work;
-            this.count = 0;
-            this.detail = '';
-            this.memo = '';
-            this.price = 0;
-            this.total = 0;
-            this.vat = 0;
-            this.priority = 0;
-            this.draft = [];
-            this.print = [];
-            data && core_1.$extend(this, data, $disassemble);
-            work.addItem(this);
-        }
-        WorkItem.prototype.addDraft = function (v) {
-            this.draft.push(v);
-            return this;
-        };
-        WorkItem.prototype.removeDraft = function (v) {
-            var draft = this.draft;
-            draft.splice(draft.indexOf(v), 1);
-            return this;
-        };
-        WorkItem.prototype.addPrint = function (v) {
-            // 인쇄파일은 나중에 등록한 파일이 맨 먼저 나오게 한다.
-            this.print.unshift(v);
-            return this;
-        };
-        WorkItem.prototype.removePrint = function (v) {
-            var print = this.print;
-            print.splice(print.indexOf(v), 1);
-            return this;
-        };
-        return WorkItem;
-    }());
-    exports.WorkItem = WorkItem;
-    var Customer = /** @class */ (function () {
-        function Customer(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        Customer.prototype.setId = function (id) {
-            this.id = id;
-            return this;
-        };
-        return Customer;
-    }());
-    exports.Customer = Customer;
-    var WorkFile = /** @class */ (function () {
-        function WorkFile(data) {
-            data && core_1.$extend(this, data, $disassemble);
-        }
-        WorkFile.prototype.setId = function (id) {
-            this.id = id;
-            return this;
-        };
-        WorkFile.prototype.getOrigName = function () {
-            return this.original_name + '.' + this.filetype;
-        };
-        WorkFile.prototype.getSaveName = function () {
-            return this.save_name + '.' + this.filetype;
-        };
-        return WorkFile;
-    }());
-    exports.WorkFile = WorkFile;
-    // ***************************** namespace ***************************** //
-    (function (Work) {
-        Work.$state = '작업대기 시안검토 시안완료 제작중 입고 납품 완료'.split(' ');
-        function updateState(id, state) {
-            return $post('/work/db/update/state/' + id + '/' + state, null);
-        }
-        Work.updateState = updateState;
-        // 2018-0600442 ==> 2018/06/00442
-        function toPath(uuid) {
-            var _a = uuid.split(/-/), y = _a[0], m = _a[1];
-            return y + '/' + m.substring(0, 2) + '/' + m.substring(2) + '/';
-        }
-        Work.toPath = toPath;
-        function stateStr(num) {
-            return Work.$state[typeof num === 'number' ? num : num.state];
-        }
-        Work.stateStr = stateStr;
-        // 리스트 로딩
-        function list(query) {
-            return $post('/work/list?' + query, null).then(function (e) {
-                var contents = e.contents, price = e.price, count = e.count;
-                e.contents = contents.map(function (values) {
-                    return {
-                        work: new Work(values.work),
-                        customer: new Customer(values.customer),
-                        draft: values.draft.id ? new WorkFile(values.draft) : null
-                    };
-                });
-                e.states = count.map(function (v, i) {
-                    return {
-                        index: i,
-                        name: Work.$state[i],
-                        count: v,
-                        price: price[i]
-                    };
-                });
-                return e;
-            });
-        }
-        Work.list = list;
-        function update(val, work) {
-            return $post('/work/db/update/' + work.id, val).then(function () { return core_1.$extend(work, val); });
-        }
-        Work.update = update;
-        // 전체 로딩
-        function get(workUUID) {
-            return $get('/work/view?uuid=' + workUUID).then(function (data) {
-                if (data.work) {
-                    var work_1 = new Work(data.work);
-                    data.items.forEach(function (item) { return new WorkItem(work_1, item); });
-                    return work_1;
-                }
-                else
-                    return null;
-            });
-        }
-        Work.get = get;
-    })(Work = exports.Work || (exports.Work = {}));
-    exports.Work = Work;
-    (function (Customer) {
-        function search(key) {
-            return $get('/work/db/customer/' + key).then(function (v) {
-                return v.map(function (val) { return new Customer(val); });
-            });
-        }
-        Customer.search = search;
-        function save(data) {
-            return $post('/work/db/customer', data);
-        }
-        Customer.save = save;
-    })(Customer = exports.Customer || (exports.Customer = {}));
-    exports.Customer = Customer;
-    /*
-     * 메모 입출력은 그냥 간단하게 하자
-     */
-    (function (WorkMemo) {
-        function save(work, memo) {
-            return $post('/work/db/memo/' + work.id, $assemble(memo))
-                .then(function (id) {
-                memo.id = id;
-                return memo;
-            });
-        }
-        WorkMemo.save = save;
-        function remove(memo, work) {
-            return $delete('/work/db/memo/' + memo.id + '/' + work.id);
-        }
-        WorkMemo.remove = remove;
-    })(WorkMemo = exports.WorkMemo || (exports.WorkMemo = {}));
-    exports.WorkMemo = WorkMemo;
-    (function (WorkItem) {
-        function save(v, workId) {
-            return $post('/work/db/item/' + workId, $assemble(v)).then(function (id) {
-                v.id = id;
-            });
-        }
-        WorkItem.save = save;
-        function priority(ids) {
-            return $post('/work/db/item/priority', ids).then(function (v) {
-                console.log(v);
-            });
-        }
-        WorkItem.priority = priority;
-        function remove(v) {
-            return $delete('/work/db/item/' + v.id);
-        }
-        WorkItem.remove = remove;
-    })(WorkItem = exports.WorkItem || (exports.WorkItem = {}));
-    exports.WorkItem = WorkItem;
-    (function (WorkFile) {
-        function $get(id) {
-            return new Promise(function (o, x) {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/upload/progress' + (id ? '/' + id : ''));
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            o(id ? parseInt(xhr.responseText) : xhr.responseText);
-                        }
-                    }
-                };
-                xhr.send(null);
-            });
-        }
-        // File Upload Logic
-        function $upload(data, handler) {
-            // ① 고유 키를 받아온다.
-            return $get().then(function (id) {
-                var total = 0, // uploading한 총 파일용량
-                time = 10, // sending 체크 시간
-                xhr = new XMLHttpRequest(), 
-                // 서버측 다운로드 경과
-                tHandler = function () {
-                    $get(id).then(function (d) {
-                        if (total !== -1 && total !== d) {
-                            handler.sending(d, total);
-                            setTimeout(tHandler, time);
-                        }
-                        else {
-                            handler.sending(total, total);
-                        }
-                    });
-                };
-                // 서버 send progress
-                xhr.upload.onprogress = function (e) {
-                    handler.uploading(e.loaded, e.total);
-                };
-                xhr.upload.onloadend = function (e) {
-                    handler.uploading(e.total, e.total);
-                    total = e.total;
-                    setTimeout(tHandler, time);
-                };
-                return new Promise(function (o, x) {
-                    xhr.open('POST', '/upload/file/' + id);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            if (xhr.status === 200) {
-                                total = -1; // 위의 setTimeout 핸들러를 멈추기 위한 값
-                                o(id);
-                            }
-                        }
-                    };
-                    xhr.send(data);
-                });
-            });
-        }
-        function uploadFile(path, file, handler) {
-            var formData = new FormData();
-            formData.append('path', 'D:/work/' + path);
-            formData.append('file', file.data, file.name);
-            return $upload(formData, handler).then(function (id) {
-                handler.done();
-                return id;
-            });
-        }
-        WorkFile.uploadFile = uploadFile;
-        function uploadTest(data) {
-            var formData = new FormData();
-            formData.append('file', data, data['name']);
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                }
-            };
-            xhr.open('POST', '/upload/file/test', true);
-            xhr.send(formData);
-        }
-        WorkFile.uploadTest = uploadTest;
-        function saveFile(type, ownId, workFile) {
-            return $post('/work/db/' + type + '/' + ownId, $assemble(workFile))
-                .then(function (id) { return workFile.setId(id); });
-        }
-        WorkFile.saveFile = saveFile;
-        function removeFile(type, id) {
-            return $delete('/work/db/' + type + '/' + id);
-        }
-        WorkFile.removeFile = removeFile;
-        function create(file, orig_name, save_name) {
-            var i = orig_name.lastIndexOf('.');
-            return new WorkFile({
-                datetime: new Date(),
-                original_name: orig_name.slice(0, i),
-                save_name: save_name,
-                filetype: orig_name.slice(i + 1),
-                size: file.size,
-                content_type: file.type
-            });
-        }
-        WorkFile.create = create;
-    })(WorkFile = exports.WorkFile || (exports.WorkFile = {}));
-    exports.WorkFile = WorkFile;
+    exports.$delete = $delete;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
@@ -2427,184 +2279,451 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(0), __webpack_require__(5), __webpack_require__(9), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(2), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var access = access_1.Access.access;
-    var expValParse = format_1.Formats.expValParse;
-    var number = format_1.Formats.number;
     var datetime = format_1.Formats.datetime;
-    function isAlikeArray(target) {
-        if (target && typeof target.length === 'number') {
-            return true;
-        }
-        return false;
-    }
-    var defaultDirective = (function () {
-        var directive = {
-            number: function (ele, v) {
-                ele.textContent = number(v);
-            },
-            datetime: function (ele, v, p) {
-                ele.textContent = datetime(v, p);
-            }
-        };
-        return function () { return Object.create(directive); };
-    })();
-    function $$mapping(prefix, val) {
-        return prefix ? prefix + '.' + val : val;
-    }
-    function render(ele, mapping, data, $val, Mapping) {
-        var i = 0, childs = array_1._makeArray(ele.children), l = childs.length, $mapping = ele.getAttribute('data-mapping'), attrVal;
-        if ($mapping != null) {
-            $val = access(data, mapping = $mapping);
-        }
-        /*
-         *
-         */
-        if (attrVal = ele.getAttribute('data-directive')) {
-            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
-            if (v == null)
-                ele.textContent = '';
-            else if (filter != null)
-                directive[filter] && directive[filter].call(Mapping, ele, v, primitive);
-            else
-                ele.textContent = v.toString();
-        }
-        /*
-         *  element.clone(true)
-         */
-        else if ((attrVal = ele.getAttribute('data-template')) != null) {
-            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
-            ele.textContent = '';
-            // ① 배열인 경우
-            if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) {
-                    var c = temple_1(ele, v), prop = $$mapping(mapping, p);
-                    render(c, prop, data, v, Mapping);
-                    c.setAttribute('data-mapping', prop);
-                    fragment_1.appendChild(c);
-                });
-            }
-            // ② 단일 객체
-            else {
-                var c = temple_1(ele, $val);
-                render(c, mapping, data, $val, Mapping);
-                c.setAttribute('data-mapping', mapping);
-                fragment_1.appendChild(c);
-            }
-            ele.appendChild(fragment_1);
-        }
-        /*
-         *  html 문자열
-         */
-        else if ((attrVal = ele.getAttribute('data-html')) != null) {
-            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
-            if (Array.isArray($val)) {
-                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
-            }
-            else
-                htmls_1[pos_1++] = html_1($val);
-            ele.innerHTML = htmls_1.join('');
-        }
-        /*
-         *
-         */
-        for (; i < l; i++) {
-            if (childs[i].nodeType === 1)
-                render(childs[i], mapping, data, $val, Mapping);
-        }
-    }
-    ;
-    var Mapping = /** @class */ (function () {
-        function Mapping() {
-            this.html = {};
-            this.directive = defaultDirective();
-            this.template = {};
-        }
-        Mapping.prototype.setData = function (data) {
-            this.data = data;
-            return this;
-        };
-        Mapping.prototype.addHTML = function (target) {
-            var html = this.html;
-            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
-                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
-            });
-            return this;
-        };
-        Mapping.prototype.addTemplate = function (a, b) {
-            if (typeof a === 'string')
-                this.template[a] = b;
-            else if (a.nodeType === 1)
-                this.addTemplate(Mapping.createTemplates(a));
-            else {
-                var template = this.template, p = void 0;
-                for (p in a)
-                    template[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.addDirective = function (a, b) {
-            if (typeof a === 'string')
-                this.directive[a] = b;
-            else {
-                var directive = this.directive, p = void 0;
-                for (p in a)
-                    directive[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.$render = function (ele, data) {
-            if (data === void 0) { data = this.data; }
-            render(ele, null, data, data, this);
-            return this;
-        };
-        Mapping.prototype.$follow = function (name) {
+    var $disassemble = {
+        activetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        datetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        updatetime: function (v) {
+            if (!v)
+                return null;
+            return v instanceof Date ? v : new Date(v);
+        },
+        // list용
+        customer: function (v) {
+            this.customer = new Customer(v);
+        },
+        refs: function (v) {
             var _this = this;
-            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
-                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
-                    _this.$render(e);
-                }
-            });
+            v.forEach(function (a) { return _this.addRef(new WorkFile(a)); });
+        },
+        print: function (v) {
+            var _this = this;
+            v.forEach(function (a) { return _this.addPrint(new WorkFile(a)); });
+        },
+        draft: function (v) {
+            var _this = this;
+            v.forEach(function (a) { return _this.addDraft(new WorkFile(a)); });
+        },
+        // work용
+        // customer에도 같은 이름이 있으므로 이를 구분하는 분기가 있다.
+        memo: function (v) {
+            var _this = this;
+            if (Array.isArray(v))
+                this.memo = v.map(function (a) { return new WorkMemo(a).setWork(_this); });
+            else
+                this.memo = v;
+        },
+        uuid: function (v) {
+            this.uuid = v;
+        },
+    }, 
+    // 객체를 json data로 변경할때
+    $assemble = (function () {
+        var $$ = {
+            activetime: function (v) {
+                return datetime(v);
+            },
+            datetime: function (v) {
+                return datetime(v);
+            },
+            updatetime: function (v) {
+                return datetime(v);
+            },
+            // work객체는 work_id로 바꾼다.
+            work: function (v) {
+                v && (this['work_id'] = v.id);
+            },
+            // draft, print는 json 변환에는 제외시킨다.
+            print: false,
+            draft: false,
+            memo: function (v) {
+                if (typeof v === 'string')
+                    this['memo'] = v;
+            }
+        };
+        return function (data) { return core_1.$extend({}, data, $$); };
+    })();
+    //********************** Class **********************//
+    var Work = /** @class */ (function () {
+        function Work(data) {
+            this.price = 0;
+            this.total = 0;
+            this.vat = 0;
+            this.file_len = 0;
+            this.item_len = 0;
+            this.memo_len = 0;
+            this.refs = [];
+            this.memo = [];
+            this.items = [];
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        Work.prototype.addRef = function (v) {
+            this.refs.push(v);
+            this.file_len = this.refs.length;
             return this;
         };
-        return Mapping;
-    }());
-    exports.Mapping = Mapping;
-    /*
-     *    ① 이 루프는 데이터 구조를 모두 알고 있다는 전제하에 쓰여진다.
-     *
-     */
-    (function (Mapping) {
-        var createHTML = dom_1.DOM.createHTML;
-        function createTemplate(obj, target) {
-            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
-            obj[name] = function () { return html.cloneNode(true); };
-            return obj;
-        }
-        function createTemplates(target) {
-            var $templates = {};
-            if (target.hasAttribute('data-template'))
-                return createTemplate($templates, target);
-            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
-                createTemplate($templates, e);
+        Work.prototype.removeRef = function (v) {
+            var refs = this.refs;
+            refs.splice(refs.indexOf(v), 1);
+            this.file_len = refs.length;
+            return this;
+        };
+        Work.prototype.addMemo = function (v) {
+            this.memo.push(v);
+            this.memo_len = this.memo.length;
+            v.setWork(this);
+            return this;
+        };
+        Work.prototype.removeMemo = function (v) {
+            var memo = this.memo;
+            memo.splice(memo.indexOf(v), 1);
+            this.memo_len = memo.length;
+        };
+        Work.prototype.compute = function () {
+            var price = 0, vat = 0, total = 0;
+            this.items.forEach(function (item) {
+                price += (item.price * item.count);
+                vat += item.vat;
+                total += item.total;
             });
-            return $templates;
+            this.price = price;
+            this.vat = vat;
+            this.total = total;
+            return this;
+        };
+        Work.prototype.addItem = function (item) {
+            this.item_len = this.items.push(item);
+            return this.compute();
+        };
+        Work.prototype.removeItem = function (item) {
+            var items = this.items;
+            items.splice(items.indexOf(item), 1);
+            this.item_len = items.length;
+            return this.compute();
+        };
+        return Work;
+    }());
+    exports.Work = Work;
+    var WorkMemo = /** @class */ (function () {
+        function WorkMemo(data) {
+            data && core_1.$extend(this, data, $disassemble);
         }
-        Mapping.createTemplates = createTemplates;
-    })(Mapping = exports.Mapping || (exports.Mapping = {}));
-    exports.Mapping = Mapping;
+        WorkMemo.prototype.setWork = function (work) {
+            this.work = work;
+            return this;
+        };
+        return WorkMemo;
+    }());
+    exports.WorkMemo = WorkMemo;
+    var WorkItem = /** @class */ (function () {
+        /*
+         *  draft와 print에 path를 넣어주기 위해서 어쩔 수 없이 work를 생성인자로..
+         */
+        function WorkItem(work, data) {
+            this.work = work;
+            this.count = 0;
+            this.detail = '';
+            this.memo = '';
+            this.price = 0;
+            this.total = 0;
+            this.vat = 0;
+            this.priority = 0;
+            this.draft = [];
+            this.print = [];
+            data && core_1.$extend(this, data, $disassemble);
+            work.addItem(this);
+        }
+        WorkItem.prototype.addDraft = function (v) {
+            this.draft.push(v);
+            return this;
+        };
+        WorkItem.prototype.removeDraft = function (v) {
+            var draft = this.draft;
+            draft.splice(draft.indexOf(v), 1);
+            return this;
+        };
+        WorkItem.prototype.addPrint = function (v) {
+            // 인쇄파일은 나중에 등록한 파일이 맨 먼저 나오게 한다.
+            this.print.unshift(v);
+            return this;
+        };
+        WorkItem.prototype.removePrint = function (v) {
+            var print = this.print;
+            print.splice(print.indexOf(v), 1);
+            return this;
+        };
+        return WorkItem;
+    }());
+    exports.WorkItem = WorkItem;
+    var Customer = /** @class */ (function () {
+        function Customer(data) {
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        Customer.prototype.setId = function (id) {
+            this.id = id;
+            return this;
+        };
+        return Customer;
+    }());
+    exports.Customer = Customer;
+    var WorkFile = /** @class */ (function () {
+        function WorkFile(data) {
+            data && core_1.$extend(this, data, $disassemble);
+        }
+        WorkFile.prototype.setId = function (id) {
+            this.id = id;
+            return this;
+        };
+        WorkFile.prototype.getOrigName = function () {
+            return this.original_name + '.' + this.filetype;
+        };
+        WorkFile.prototype.getSaveName = function () {
+            return this.save_name + '.' + this.filetype;
+        };
+        return WorkFile;
+    }());
+    exports.WorkFile = WorkFile;
+    // ***************************** namespace ***************************** //
+    (function (Work) {
+        Work.$state = '작업대기 시안검토 시안완료 제작중 입고 납품 완료'.split(' ');
+        function createWork(data) {
+            return _ajax_1.$post('/work/db/create', data);
+        }
+        Work.createWork = createWork;
+        function updateState(id, state) {
+            return _ajax_1.$post('/work/db/update/state/' + id + '/' + state, null);
+        }
+        Work.updateState = updateState;
+        // 2018-0600442 ==> 2018/06/00442
+        function toPath(uuid) {
+            var _a = uuid.split(/-/), y = _a[0], m = _a[1];
+            return y + '/' + m.substring(0, 2) + '/' + m.substring(2) + '/';
+        }
+        Work.toPath = toPath;
+        function stateStr(num) {
+            return Work.$state[typeof num === 'number' ? num : num.state];
+        }
+        Work.stateStr = stateStr;
+        // 리스트 로딩
+        function list(query) {
+            return _ajax_1.$post('/work/list?' + query, null).then(function (e) {
+                var contents = e.contents, price = e.price, count = e.count, today = e.today;
+                e.contents = contents.map(function (values) {
+                    return {
+                        work: new Work(values.work),
+                        customer: new Customer(values.customer),
+                        draft: values.draft.id ? new WorkFile(values.draft) : null
+                    };
+                });
+                e.states = count.map(function (v, i) {
+                    return {
+                        index: i,
+                        name: Work.$state[i],
+                        count: v,
+                        price: price[i],
+                        today: today[i]
+                    };
+                });
+                return e;
+            });
+        }
+        Work.list = list;
+        function remove(id) {
+            return _ajax_1.$delete('/work/db/remove/' + id);
+        }
+        Work.remove = remove;
+        function update(val, work) {
+            return _ajax_1.$post('/work/db/update/' + work.id, val).then(function () { return core_1.$extend(work, val); });
+        }
+        Work.update = update;
+        // 전체 로딩
+        function get(workUUID) {
+            // 캐시 방시
+            return _ajax_1.$get('/work/view?uuid=' + workUUID + '&' + new Date().getTime()).then(function (data) {
+                if (data.work) {
+                    var work_1 = new Work(data.work);
+                    data.items.forEach(function (item) { return new WorkItem(work_1, item); });
+                    return work_1;
+                }
+                else
+                    return null;
+            });
+        }
+        Work.get = get;
+    })(Work = exports.Work || (exports.Work = {}));
+    exports.Work = Work;
+    (function (Customer) {
+        function search(key) {
+            return _ajax_1.$get('/work/db/customer/' + key).then(function (v) {
+                return v.map(function (val) { return new Customer(val); });
+            });
+        }
+        Customer.search = search;
+        function save(data) {
+            return _ajax_1.$post('/work/db/customer', data);
+        }
+        Customer.save = save;
+    })(Customer = exports.Customer || (exports.Customer = {}));
+    exports.Customer = Customer;
+    /*
+     * 메모 입출력은 그냥 간단하게 하자
+     */
+    (function (WorkMemo) {
+        function save(work, memo) {
+            return _ajax_1.$post('/work/db/memo/' + work.id, $assemble(memo))
+                .then(function (id) {
+                memo.id = id;
+                return memo;
+            });
+        }
+        WorkMemo.save = save;
+        function remove(memo, work) {
+            return _ajax_1.$delete('/work/db/memo/' + memo.id + '/' + work.id);
+        }
+        WorkMemo.remove = remove;
+    })(WorkMemo = exports.WorkMemo || (exports.WorkMemo = {}));
+    exports.WorkMemo = WorkMemo;
+    (function (WorkItem) {
+        function save(v, workId) {
+            return _ajax_1.$post('/work/db/item/' + workId, $assemble(v)).then(function (id) {
+                v.id = id;
+            });
+        }
+        WorkItem.save = save;
+        function priority(ids) {
+            return _ajax_1.$post('/work/db/item/priority', ids).then(function (v) {
+                console.log(v);
+            });
+        }
+        WorkItem.priority = priority;
+        function remove(v) {
+            return _ajax_1.$delete('/work/db/item/' + v.id);
+        }
+        WorkItem.remove = remove;
+    })(WorkItem = exports.WorkItem || (exports.WorkItem = {}));
+    exports.WorkItem = WorkItem;
+    (function (WorkFile) {
+        function $get(id) {
+            return new Promise(function (o, x) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/upload/progress' + (id ? '/' + id : ''));
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            o(id ? parseInt(xhr.responseText) : xhr.responseText);
+                        }
+                    }
+                };
+                xhr.send(null);
+            });
+        }
+        // File Upload Logic
+        function $upload(data, handler) {
+            // ① 고유 키를 받아온다.
+            return $get().then(function (id) {
+                var total = 0, // uploading한 총 파일용량
+                time = 10, // sending 체크 시간
+                xhr = new XMLHttpRequest(), 
+                // 서버측 다운로드 경과
+                tHandler = function () {
+                    $get(id).then(function (d) {
+                        if (total !== -1 && total !== d) {
+                            handler.sending(d, total);
+                            setTimeout(tHandler, time);
+                        }
+                        else {
+                            handler.sending(total, total);
+                        }
+                    });
+                };
+                // 서버 send progress
+                xhr.upload.onprogress = function (e) {
+                    handler.uploading(e.loaded, e.total);
+                };
+                xhr.upload.onloadend = function (e) {
+                    handler.uploading(e.total, e.total);
+                    total = e.total;
+                    setTimeout(tHandler, time);
+                };
+                return new Promise(function (o, x) {
+                    xhr.open('POST', '/upload/file/' + id);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                total = -1; // 위의 setTimeout 핸들러를 멈추기 위한 값
+                                o(id);
+                            }
+                        }
+                    };
+                    xhr.send(data);
+                });
+            });
+        }
+        function uploadFile(path, file, handler) {
+            var formData = new FormData();
+            formData.append('path', 'D:/work/' + path);
+            formData.append('file', file.data, file.name);
+            return $upload(formData, handler).then(function (id) {
+                handler.done();
+                return id;
+            });
+        }
+        WorkFile.uploadFile = uploadFile;
+        function uploadTest(data) {
+            var formData = new FormData();
+            formData.append('file', data, data['name']);
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                }
+            };
+            xhr.open('POST', '/upload/file/test', true);
+            xhr.send(formData);
+        }
+        WorkFile.uploadTest = uploadTest;
+        function saveFile(type, ownId, workFile) {
+            return _ajax_1.$post('/work/db/' + type + '/' + ownId, $assemble(workFile))
+                .then(function (id) { return workFile.setId(id); });
+        }
+        WorkFile.saveFile = saveFile;
+        function removeFile(type, id) {
+            return _ajax_1.$delete('/work/db/' + type + '/' + id);
+        }
+        WorkFile.removeFile = removeFile;
+        function create(file, orig_name, save_name) {
+            var i = orig_name.lastIndexOf('.');
+            return new WorkFile({
+                datetime: new Date(),
+                original_name: orig_name.slice(0, i),
+                save_name: save_name,
+                filetype: orig_name.slice(i + 1),
+                size: file.size,
+                content_type: file.type
+            });
+        }
+        WorkFile.create = create;
+    })(WorkFile = exports.WorkFile || (exports.WorkFile = {}));
+    exports.WorkFile = WorkFile;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
-/* 13 */,
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -2727,7 +2846,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -2741,9 +2860,123 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 16 */,
 /* 17 */,
 /* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // 정방향
+    function cEach(children, n) {
+        var l = children.length, i = 0, pos = 1;
+        for (; i < l; i++) {
+            if (children[i].nodeType === 1) {
+                if (pos++ === n)
+                    return children[i];
+            }
+        }
+        return null;
+    }
+    // 역방향
+    function cEachReverse(children, n) {
+        var l = children.length, pos = 1;
+        while (l-- > 0) {
+            if (children[l].nodeType === 1) {
+                if (pos++ === n)
+                    return children[l];
+            }
+        }
+        return null;
+    }
+    // nth-child(?) 찾기
+    /*
+     *
+     *  젓같은 ie에서는 fragment에 children이 없다. 따라서 childNodes로 한다..
+     */
+    function nthChildren(context, nth) {
+        if (nth < 0)
+            return cEachReverse(context.childNodes, nth * -1);
+        else
+            return cEach(context.childNodes, nth === 0 ? 1 : nth);
+    }
+    exports.nthChildren = nthChildren;
+    /*
+     *   :0 첫번째 자식
+     *   :-1 마지막 자식
+     *   :* 모든 자식
+     *
+     *   =  querySelector
+     *   [1] querySelectorAll
+     *   "1"  getElementsByClassName
+     *   <2> getElementsById
+     */
+    function lookup(r, index) {
+        if (index < 0) {
+            var l = r.length;
+            index *= -1;
+            index = index % l;
+            return index === 0 ? r[0] : r[l - index];
+        }
+        return r[index];
+    }
+    function select(context, selector) {
+        var sChar = selector[0], i = 0, prefix, r, hasIndex = false;
+        if (sChar === '=')
+            return context.querySelector(selector.slice(2));
+        i = selector.indexOf(' ');
+        prefix = selector.substring(0, i);
+        selector = selector.slice(i + 1);
+        i = prefix.length;
+        if (i !== 2) {
+            hasIndex = true;
+            i = parseInt(prefix.substring(1, i - 1));
+        }
+        switch (sChar) {
+            case '[':
+                r = context.querySelectorAll(selector);
+                return hasIndex ? lookup(r, i) : r;
+            case '"':
+                r = context.getElementsByClassName(selector);
+                return hasIndex ? lookup(r, i) : r;
+            case '<':
+                r = context.getElementsByTagName(selector);
+                return hasIndex ? lookup(r, i) : r;
+        }
+    }
+    exports.select = select;
+    function selectAll(element, arg, handler) {
+        var args = [], index = 0, i = 0, l = arg.length, str;
+        for (; i < l; i++) {
+            str = arg[i];
+            // (1) 문자열일 경우
+            if (typeof str === 'string') {
+                // :1 일 경우 앞선 결과를 element 주체로 사용한다.
+                if (str[0] === ':') {
+                    var i_1 = str.indexOf(' ');
+                    args[index++] = select(args[str.substring(1, i_1)], str.slice(i_1 + 1));
+                }
+                else
+                    args[index++] = select(element, str);
+            }
+            // (2) 함수일 경우, 결과물을 그대로 보내준다..
+            else if (typeof str === 'function')
+                args[index++] = str(element, args);
+            // (2) 문자열이 아닐 경우 그대로 결과값
+            else {
+                args[index++] = str;
+            }
+        }
+        return handler ? handler.apply(element, args) : args;
+    }
+    exports.selectAll = selectAll;
+    ;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, dom_1) {
@@ -2752,9 +2985,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     var className = dom_1.DOM.className;
     var hasClass = dom_1.DOM.hasClass;
     var r_dropdown = ['dropdown'], r_open = ['show', 'open'], active, act = function (dropdown, flag, e) {
-        var eventType;
+        var eventType, dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
         className(dropdown, r_open, flag);
-        className(dropdown.getElementsByClassName('dropdown-menu')[0], r_open, flag);
+        dropdownMenu && className(dropdownMenu, r_open, flag);
         // dropdown 이벤트
         if ((eventType = dropdown.getAttribute('data-dropdown-event')) != null) {
             var event_1 = document.createEvent('Event');
@@ -2837,10 +3070,69 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, array_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(10), __webpack_require__(2), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Mapping_1, format_1, selector_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var datetime = format_1.Formats.datetime;
+    var element = selector_1.getElementById('bill'), types = selector_1.getElementsByClassName(element, 'bill', function (e, i, r) {
+        element.removeChild(e);
+        r[e.id] = e;
+    }, {}), hancome = {
+        name: '한컴기획',
+        address: '경기도 수원시 권선구 산업로156번길 142-10 수원벤처밸리2 A동 B122호 (고색동 1152)',
+        biz_con: '서비스',
+        biz_num: '124-53-35359',
+        biz_type: '광고기획인쇄',
+        owner: '고정철',
+    }, date = datetime(new Date(), 'yyyy-MM-dd(E) HH:mm'), $mapping = new Mapping_1.Mapping()
+        .addTemplate(selector_1.getElementById('bill-template'))
+        .addDirective({
+        // 공급자, 공급받는자 구분
+        check: function (e, v) {
+            if (v.biz_num !== '124-53-35359')
+                e.classList.add('send');
+        },
+        // 견적메모가 없을 경우에는 엘리먼트를 없앤다.
+        exists: function (e, work) {
+            var text = work.text;
+            if (!text.trim())
+                e.classList.add('hide');
+            else
+                e.classList.remove('hide');
+        },
+        now: function (e, work) {
+            e.textContent = date;
+        },
+    });
+    element.addEventListener('click', function (e) {
+        if (e.target === element) {
+            element.classList.remove('on');
+            element.textContent = '';
+            document.body.classList.remove('scroll-lock');
+        }
+    });
+    element.textContent = '';
+    function $bill($work, type) {
+        $work['$hancome'] = hancome;
+        $mapping.setData($work);
+        $mapping.$render(types[type]);
+        element.appendChild(types[type]);
+        document.body.classList.add('scroll-lock');
+        element.classList.add('on');
+    }
+    exports.$bill = $bill;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(6), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, array_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Offset = /** @class */ (function () {
@@ -2895,7 +3187,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -2908,7 +3200,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageScreen = /** @class */ (function (_super) {
@@ -2941,10 +3233,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageContainer = /** @class */ (function () {
@@ -3144,7 +3436,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -3157,7 +3449,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(7), __webpack_require__(12), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(7), __webpack_require__(10), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -3168,7 +3460,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         name: function (ele, v) {
             var img = v.img;
             if (img) {
-                ele.href = v.path + img.getSaveName();
+                ele.href = '/workdata/' + v.path + img.getSaveName();
                 ele.textContent = img.getOrigName();
             }
             else {
@@ -3178,7 +3470,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         render: function (ele, v) {
             var img = v.img;
             if (img) {
-                ele.style.backgroundImage = 'url("' + v.path + img.getSaveName() + '")';
+                ele.style.backgroundImage = 'url("/workdata/' + v.path + img.getSaveName() + '")';
             }
             else {
                 ele.style.backgroundImage = '';
@@ -3251,7 +3543,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -3264,7 +3556,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(24), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(26), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -3300,10 +3592,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(25), __webpack_require__(26), __webpack_require__(11), __webpack_require__(0), __webpack_require__(15), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(27), __webpack_require__(28), __webpack_require__(13), __webpack_require__(0), __webpack_require__(16), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
@@ -3739,7 +4031,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -3758,7 +4050,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -3770,16 +4062,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 27 */,
-/* 28 */,
 /* 29 */,
 /* 30 */,
 /* 31 */,
 /* 32 */,
-/* 33 */
+/* 33 */,
+/* 34 */,
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(10), __webpack_require__(11), __webpack_require__(4), __webpack_require__(1), __webpack_require__(35), __webpack_require__(22), __webpack_require__(3), __webpack_require__(5), __webpack_require__(7), __webpack_require__(0), __webpack_require__(34), __webpack_require__(36), __webpack_require__(9), __webpack_require__(19), __webpack_require__(14), __webpack_require__(37), __webpack_require__(20), __webpack_require__(23), __webpack_require__(12), __webpack_require__(39), __webpack_require__(18)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, calendar_1, core_1, format_1, FileUpload_1, Screen_1, array_1, dom_1, events_1, access_1, FormEvent_1, _recieveFiles_1, replaceHTML_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ViewForm_1, Mapping_1, ComfirmBox_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(14), __webpack_require__(13), __webpack_require__(4), __webpack_require__(2), __webpack_require__(39), __webpack_require__(24), __webpack_require__(6), __webpack_require__(5), __webpack_require__(7), __webpack_require__(0), __webpack_require__(40), __webpack_require__(41), __webpack_require__(9), __webpack_require__(21), __webpack_require__(15), __webpack_require__(42), __webpack_require__(22), __webpack_require__(25), __webpack_require__(10), __webpack_require__(44), __webpack_require__(11), __webpack_require__(20), __webpack_require__(1), __webpack_require__(18), __webpack_require__(19)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, calendar_1, core_1, format_1, FileUpload_1, Screen_1, array_1, dom_1, events_1, access_1, FormEvent_1, _recieveFiles_1, replaceHTML_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ViewForm_1, Mapping_1, ComfirmBox_1, selector_1, Bill_1, number_1, _select_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var createHTML = dom_1.DOM.createHTML;
@@ -3787,9 +4082,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     var access = access_1.Access.access;
     var className = dom_1.DOM.className;
     var number = format_1.Formats.number;
-    var eventProperty = events_1.Events.eventProperty;
     var simpleTrigger = events_1.Events.simpleTrigger;
     var filesize = format_1.Formats.filesize;
+    var acceptKeys = events_1.Events.acceptKeys;
     var EventObject = /** @class */ (function () {
         function EventObject(e) {
             this.e = e;
@@ -3838,7 +4133,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     dropdown.innerHTML = print.map(function (p, i) {
                         return $$templates['print']({
                             index: i, data: p,
-                            path: $path + p.getSaveName() + '?attachment=' + p.getOrigName()
+                            path: '/workdata/' + $path + p.getSaveName() + '?attachment=' + p.getOrigName()
                         });
                     }).join('');
                 }
@@ -3862,12 +4157,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         ele.appendChild(position_1.__adjustTo(ele, image_1, true));
                         image_1.onload = null;
                     };
-                    image_1.src = $path + v.getSaveName();
+                    image_1.src = '/workdata/' + $path + v.getSaveName();
                 }
                 // ② 일반 파일
                 else {
                     ele.classList.add('file-icon-' + v.filetype);
-                    ele.href = $path + v.getSaveName() + '?attachment=' + v.getOrigName();
+                    ele.href = '/workdata/' + $path + v.getSaveName() + '?attachment=' + v.getOrigName();
                 }
             },
         }, $mapping = new Mapping_1.Mapping()
@@ -3875,19 +4170,92 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             .addDirective($directive)
             .addTemplate(Mapping_1.Mapping.createTemplates(document.head)), 
         /*
-         *   data-event-register="{name}"
+         *   data-pre-processor="{name}"
          *
          */
-        eventRegister = {
+        preProcessor = {
             $attach: function (e) {
                 var _this = this;
-                array_1._forEach(e.querySelectorAll('[data-event-register]'), function (e) {
-                    _this[e.getAttribute('data-event-register')](e);
+                if (e.hasAttribute('data-pre-processor'))
+                    this[e.getAttribute('data-pre-processor')](e);
+                array_1._forEach(e.querySelectorAll('[data-pre-processor]'), function (e) {
+                    _this[e.getAttribute('data-pre-processor')](e);
                 });
                 return e;
             },
-            // **************** 이벤트 종류
+            state: function (ele) {
+                var $state = Work_1.Work.$state, _a = _select_1.selectAll(ele, ['<0> span', '<0> ul']), span = _a[0], ul = _a[1], current = $work.state.toString(), $active = function (i) {
+                    span.textContent = $state[current = i];
+                    array_1._forEach(ul.children, function (e) {
+                        if (e.getAttribute('data-dismiss') == i)
+                            e.classList.add('active');
+                        else
+                            e.classList.remove('active');
+                    });
+                };
+                ul.innerHTML = $state.reduce(function (r, v, i) {
+                    r[i] = '<li data-dismiss="' + i + '">' + v + '</li>';
+                    return r;
+                }, []).join('');
+                ul.addEventListener('click', function (e) {
+                    var i = e.target['getAttribute']('data-dismiss');
+                    if (current !== i)
+                        Work_1.Work.updateState($work.id, i).then(function () {
+                            $active(i);
+                        });
+                });
+                $active(current);
+            },
+            // 작업 삭제 버튼
+            remove: function (ele) {
+                ele.addEventListener('click', function (e) {
+                    $confirm.on(e, function (flag) {
+                        if (flag)
+                            Work_1.Work.remove($work.id).then(function () {
+                                location.href = '/work/list';
+                            });
+                    });
+                });
+            },
+            // 숫자만 써지게 한다.
             number: FormEvent_1.FormEvent.numbers,
+            /*
+             *   ① count와 price가 입력될때마다 vat, total을 계산해넣는다.
+             *   ② vat 자체를 수정할 경우에는 total만 변경한다
+             */
+            compute: function (tr) {
+                // [count, price, vat, total]
+                var inputs = selector_1.querySelectorAll(tr, '[data-compute]', function (e, i, a) {
+                    a[e.getAttribute('data-compute')] = e;
+                }, []), read = function (value) {
+                    if (number_1.r_number.test(value))
+                        return parseInt(value);
+                    return 0;
+                }, processor = [
+                    function (val) { return val[0] == null ? read(inputs[0].value) : val[0]; },
+                    function (val) { return val[1] == null ? read(inputs[1].value) : val[1]; },
+                    function (val) {
+                        if (val[2] == null) {
+                            var c = val[0], p = val[1];
+                            inputs[2].value = (val[2] = (c * p) / 10).toString();
+                        }
+                        return val[2];
+                    },
+                    function (val) { return inputs[3].value = (val[0] * val[1] + val[2]) + ''; }
+                ];
+                // keyup 이벤트
+                array_1._forEach(inputs, function (input, i) {
+                    acceptKeys(input, function (val) {
+                        if (!val.trim())
+                            val = '0';
+                        if (number_1.r_number.test(val)) {
+                            var values_1 = [];
+                            values_1[i] = read(val);
+                            array_1._forEach(processor, function (func, i) { return values_1[i] = func(values_1); });
+                        }
+                    }, false);
+                });
+            },
             // 메모 textarea와 버튼을 일원화시키기
             memoForm: function (ele) {
                 var textarea = ele.querySelector('textarea'), tHandler = function () { return className(ele, 'active', !!textarea.value); };
@@ -3909,9 +4277,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     sort.off();
                     var idx = array_1._makeArray(tbody.getElementsByTagName('tr')).indexOf(target);
                     if (index !== idx) {
-                        var values_1 = array_1._move(items, index, idx);
-                        Work_1.WorkItem.priority(values_1.map(function (v) { return v.id; })).then(function (v) {
-                            $work.items = values_1;
+                        var values_2 = array_1._move(items, index, idx);
+                        Work_1.WorkItem.priority(values_2.map(function (v) { return v.id; })).then(function (v) {
+                            $work.items = values_2;
                             $mapping.$render(mapper);
                         });
                     }
@@ -3953,6 +4321,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     $fileUpload('draft', $screen.item.id, workFileData, function (workFile) {
                         $screen.item.addDraft(workFile);
                         $screen.render();
+                        $mapping.$render($screen.mapper);
                     });
                 });
             },
@@ -3982,7 +4351,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // <script data-form="{}"> 순회
             array_1._forEach(list, function (e) {
                 $forms[e.getAttribute('data-form')] =
-                    new ViewForm_1.ViewForm(eventRegister.$attach(createHTML(e.innerText)));
+                    new ViewForm_1.ViewForm(preProcessor.$attach(createHTML(e.innerText)));
             });
             return $forms;
         })(document.head.querySelectorAll('script[data-form]')), 
@@ -4004,7 +4373,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             array_1._reduce(files, function (promise, file, i) {
                 return promise.then(function () {
                     return Work_1.WorkFile
-                        .uploadFile('files', file, $uploadProgress.start(file.name, i))
+                        .uploadFile($path, file, $uploadProgress.start(file.name, i))
                         .then(function (id) { return Work_1.WorkFile.saveFile(type, ownId, Work_1.WorkFile.create(file.data, file.name, id)); })
                         .then(function (workFile) { return handler(workFile); });
                 });
@@ -4035,17 +4404,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 },
             },
             memo: {
-                create: function (data, obj) {
+                create: function (data, work) {
                     var memo = new Work_1.WorkMemo({
                         value: data,
                         datetime: new Date()
                     });
-                    return Work_1.WorkMemo.save(obj, memo)
-                        .then(function (memo) { return obj.addMemo(memo); });
+                    return Work_1.WorkMemo.save(work, memo)
+                        .then(function (memo) { return work.addMemo(memo); });
                 },
                 update: function (data, own) {
                     console.log(data);
-                    data['id'] = own.id;
+                    data.id = own.id;
                     return Work_1.WorkMemo.save(own.work, data)
                         .then(function () { return own.value = data.value; });
                 },
@@ -4057,6 +4426,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             },
             items: {
                 update: function (data, own) {
+                    console.log(data);
                     var work = own.work;
                     data['id'] = own.id;
                     return Work_1.WorkItem.save(data, work.id)
@@ -4194,7 +4564,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         else
                             item.addDraft(file);
                         $screen.render();
-                        $mapping.$render($screen.mapper);
+                        $mapping.$render($screen.mapper); // 해당 아이템 엘리먼트도 갱신
                     });
                 });
             },
@@ -4234,7 +4604,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         //************************************** ▼ Events ▼ **************************************//
         dataEvent(body, 'click', 'data-event', EventObject.$dispatcher, function (t, o) {
             var p;
-            eventProperty(t, o);
             if (!o.mapping && (p = t.getAttribute('data-mapping'))) {
                 o.mapping = p;
             }
@@ -4248,12 +4617,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         $mapping.$render(element);
         $mapping.$render(document.querySelector('nav'));
         // 폼 이벤트
-        eventRegister.$attach(body);
+        preProcessor.$attach(body);
     }
     Work_1.Work.get(/([^\/]+)\/*$/.exec(location.pathname)[1]).then(function ($work) {
         if ($work) {
             console.log($work);
-            $init($work.uuid, 'http://localhost/local/work/files/', $work);
+            $init($work.uuid, Work_1.Work.toPath($work.uuid), $work);
+            // 견적서 띄우기
+            (function (nav) {
+                nav.addEventListener('click', function (e) {
+                    var type = e.target['getAttribute']('data-bill');
+                    if (type)
+                        Bill_1.$bill($work, type);
+                });
+            })(selector_1.getElementsByTagName(document.body, 'nav', 0));
         }
     });
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
@@ -4261,7 +4638,81 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 34 */
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var FileUpload = /** @class */ (function () {
+        /*
+         *  서버 송출하는 upload 진행도가 전체에서 차지할 비율
+         *  up      : 브라우저 업로드
+         *  send    : 서버측 다운로드
+         *  rr = 100 * up;
+         */
+        function FileUpload(element, up, send) {
+            if (up === void 0) { up = .6; }
+            if (send === void 0) { send = 1 - up; }
+            var _this = this;
+            this.element = element;
+            this.up = up;
+            this.send = send;
+            this._sending = false;
+            this.rr = 100 * up;
+            array_1._forEach(element.querySelectorAll('[data-prop]'), function (e) {
+                _this[e.getAttribute('data-prop')] = e;
+            });
+        }
+        FileUpload.prototype.init = function (total) {
+            this._sending = true;
+            this.current.textContent = '1';
+            this.total.textContent = total.toString();
+            this.bar.style.width = '0%';
+            return this;
+        };
+        FileUpload.prototype.uploading = function (loaded, total) {
+            this.loading(Math.floor(loaded / total * 100 * this.up));
+            return this;
+        };
+        FileUpload.prototype.sending = function (loaded, total) {
+            this.loading(this.rr + Math.floor(loaded / total * 100 * this.send));
+            return this;
+        };
+        FileUpload.prototype.done = function () {
+            this.loading(100);
+            this._sending = false;
+            return this;
+        };
+        FileUpload.prototype.isSending = function () {
+            return this._sending;
+        };
+        FileUpload.prototype.loading = function (percent) {
+            this.bar.style.width = percent + '%';
+        };
+        FileUpload.prototype.start = function (name, index) {
+            this.current.textContent = (index + 1).toString();
+            this.filename.textContent = name;
+            this.bar.style.width = '0%';
+            return this;
+        };
+        FileUpload.prototype.on = function () {
+            this.element.classList.add('on');
+            return this;
+        };
+        FileUpload.prototype.off = function () {
+            this.element.classList.remove('on');
+            return this;
+        };
+        return FileUpload;
+    }());
+    exports.FileUpload = FileUpload;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
@@ -4347,81 +4798,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var FileUpload = /** @class */ (function () {
-        /*
-         *  서버 송출하는 upload 진행도가 전체에서 차지할 비율
-         *  up      : 브라우저 업로드
-         *  send    : 서버측 다운로드
-         *  rr = 100 * up;
-         */
-        function FileUpload(element, up, send) {
-            if (up === void 0) { up = .6; }
-            if (send === void 0) { send = 1 - up; }
-            var _this = this;
-            this.element = element;
-            this.up = up;
-            this.send = send;
-            this._sending = false;
-            this.rr = 100 * up;
-            array_1._forEach(element.querySelectorAll('[data-prop]'), function (e) {
-                _this[e.getAttribute('data-prop')] = e;
-            });
-        }
-        FileUpload.prototype.init = function (total) {
-            this._sending = true;
-            this.current.textContent = '1';
-            this.total.textContent = total.toString();
-            this.bar.style.width = '0%';
-            return this;
-        };
-        FileUpload.prototype.uploading = function (loaded, total) {
-            this.loading(Math.floor(loaded / total * 100 * this.up));
-            return this;
-        };
-        FileUpload.prototype.sending = function (loaded, total) {
-            this.loading(this.rr + Math.floor(loaded / total * 100 * this.send));
-            return this;
-        };
-        FileUpload.prototype.done = function () {
-            this.loading(100);
-            this._sending = false;
-            return this;
-        };
-        FileUpload.prototype.isSending = function () {
-            return this._sending;
-        };
-        FileUpload.prototype.loading = function (percent) {
-            this.bar.style.width = percent + '%';
-        };
-        FileUpload.prototype.start = function (name, index) {
-            this.current.textContent = (index + 1).toString();
-            this.filename.textContent = name;
-            this.bar.style.width = '0%';
-            return this;
-        };
-        FileUpload.prototype.on = function () {
-            this.element.classList.add('on');
-            return this;
-        };
-        FileUpload.prototype.off = function () {
-            this.element.classList.remove('on');
-            return this;
-        };
-        return FileUpload;
-    }());
-    exports.FileUpload = FileUpload;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -4453,10 +4830,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(15), __webpack_require__(38), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _noop_1, util_1, array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(16), __webpack_require__(43), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _noop_1, util_1, array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var catchKey = events_1.Events.catchKey;
@@ -4615,7 +4992,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -4652,7 +5029,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1) {
@@ -4662,10 +5039,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         function ConfirmBox(element) {
             var _this = this;
             this.element = element;
+            this._skip = false;
             this.events = new events_1.EventsGroup().off()
                 .register(document, 'click', function (e) {
-                if (e['__skip'])
+                if (_this._skip) {
+                    _this._skip = false;
                     return;
+                }
                 var target = e.target;
                 if (target.hasAttribute('data-submit')) {
                     _this.handler(true);
@@ -4677,13 +5057,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
             });
         }
-        ConfirmBox.prototype.on = function (e, handler) {
+        ConfirmBox.prototype.on = function (x, y, h) {
             var element = this.element;
-            e['__skip'] = true;
+            if (!h) {
+                h = y;
+                y = x.pageY;
+                x = x.pageX;
+            }
+            this._skip = true;
             if (this.handler)
                 this.handler(false);
-            this.handler = handler;
-            element.setAttribute('style', 'top: ' + e.pageY + 'px; left: ' + e.pageX + 'px;');
+            this.handler = h;
+            element.setAttribute('style', 'top: ' + y + 'px; left: ' + x + 'px;');
             element.classList.add('on');
             this.events.on();
             return this;

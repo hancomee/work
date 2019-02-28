@@ -1,4 +1,3 @@
-SELECT * FROM hancomee_workfile this INNER JOIN hancomee_workfile_ref _r USING(id) WHERE _r.work_id = :id{i} ORDER BY this.datetime
 
 # select.work
 SELECT work.*, customer.*, draft.*
@@ -14,8 +13,8 @@ SELECT work.*, customer.*, draft.*
             LEFT OUTER JOIN hancomee_workfile draft ON draft.id = wfile2.id
             WHERE work.state = :state{i}
             [AND work.title LIKE :%title%]
-            [AND print.original_name LIKE :%print%]
-            [AND ref.original_name LIKE :%ref%]
+            [AND wfile3.original_name LIKE :%print%]
+            [AND wfile1.original_name LIKE :%ref%]
             [AND customer.name LIKE :%customerName%]
             [AND item.subject LIKE :%itemSubject%]
             [AND memo.value LIKE :%memo%]
@@ -36,8 +35,8 @@ FROM
             [INNER JOIN hancomee_workfile wfile3 ON print.id = wfile3.id  |print]
             WHERE 1
             [AND work.title LIKE :%title%]
-            [AND print.original_name LIKE :%print%]
-            [AND ref.original_name LIKE :%ref%]
+            [AND wfile3.original_name LIKE :%print%]
+            [AND wfile1.original_name LIKE :%ref%]
             [AND customer.name LIKE :%customerName%]
             [AND item.subject LIKE :%itemSubject%]
             [AND memo.value LIKE :%memo%]
@@ -66,9 +65,14 @@ SELECT count(DISTINCT work.id)
             [INNER JOIN hancomee_workfile wfile3 ON print.id = wfile3.id  |print]
             WHERE work.state = :state{i}
             [AND work.title LIKE :%title%]
-            [AND print.original_name LIKE :%print%]
-            [AND ref.original_name LIKE :%ref%]
+            [AND wfile3.original_name LIKE :%print%]
+            [AND wfile1.original_name LIKE :%ref%]
             [AND customer.name LIKE :%customerName%]
             [AND item.subject LIKE :%itemSubject%]
             [AND memo.value LIKE :%memo%]
             [AND work.datetime BETWEEN :st{st} AND :et{et}];
+
+
+
+# select.receivable
+SELECT this.* FROM receivable this ORDER BY this.date DESC;

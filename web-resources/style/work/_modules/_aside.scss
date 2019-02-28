@@ -1,4 +1,5 @@
 
+@import "_aside/todo";
 
 aside {
   display: flex;
@@ -9,23 +10,28 @@ aside {
   left: 0;
   bottom: 0;
 
-  padding: {
-    top: 1rem;
-  }
-
-  width: $aside-width;
+  width: $aside-width-response;
   background-color: $aside-bg-color;
 }
 
 .aside {
 
-  $bottom-color: #292929;
-  $top-color: #464646;
+  $border-color-darken: #292929;
+  $border-color-lighten: #464646;
+
+  &-row {
+    border-bottom: 1px solid $border-color-darken;
+    border-top: 1px solid $border-color-lighten;
+  }
+
+  &-division {
+    padding: 1rem .5rem .3rem;
+    font-size: 12px;
+  }
 
   &-today {
 
-    padding-bottom: 1rem;
-    border-bottom: 1px solid $bottom-color;
+    padding: 1rem 0;
 
     &-week, &-ym, &-date, &-time {
       display: block;
@@ -65,20 +71,60 @@ aside {
     }
   }
 
+  &-column {
+    display: flex;
+
+    &-btn {
+      padding: 1rem 0;
+      width: 50%;
+      border: {
+        left: 1px solid $border-color-lighten;
+        right: 1px solid $border-color-darken;
+        top: 1px solid $border-color-darken;
+        bottom: 1px solid $border-color-lighten;
+      }
+      font-size: 14px;
+      text-align: center;
+
+    }
+  }
+
+  // 사이드바 특별프로그램
+  &-pop {
+
+    > span {
+      font-size: 14px;
+    }
+    > .pop-up {
+      display: none;
+      overflow-y: auto;
+      position: fixed;
+      top: $nav-height;
+      left: $aside-width-response;
+      bottom: 0;
+      width: 350px;
+      background-color: #424242;
+      border-right: 1px solid $border-color-darken;
+      border-left: 1px solid $border-color-darken;
+    }
+    &.open {
+      > span {
+        color: yellow;
+      }
+      .pop-up {
+        display: block;
+      }
+    }
+
+  }
+
   &-menu {
 
     > li {
 
-      border-bottom: 1px solid $bottom-color;
-
-      & + li {
-        border-top: 1px solid $top-color;
-      }
-
       > a {
         display: block;
-        padding: .5rem;
-        text-align: center;
+        padding: .5rem 0 .5rem 1.5rem;
         color: #9c9c9c;
       }
 
@@ -95,5 +141,15 @@ aside {
       }
     }
   }
+}
 
+@media (min-width: 1441px) {
+
+  .aside {
+    &-pop {
+      > .pop-up {
+        left: $aside-width;
+      }
+    }
+  }
 }

@@ -45,16 +45,13 @@ export class WorkCreator {
                 Customer.search(keyword).then(values => {
                     if ((data = values).length) {
 
-                        console.log(keyword, values);
                         // 딱 맞는 이름이 있는지
-                        let l = data.length,
-                            matched = false;
+                        let matched = false;
 
                         result.innerHTML = values.map((customer, idx) => {
                             let {name} = customer;
                             if (keyword === name) matched = true;
-                            return '<div data-index="' + idx + '"><i>' + l-- + '</i>' +
-                                name + '</div>';
+                            return '<div data-index="' + idx + '">' + name + '</div>';
                         }).join('');
 
                         // 매치되는 이름이 없을때만 새로만들기 버튼을 활성화
@@ -65,19 +62,28 @@ export class WorkCreator {
                         result.textContent = '';
                     }
                 })
+            },
+            $search = (key: string) => {
+                eClass.remove('confirm-customer');
+                title.disabled = true;
+                if (keyword = key) $load();
+                else result.textContent = '';
+            },
+            $create = () => {
+                if (eClass.contains('confirm-title') && eClass.contains('confirm-customer')) {
+                    let work = {'customer_id': select.id, title: title.value};
+                    Work.createWork(work).then(v => {
+                        location.href = '/work/view/' + v;
+                    })
+                }
             };
 
         // ① 거래처 검색
-        acceptKeys(search, (v) => {
-            eClass.remove('confirm-customer');
-            title.disabled = true;
-            if (keyword = v) $load();
-            else result.textContent = '';
-        });
+        acceptKeys(search, $search);
 
         // ② 거래처 만들기
         createBtn.addEventListener('click', () => {
-            console.log(keyword + ' 업체 생성!!');
+            Customer.save({name: keyword}).then(() => $search(keyword));
         });
 
         // ③ 거래처 선택
@@ -101,13 +107,8 @@ export class WorkCreator {
         });
 
         // ⑤ 확인버튼
-        confirmBtn.addEventListener('click', () => {
-            if(eClass.contains('confirm-title') && eClass.contains('confirm-customer')) {
-                let work = {customer: select.id, title: title.value};
-                console.log(work);
-            }
-
-        });
+        confirmBtn.addEventListener('click', $create);
+        title.addEventListener('keyup', (e: KeyboardEvent) => e.keyCode === 13 && $create());
 
         // ⑥ 취소버튼
         cancelBtn.addEventListener('click', () => this.off());
@@ -127,6 +128,7 @@ export class WorkCreator {
     on() {
         this.init();
         this.element.classList.add('on');
+        this.search.focus();
         return this;
     }
 

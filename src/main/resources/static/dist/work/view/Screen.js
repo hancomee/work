@@ -60,14 +60,14 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 22);
+/******/ 	return __webpack_require__(__webpack_require__.s = 24);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Access;
@@ -126,7 +126,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.r_number = /^[+-]?\d+$/;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -344,201 +356,160 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_number = /^[+-]?\d+$/;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var indexOf = Array.prototype.indexOf;
-    function _indexOf(obj, v) {
-        var l = obj.length;
-        while (l-- > 0)
-            if (obj[l] === v)
-                return l;
-        return -1;
-    }
-    exports._indexOf = _indexOf;
-    function _range(i, l, handler, t) {
-        for (; i < l; i++)
-            handler(i, t);
-        return t;
-    }
-    exports._range = _range;
-    // index 위치에 있는 원소를 move 위치로 옮기기
-    function _move(obj, index, move) {
-        var r = [], i = 0, l = obj.length;
-        r[move] = obj[index];
-        // 역방향 이동
-        if (index > move) {
-            for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < move)
-                        r[i] = obj[i];
-                    else if (i > index)
-                        r[i] = obj[i];
-                    else
-                        r[i + 1] = obj[i];
+    var Arrays;
+    (function (Arrays) {
+        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
+        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
+        function cols(array, col, callback) {
+            var limit = array.length, i = 0, colNum, row = -1;
+            if (col < 1)
+                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
+            for (; i < limit; i++) {
+                if ((colNum = i % col) === 0)
+                    row++;
+                if (callback.call(array, array[i], i, i % col, row) === false)
+                    return;
+            }
+        }
+        Arrays.cols = cols;
+        function slice(array, col, callback) {
+            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
+            for (; i < len; i++) {
+                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
+            }
+            return result;
+        }
+        Arrays.slice = slice;
+        /*
+         *  DataTransferItemList 때문에 만든 함수
+         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
+         *  *사용법은 로직 참고
+         */
+        function promiseMap(array, handler) {
+            return new Promise(function (resolve, _) {
+                var check, len = check = array.length, result = [];
+                var _loop_1 = function () {
+                    var index = len;
+                    handler(array[index], function (d) {
+                        result[index] = d;
+                        --check === 0 && resolve(result);
+                    });
+                };
+                while (len-- > 0) {
+                    _loop_1();
                 }
+            });
+        }
+        Arrays.promiseMap = promiseMap;
+        // 숫자배열을 만들어준다.
+        // 시작넘버부터 객수
+        function rangeBySize(start, size) {
+            var array = [];
+            for (var l = start + size; start < l; start++) {
+                array.push(start);
+            }
+            return array;
+        }
+        Arrays.rangeBySize = rangeBySize;
+        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
+        function range_atob(start, lastNum) {
+            var reverse = start > lastNum ? true : false, array = [];
+            /*
+             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
+             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
+             */
+            if (reverse) {
+                var temp = start;
+                start = lastNum;
+                lastNum = temp;
+            }
+            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
+                array.push(i + start);
+            }
+            return reverse ? array.reverse() : array;
+        }
+        Arrays.range_atob = range_atob;
+        // drive 배열의 원소만큼 루프를 돌린다.
+        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
+        function _with(drive, driven, callback) {
+            if (drive == null)
+                return;
+            for (var i = 0; i < drive.length; i++) {
+                callback.call(drive, drive[i], driven, i);
             }
         }
-        // 정방향 이동
-        else {
+        Arrays._with = _with;
+        function fill(length, v) {
+            if (v === void 0) { v = null; }
+            var i = 0, array = [], handler = v;
+            if (typeof v !== 'function')
+                handler = function () { return v; };
+            for (; i < length; i++) {
+                array[i] = handler.call(array, i);
+            }
+            return array;
+        }
+        Arrays.fill = fill;
+        // 배열을 length의 갯수만큼 나눈다.
+        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
+        function split(target, length) {
+            var result = [], temp, pos;
+            for (var i = 0, l = target.length; i < l; i++) {
+                pos = i % length;
+                if (!pos)
+                    result.push(temp = []);
+                temp[pos] = target[i];
+            }
+            return result;
+        }
+        Arrays.split = split;
+        // target의 앞부터 다 맞으면 오케이
+        function startWith(key, target) {
+            var i = 0, l = key.length;
+            if (target.length < l)
+                return false;
             for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < index)
-                        r[i] = obj[i];
-                    else if (i > move)
-                        r[i] = obj[i];
-                    else
-                        r[i - 1] = obj[i];
-                }
+                if (key[i] !== target[i])
+                    return false;
             }
+            return true;
         }
-        return r;
-    }
-    exports._move = _move;
-    function _makeArray(obj) {
-        var r = [], l = obj.length;
-        while (l-- > 0)
-            r[l] = obj[l];
-        return r;
-    }
-    exports._makeArray = _makeArray;
-    function _filter(obj, filter) {
-        var r = [], i = 0, l = obj.length, pos = 0;
-        for (; i < l; i++)
-            if (filter(obj[i], i))
-                r[pos++] = obj[i];
-        return r;
-    }
-    exports._filter = _filter;
-    function _forEach(obj, h) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (h(obj[i], i++) === false)
-                return obj;
-        }
-        return obj;
-    }
-    exports._forEach = _forEach;
-    function _selector(obj, h) {
-        var i = 0, l = obj.length, v;
-        while (i < l) {
-            if (h(v = obj[i], i++))
-                return v;
-        }
-        return undefined;
-    }
-    exports._selector = _selector;
-    function _forEachReverse(obj, h) {
-        var i = obj.length;
-        while (i-- > 0) {
-            if (h(obj[i], i) === false)
-                break;
-        }
-        return obj;
-    }
-    exports._forEachReverse = _forEachReverse;
-    function _reduce(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            r = h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduce = _reduce;
-    function _reduceN(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduceN = _reduceN;
-    function _map(obj, h) {
-        var r = [], i = 0, l = obj.length;
-        while (i < l) {
-            r[i] = h(obj[i], i++);
-        }
-        return r;
-    }
-    exports._map = _map;
-    function _colMap(values, size, handler) {
-        var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r[rIndex] = handler(v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r[rIndex] = handler(v, rIndex++));
-        return r;
-    }
-    exports._colMap = _colMap;
-    function _colReduce(values, size, handler, r) {
-        var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r = handler(r, v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r = handler(r, v, rIndex++));
-        return r;
-    }
-    exports._colReduce = _colReduce;
-    function _in(obj, filter, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === r)
-                return r;
-        }
-        return !r;
-    }
-    // true가 하나라도 있으면
-    function _inTrue(obj, filter) {
-        return _in(obj, filter, true);
-    }
-    exports._inTrue = _inTrue;
-    function _inFalse(obj, filter) {
-        return _in(obj, filter, false);
-    }
-    exports._inFalse = _inFalse;
-    function _everyTrue(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === false)
+        Arrays.startWith = startWith;
+        function endWith(key, target) {
+            var i = 0, l = key.length, r = target.length - l;
+            if (r < 0)
                 return false;
+            for (; i < l; i++, r++) {
+                if (key[i] !== target[r])
+                    return false;
+            }
+            return true;
         }
-        return true;
-    }
-    exports._everyTrue = _everyTrue;
-    function _everyFalse(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === true)
+        Arrays.endWith = endWith;
+        // 값 비교
+        function equals(a, b) {
+            if (a === b)
+                return true;
+            if (a == null || b == null)
                 return false;
+            if (a.length != b.length)
+                return false;
+            // If you don't care about the order of the elements inside
+            // the array, you should sort both arrays here.
+            for (var i = 0, l = a.length; i < l; i++) {
+                if (a[i] !== b[i])
+                    return false;
+            }
+            return true;
         }
-        return true;
-    }
-    exports._everyFalse = _everyFalse;
+        Arrays.equals = equals;
+    })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1071,154 +1042,183 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Arrays;
-    (function (Arrays) {
-        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
-        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
-            var limit = array.length, i = 0, colNum, row = -1;
-            if (col < 1)
-                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
-            for (; i < limit; i++) {
-                if ((colNum = i % col) === 0)
-                    row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
-                    return;
-            }
-        }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
-            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
-            for (; i < len; i++) {
-                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
-            }
-            return result;
-        }
-        Arrays.slice = slice;
-        /*
-         *  DataTransferItemList 때문에 만든 함수
-         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
-         *  *사용법은 로직 참고
-         */
-        function promiseMap(array, handler) {
-            return new Promise(function (resolve, _) {
-                var check, len = check = array.length, result = [];
-                var _loop_1 = function () {
-                    var index = len;
-                    handler(array[index], function (d) {
-                        result[index] = d;
-                        --check === 0 && resolve(result);
-                    });
-                };
-                while (len-- > 0) {
-                    _loop_1();
-                }
-            });
-        }
-        Arrays.promiseMap = promiseMap;
-        // 숫자배열을 만들어준다.
-        // 시작넘버부터 객수
-        function rangeBySize(start, size) {
-            var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
-            }
-            return array;
-        }
-        Arrays.rangeBySize = rangeBySize;
-        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
-            var reverse = start > lastNum ? true : false, array = [];
-            /*
-             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
-             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
-             */
-            if (reverse) {
-                var temp = start;
-                start = lastNum;
-                lastNum = temp;
-            }
-            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
-                array.push(i + start);
-            }
-            return reverse ? array.reverse() : array;
-        }
-        Arrays.range_atob = range_atob;
-        // drive 배열의 원소만큼 루프를 돌린다.
-        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
-            if (drive == null)
-                return;
-            for (var i = 0; i < drive.length; i++) {
-                callback.call(drive, drive[i], driven, i);
-            }
-        }
-        Arrays._with = _with;
-        function fill(length, v) {
-            if (v === void 0) { v = null; }
-            var i = 0, array = [], handler = v;
-            if (typeof v !== 'function')
-                handler = function () { return v; };
-            for (; i < length; i++) {
-                array[i] = handler.call(array, i);
-            }
-            return array;
-        }
-        Arrays.fill = fill;
-        // 배열을 length의 갯수만큼 나눈다.
-        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
-            var result = [], temp, pos;
-            for (var i = 0, l = target.length; i < l; i++) {
-                pos = i % length;
-                if (!pos)
-                    result.push(temp = []);
-                temp[pos] = target[i];
-            }
-            return result;
-        }
-        Arrays.split = split;
-        // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
-            var i = 0, l = key.length;
-            if (target.length < l)
-                return false;
+    var indexOf = Array.prototype.indexOf;
+    function _indexOf(obj, v) {
+        var l = obj.length;
+        while (l-- > 0)
+            if (obj[l] === v)
+                return l;
+        return -1;
+    }
+    exports._indexOf = _indexOf;
+    function _range(i, l, handler, t) {
+        for (; i < l; i++)
+            handler(i, t);
+        return t;
+    }
+    exports._range = _range;
+    // index 위치에 있는 원소를 move 위치로 옮기기
+    function _move(obj, index, move) {
+        var r = [], i = 0, l = obj.length;
+        r[move] = obj[index];
+        // 역방향 이동
+        if (index > move) {
             for (; i < l; i++) {
-                if (key[i] !== target[i])
-                    return false;
+                if (i !== index) {
+                    if (i < move)
+                        r[i] = obj[i];
+                    else if (i > index)
+                        r[i] = obj[i];
+                    else
+                        r[i + 1] = obj[i];
+                }
             }
-            return true;
         }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
-            var i = 0, l = key.length, r = target.length - l;
-            if (r < 0)
-                return false;
-            for (; i < l; i++, r++) {
-                if (key[i] !== target[r])
-                    return false;
+        // 정방향 이동
+        else {
+            for (; i < l; i++) {
+                if (i !== index) {
+                    if (i < index)
+                        r[i] = obj[i];
+                    else if (i > move)
+                        r[i] = obj[i];
+                    else
+                        r[i - 1] = obj[i];
+                }
             }
-            return true;
         }
-        Arrays.endWith = endWith;
-        // 값 비교
-        function equals(a, b) {
-            if (a === b)
-                return true;
-            if (a == null || b == null)
-                return false;
-            if (a.length != b.length)
-                return false;
-            // If you don't care about the order of the elements inside
-            // the array, you should sort both arrays here.
-            for (var i = 0, l = a.length; i < l; i++) {
-                if (a[i] !== b[i])
-                    return false;
+        return r;
+    }
+    exports._move = _move;
+    function _makeArray(obj) {
+        var r = [], l = obj.length;
+        while (l-- > 0)
+            r[l] = obj[l];
+        return r;
+    }
+    exports._makeArray = _makeArray;
+    function _filter(obj, filter) {
+        var r = [], i = 0, l = obj.length, pos = 0;
+        for (; i < l; i++)
+            if (filter(obj[i], i))
+                r[pos++] = obj[i];
+        return r;
+    }
+    exports._filter = _filter;
+    function _forEach(obj, h) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (h(obj[i], i++) === false)
+                return obj;
+        }
+        return obj;
+    }
+    exports._forEach = _forEach;
+    function _selector(obj, h) {
+        var i = 0, l = obj.length, v;
+        while (i < l) {
+            if (h(v = obj[i], i++))
+                return v;
+        }
+        return undefined;
+    }
+    exports._selector = _selector;
+    function _forEachReverse(obj, h) {
+        var i = obj.length;
+        while (i-- > 0) {
+            if (h(obj[i], i) === false)
+                break;
+        }
+        return obj;
+    }
+    exports._forEachReverse = _forEachReverse;
+    function _reduce(obj, h, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            r = h(r, obj[i], i++);
+        }
+        return r;
+    }
+    exports._reduce = _reduce;
+    function _reduceN(obj, h, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            h(r, obj[i], i++);
+        }
+        return r;
+    }
+    exports._reduceN = _reduceN;
+    function _map(obj, h) {
+        var r = [], i = 0, l = obj.length;
+        while (i < l) {
+            r[i] = h(obj[i], i++);
+        }
+        return r;
+    }
+    exports._map = _map;
+    function _colMap(values, size, handler) {
+        var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+        while (index < l) {
+            if (index % size === 0) {
+                v && (r[rIndex] = handler(v, rIndex++));
+                v = [];
+                vIndex = 0;
             }
-            return true;
+            v[vIndex++] = values[index++];
         }
-        Arrays.equals = equals;
-    })(Arrays = exports.Arrays || (exports.Arrays = {}));
+        v && (r[rIndex] = handler(v, rIndex++));
+        return r;
+    }
+    exports._colMap = _colMap;
+    function _colReduce(values, size, handler, r) {
+        var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+        while (index < l) {
+            if (index % size === 0) {
+                v && (r = handler(r, v, rIndex++));
+                v = [];
+                vIndex = 0;
+            }
+            v[vIndex++] = values[index++];
+        }
+        v && (r = handler(r, v, rIndex++));
+        return r;
+    }
+    exports._colReduce = _colReduce;
+    function _in(obj, filter, r) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === r)
+                return r;
+        }
+        return !r;
+    }
+    // true가 하나라도 있으면
+    function _inTrue(obj, filter) {
+        return _in(obj, filter, true);
+    }
+    exports._inTrue = _inTrue;
+    function _inFalse(obj, filter) {
+        return _in(obj, filter, false);
+    }
+    exports._inFalse = _inFalse;
+    function _everyTrue(obj, filter) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === false)
+                return false;
+        }
+        return true;
+    }
+    exports._everyTrue = _everyTrue;
+    function _everyFalse(obj, filter) {
+        var i = 0, l = obj.length;
+        while (i < l) {
+            if (filter(obj[i], i++) === true)
+                return false;
+        }
+        return true;
+    }
+    exports._everyFalse = _everyFalse;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1240,7 +1240,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(6), __webpack_require__(4), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(3), __webpack_require__(4), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1384,11 +1384,13 @@ var __extends = (this && this.__extends) || (function () {
             return group;
         }
         Events.map = map;
-        function acceptKeys(target, handler) {
+        // noDuplicationd : 같은 문자열 입력은 무시
+        function acceptKeys(target, handler, noDuplication) {
+            if (noDuplication === void 0) { noDuplication = true; }
             var key = null;
             return new Events(target, 'keyup', function (e) {
                 var value = target.value;
-                if (value !== key) {
+                if (!noDuplication || value !== key) {
                     key = value;
                     handler(value, e);
                 }
@@ -1557,20 +1559,32 @@ var __extends = (this && this.__extends) || (function () {
             }
             return obj;
         }
-        Events.eventProperty = eventProperty;
-        function dataEvent(element, type, // 이벤트 타입
-        attr, // 이벤트
-        getObj, // directive에 전달될 데이터
-        dispatcher, // loop 핸들러
-        directive) {
+        function getObject() {
+            return {};
+        }
+        function dataEvent(element, type, attr, getObj, dispatcher, directive) {
+            // arguments : 4
+            if (!dispatcher) {
+                directive = getObj;
+                getObj = getObject;
+                dispatcher = core_1.__returnTrue;
+            }
+            // arguments : 5
+            else if (!directive) {
+                directive = dispatcher;
+                dispatcher = core_1.__returnTrue;
+            }
             return new Events(element, type, function (e) {
-                var target = e.target, dir = directive[target.getAttribute(attr)];
+                var target = e.target, attrValue = target.getAttribute(attr), dir = directive[target.getAttribute(attr)];
                 if (dir) {
                     var obj = getObj(e), limit = element, h = dispatcher;
-                    while (target && (limit !== target) && (h(target, obj) !== false)) {
+                    while (target && (limit !== target)) {
+                        eventProperty(element, obj);
+                        if (h(target, obj, attrValue, e) === false)
+                            break;
                         target = target.parentElement;
                     }
-                    dir(obj);
+                    dir.call(dir, obj);
                 }
             });
         }
@@ -1593,7 +1607,7 @@ var __extends = (this && this.__extends) || (function () {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
@@ -1641,7 +1655,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expValParse = format_1.Formats.expValParse;
@@ -1699,11 +1713,205 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 10 */,
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(0), __webpack_require__(5), __webpack_require__(9), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var access = access_1.Access.access;
+    var expValParse = format_1.Formats.expValParse;
+    var number = format_1.Formats.number;
+    var datetime = format_1.Formats.datetime;
+    function isAlikeArray(target) {
+        if (target && typeof target.length === 'number') {
+            return true;
+        }
+        return false;
+    }
+    var defaultDirective = (function () {
+        var directive = {
+            number: function (ele, v) {
+                ele.textContent = number(v);
+            },
+            datetime: function (ele, v, p) {
+                ele.textContent = datetime(v, p);
+            },
+            // 문자열을 통해 엘리먼트 체크
+            exp: function (ele, v, opt) {
+            }
+        };
+        return function () { return Object.create(directive); };
+    })();
+    function $$mapping(prefix, val) {
+        return prefix ? prefix + '.' + val : val;
+    }
+    function render(ele, mapping, data, $val, Mapping) {
+        var $mapping = ele.getAttribute('data-mapping'), attrVal;
+        if ($mapping != null) {
+            $val = access(data, mapping = $mapping);
+        }
+        /*
+         *
+         */
+        if (attrVal = ele.getAttribute('data-directive')) {
+            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
+            if (v == null)
+                ele.textContent = '';
+            else if (filter != null)
+                directive[filter] && directive[filter].call(Mapping, ele, v, primitive);
+            else
+                ele.textContent = v.toString();
+        }
+        /*
+         *  element.clone(true)
+         */
+        if ((attrVal = ele.getAttribute('data-template')) != null) {
+            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
+            ele.textContent = '';
+            // ① 배열인 경우
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) {
+                    var c = temple_1(v, ele), prop = $$mapping(mapping, p);
+                    render(c, prop, data, v, Mapping);
+                    c.setAttribute('data-mapping', prop);
+                    fragment_1.appendChild(c);
+                });
+            }
+            // ② 단일 객체
+            else {
+                var c = temple_1(ele, $val);
+                render(c, mapping, data, $val, Mapping);
+                c.setAttribute('data-mapping', mapping);
+                fragment_1.appendChild(c);
+            }
+            ele.appendChild(fragment_1);
+        }
+        /*
+         *  html 문자열
+         */
+        else if ((attrVal = ele.getAttribute('data-html')) != null) {
+            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
+            }
+            else
+                htmls_1[pos_1++] = html_1($val);
+            ele.innerHTML = htmls_1.join('');
+        }
+        /*
+         *  단순 clone
+         */
+        else if ((attrVal = ele.getAttribute('data-replace')) != null) {
+            var 
+            /*
+             *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
+             */
+            noRender = attrVal[0] === '!', clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val, ele);
+            render(clone, mapping, data, $val, Mapping);
+            // clone 엘리먼트에 data-replace를 붙이지 않으므로, 다음번 렌더링부터는 건너띤다
+            noRender || clone.setAttribute('data-replace', attrVal);
+            ele.parentElement.replaceChild(clone, ele);
+        }
+        else {
+            var i = 0, childs = ele.children, l = childs.length;
+            for (; i < l; i++) {
+                if (childs[i].nodeType === 1)
+                    render(childs[i], mapping, data, $val, Mapping);
+            }
+        }
+    }
+    ;
+    var Mapping = /** @class */ (function () {
+        function Mapping() {
+            this.html = {};
+            this.directive = defaultDirective();
+            this.template = {};
+        }
+        Mapping.prototype.setData = function (data) {
+            this.data = data;
+            return this;
+        };
+        Mapping.prototype.addHTML = function (target) {
+            var html = this.html;
+            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
+                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
+            });
+            return this;
+        };
+        Mapping.prototype.addTemplate = function (a, b) {
+            if (typeof a === 'string')
+                this.template[a] = b;
+            else if (a.nodeType === 1)
+                this.addTemplate(Mapping.createTemplates(a));
+            else {
+                var template = this.template, p = void 0;
+                for (p in a)
+                    template[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.addDirective = function (a, b) {
+            if (typeof a === 'string')
+                this.directive[a] = b;
+            else {
+                var directive = this.directive, p = void 0;
+                for (p in a)
+                    directive[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.$render = function (ele, data) {
+            if (data === void 0) { data = this.data; }
+            render(ele, null, data, data, this);
+            return this;
+        };
+        Mapping.prototype.$follow = function (name) {
+            var _this = this;
+            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
+                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
+                    _this.$render(e);
+                }
+            });
+            return this;
+        };
+        return Mapping;
+    }());
+    exports.Mapping = Mapping;
+    /*
+     *    ① 이 루프는 데이터 구조를 모두 알고 있다는 전제하에 쓰여진다.
+     *
+     */
+    (function (Mapping) {
+        var createHTML = dom_1.DOM.createHTML;
+        function createTemplate(obj, target) {
+            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
+            obj[name] = function () { return html.cloneNode(true); };
+            return obj;
+        }
+        function createTemplates(target) {
+            var $templates = {};
+            if (target.hasAttribute('data-template'))
+                return createTemplate($templates, target);
+            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
+                createTemplate($templates, e);
+            });
+            return $templates;
+        }
+        Mapping.createTemplates = createTemplates;
+    })(Mapping = exports.Mapping || (exports.Mapping = {}));
+    exports.Mapping = Mapping;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 11 */,
+/* 12 */,
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
@@ -1951,183 +2159,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(0), __webpack_require__(5), __webpack_require__(9), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var access = access_1.Access.access;
-    var expValParse = format_1.Formats.expValParse;
-    var number = format_1.Formats.number;
-    var datetime = format_1.Formats.datetime;
-    function isAlikeArray(target) {
-        if (target && typeof target.length === 'number') {
-            return true;
-        }
-        return false;
-    }
-    var defaultDirective = (function () {
-        var directive = {
-            number: function (ele, v) {
-                ele.textContent = number(v);
-            },
-            datetime: function (ele, v, p) {
-                ele.textContent = datetime(v, p);
-            }
-        };
-        return function () { return Object.create(directive); };
-    })();
-    function $$mapping(prefix, val) {
-        return prefix ? prefix + '.' + val : val;
-    }
-    function render(ele, mapping, data, $val, Mapping) {
-        var i = 0, childs = array_1._makeArray(ele.children), l = childs.length, $mapping = ele.getAttribute('data-mapping'), attrVal;
-        if ($mapping != null) {
-            $val = access(data, mapping = $mapping);
-        }
-        /*
-         *
-         */
-        if (attrVal = ele.getAttribute('data-directive')) {
-            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
-            if (v == null)
-                ele.textContent = '';
-            else if (filter != null)
-                directive[filter] && directive[filter].call(Mapping, ele, v, primitive);
-            else
-                ele.textContent = v.toString();
-        }
-        /*
-         *  element.clone(true)
-         */
-        else if ((attrVal = ele.getAttribute('data-template')) != null) {
-            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
-            ele.textContent = '';
-            // ① 배열인 경우
-            if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) {
-                    var c = temple_1(ele, v), prop = $$mapping(mapping, p);
-                    render(c, prop, data, v, Mapping);
-                    c.setAttribute('data-mapping', prop);
-                    fragment_1.appendChild(c);
-                });
-            }
-            // ② 단일 객체
-            else {
-                var c = temple_1(ele, $val);
-                render(c, mapping, data, $val, Mapping);
-                c.setAttribute('data-mapping', mapping);
-                fragment_1.appendChild(c);
-            }
-            ele.appendChild(fragment_1);
-        }
-        /*
-         *  html 문자열
-         */
-        else if ((attrVal = ele.getAttribute('data-html')) != null) {
-            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
-            if (Array.isArray($val)) {
-                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
-            }
-            else
-                htmls_1[pos_1++] = html_1($val);
-            ele.innerHTML = htmls_1.join('');
-        }
-        /*
-         *
-         */
-        for (; i < l; i++) {
-            if (childs[i].nodeType === 1)
-                render(childs[i], mapping, data, $val, Mapping);
-        }
-    }
-    ;
-    var Mapping = /** @class */ (function () {
-        function Mapping() {
-            this.html = {};
-            this.directive = defaultDirective();
-            this.template = {};
-        }
-        Mapping.prototype.setData = function (data) {
-            this.data = data;
-            return this;
-        };
-        Mapping.prototype.addHTML = function (target) {
-            var html = this.html;
-            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
-                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
-            });
-            return this;
-        };
-        Mapping.prototype.addTemplate = function (a, b) {
-            if (typeof a === 'string')
-                this.template[a] = b;
-            else if (a.nodeType === 1)
-                this.addTemplate(Mapping.createTemplates(a));
-            else {
-                var template = this.template, p = void 0;
-                for (p in a)
-                    template[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.addDirective = function (a, b) {
-            if (typeof a === 'string')
-                this.directive[a] = b;
-            else {
-                var directive = this.directive, p = void 0;
-                for (p in a)
-                    directive[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.$render = function (ele, data) {
-            if (data === void 0) { data = this.data; }
-            render(ele, null, data, data, this);
-            return this;
-        };
-        Mapping.prototype.$follow = function (name) {
-            var _this = this;
-            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
-                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
-                    _this.$render(e);
-                }
-            });
-            return this;
-        };
-        return Mapping;
-    }());
-    exports.Mapping = Mapping;
-    /*
-     *    ① 이 루프는 데이터 구조를 모두 알고 있다는 전제하에 쓰여진다.
-     *
-     */
-    (function (Mapping) {
-        var createHTML = dom_1.DOM.createHTML;
-        function createTemplate(obj, target) {
-            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
-            obj[name] = function () { return html.cloneNode(true); };
-            return obj;
-        }
-        function createTemplates(target) {
-            var $templates = {};
-            if (target.hasAttribute('data-template'))
-                return createTemplate($templates, target);
-            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
-                createTemplate($templates, e);
-            });
-            return $templates;
-        }
-        Mapping.createTemplates = createTemplates;
-    })(Mapping = exports.Mapping || (exports.Mapping = {}));
-    exports.Mapping = Mapping;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 13 */,
 /* 14 */,
 /* 15 */,
 /* 16 */,
@@ -2136,7 +2167,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 19 */,
 /* 20 */,
 /* 21 */,
-/* 22 */
+/* 22 */,
+/* 23 */,
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -2149,7 +2182,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(7), __webpack_require__(12), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(7), __webpack_require__(10), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -2160,7 +2193,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         name: function (ele, v) {
             var img = v.img;
             if (img) {
-                ele.href = v.path + img.getSaveName();
+                ele.href = '/workdata/' + v.path + img.getSaveName();
                 ele.textContent = img.getOrigName();
             }
             else {
@@ -2170,7 +2203,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         render: function (ele, v) {
             var img = v.img;
             if (img) {
-                ele.style.backgroundImage = 'url("' + v.path + img.getSaveName() + '")';
+                ele.style.backgroundImage = 'url("/workdata/' + v.path + img.getSaveName() + '")';
             }
             else {
                 ele.style.backgroundImage = '';

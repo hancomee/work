@@ -4203,6 +4203,32 @@ nav {
   .nav-btn:hover {
     color: gainsboro; }
 
+.todo [data-todo] {
+  margin-left: .6rem;
+  float: right;
+  cursor: pointer;
+  font-size: 14px; }
+
+.todo-add {
+  margin: 1rem; }
+  .todo-add > textarea {
+    padding: .5rem;
+    width: 100%;
+    height: 6rem;
+    background-color: #545252;
+    border: 1px solid #313131;
+    color: #b9b9b9; }
+
+.todo-list {
+  padding: 1rem; }
+  .todo-list-item {
+    padding: .7rem 0; }
+    .todo-list-item + .todo-list-item {
+      border-top: 1px solid #585858; }
+    .todo-list-item > pre {
+      margin: 0;
+      color: #b9b9b9; }
+
 aside {
   display: flex;
   flex-direction: column;
@@ -4211,13 +4237,19 @@ aside {
   top: 50px;
   left: 0;
   bottom: 0;
-  padding-top: 1rem;
-  width: 150px;
+  width: 100px;
   background-color: #353535; }
 
+.aside-row {
+  border-bottom: 1px solid #292929;
+  border-top: 1px solid #464646; }
+
+.aside-division {
+  padding: 1rem .5rem .3rem;
+  font-size: 12px; }
+
 .aside-today {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #292929; }
+  padding: 1rem 0; }
   .aside-today-week, .aside-today-ym, .aside-today-date, .aside-today-time {
     display: block; }
   .aside-today-date {
@@ -4243,19 +4275,53 @@ aside {
       font-size: 18px;
       color: #777; }
 
-.aside-menu > li {
-  border-bottom: 1px solid #292929; }
-  .aside-menu > li + li {
-    border-top: 1px solid #464646; }
-  .aside-menu > li > a {
-    display: block;
-    padding: .5rem;
-    text-align: center;
-    color: #9c9c9c; }
-  .aside-menu > li:hover > a, .aside-menu > li.active > a {
-    background-color: #313131; }
-  .aside-menu > li.active > a {
-    color: #dea436; }
+.aside-column {
+  display: flex; }
+  .aside-column-btn {
+    padding: 1rem 0;
+    width: 50%;
+    border-left: 1px solid #464646;
+    border-right: 1px solid #292929;
+    border-top: 1px solid #292929;
+    border-bottom: 1px solid #464646;
+    font-size: 14px;
+    text-align: center; }
+
+.aside-pop > span {
+  font-size: 14px; }
+
+.aside-pop > .pop-up {
+  display: none;
+  overflow-y: auto;
+  position: fixed;
+  top: 50px;
+  left: 100px;
+  bottom: 0;
+  width: 350px;
+  background-color: #424242;
+  border-right: 1px solid #292929;
+  border-left: 1px solid #292929; }
+
+.aside-pop.open > span {
+  color: yellow; }
+
+.aside-pop.open .pop-up {
+  display: block; }
+
+.aside-menu > li > a {
+  display: block;
+  padding: .5rem 0 .5rem 1.5rem;
+  color: #9c9c9c; }
+
+.aside-menu > li:hover > a, .aside-menu > li.active > a {
+  background-color: #313131; }
+
+.aside-menu > li.active > a {
+  color: #dea436; }
+
+@media (min-width: 1441px) {
+  .aside-pop > .pop-up {
+    left: 150px; } }
 
 .file-icon {
   background-position: center;
@@ -4305,19 +4371,44 @@ aside {
   .file-icon-indd {
     background-image: url("/imgs/icon/file/indd.png"); }
 
-body, input, textarea, pre {
-  font-family: "Roboto", "Nanum Gothic"; }
-
 a:hover, a:visited {
   text-decoration: none; }
+
+input, textarea {
+  color: #888; }
+  input:focus, textarea:focus {
+    outline: 0; }
+
+[data-toggle], [data-event] {
+  cursor: pointer; }
+
+ul, ol, li {
+  list-style: none;
+  padding: 0;
+  margin: 0; }
+
+.hide {
+  display: none !important; }
+
+.cursor-pointer {
+  cursor: pointer !important; }
+
+.white-nowrap {
+  white-space: nowrap !important; }
+
+.white-normal {
+  white-space: normal !important; }
+
+body, input, textarea, pre {
+  font-family: "Roboto", "Nanum Gothic"; }
 
 body {
   overflow-y: scroll;
   padding-top: 50px;
-  padding-left: 150px;
+  padding-left: 100px;
   padding-bottom: 5rem;
   background-color: #f9f9f9;
-  color: #999; }
+  color: #888; }
   body[data-block="true"]:after, body[data-block="close"]:after {
     content: '';
     display: block;
@@ -4336,24 +4427,21 @@ body {
   body[data-block="close"]:after {
     opacity: 0;
     z-index: -1; }
+  body.scroll-lock {
+    overflow: hidden; }
 
 .page-name {
   margin-left: -1rem;
   margin-right: 1rem;
-  width: 150px;
+  width: 100px;
   text-align: center;
   font-weight: bold;
   font-size: 18px; }
 
-input, textarea {
-  color: #999; }
-  input:focus, textarea:focus {
-    outline: 0; }
-
-[data-toggle], [data-event] {
-  cursor: pointer; }
-
-ul, ol, li {
-  list-style: none;
-  padding: 0;
-  margin: 0; }
+@media (min-width: 1441px) {
+  body {
+    padding-left: 150px; }
+  aside {
+    width: 150px; }
+  .page-name {
+    width: 150px; } }

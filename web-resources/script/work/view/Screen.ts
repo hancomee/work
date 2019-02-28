@@ -13,7 +13,7 @@ let directive = {
     name(ele: HTMLAnchorElement, v: Screen) {
         let {img} = v;
         if (img) {
-            ele.href = v.path + img.getSaveName();
+            ele.href = '/workdata/' + v.path + img.getSaveName();
             ele.textContent = img.getOrigName();
         } else {
             ele.textContent = '';
@@ -22,7 +22,7 @@ let directive = {
     render(ele: HTMLElement, v: Screen) {
         let {img} = v;
         if (img) {
-            ele.style.backgroundImage = 'url("' + v.path + img.getSaveName() + '")';
+            ele.style.backgroundImage = 'url("/workdata/' + v.path + img.getSaveName() + '")';
         } else {
             ele.style.backgroundImage = '';
         }

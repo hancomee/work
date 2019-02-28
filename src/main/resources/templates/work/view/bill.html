@@ -1,0 +1,238 @@
+<div id="bill">
+
+    <div id="bill-template">
+        <script type="text/html" data-template="customer">
+            <table class="company-info table-border" data-directive=" | check">
+                <tbody>
+                <tr>
+                    <th rowspan="4">
+                        <span class="customer">공<br/>급<br/>받<br/>는<br/>자</span>
+                        <span class="supplier">공<br/>급<br/>자</span>
+                    </th>
+                    <th>등록번호</th>
+                    <td data-directive="biz_num" colspan="3"></td>
+                </tr>
+                <tr>
+                    <th>상호</th>
+                    <td data-directive="name"></td>
+                    <th>대표자</th>
+                    <td class="sign">
+                        <span data-directive="owner"></span>
+                        <img src="/imgs/sign.png">
+                    </td>
+                </tr>
+                <tr>
+                    <th>소재지</th>
+                    <td data-directive="address" colspan="3"></td>
+                </tr>
+                <tr>
+                    <th>업태</th>
+                    <td data-directive="biz_con"></td>
+                    <th>종목</th>
+                    <td data-directive="biz_type"></td>
+                </tr>
+                </tbody>
+            </table>
+        </script>
+
+        <script type="text/html" data-template="items">
+            <tr>
+                <td data-directive="subject"></td>
+                <td data-directive="detail"></td>
+                <td data-directive="count" class="text-center white-nowrap"></td>
+                <td data-directive="price | number" class="text-right white-nowrap"></td>
+                <td data-directive="total | number" class="text-right white-nowrap"></td>
+                <td data-directive="vat | number" class="text-right white-nowrap"></td>
+                <td data-directive="memo"></td>
+            </tr>
+        </script>
+
+        <script type="text/html" data-template="simple-items">
+            <tr>
+                <td data-directive="subject"></td>
+                <td data-directive="count" class="text-center white-nowrap">1</td>
+                <td data-directive="price | number" class="text-right white-nowrap"></td>
+                <td data-directive="total | number" class="text-right white-nowrap"></td>
+                <td data-directive="vat | number" class="text-right white-nowrap"></td>
+            </tr>
+        </script>
+
+        <script type="text/html" data-template="footer">
+            <div class="bill-footer">
+                <div class="bill-footer-panel">
+                    <span class="label">계좌안내</span>
+                    <span class="value">[농협] <stron>352-1401-2143-63</stron> 예금주 / 고정철</span>
+                </div>
+                <div class="bill-footer-panel">
+                    <span class="label">견적</span>
+                    <span class="value">010-3403-8259</span>
+                </div>
+                <div class="bill-footer-panel">
+                    <span class="label">디자인·편집</span>
+                    <span class="value">010-6570-8259</span>
+                </div>
+            </div>
+        </script>
+    </div>
+
+
+    <!-- 견적서 -->
+    <div id="estimate" class="bill">
+
+        <div class="bill-header">
+            <strong>견적서</strong>
+            <span>(공급받는자 보관용)</span>
+        </div>
+
+        <div class="recipient">
+            <strong data-directive="customer.name"></strong>
+            <span>귀하</span>
+        </div>
+
+
+        <div class="bill-container div-2">
+            <div data-mapping="$hancome" data-template="customer"></div>
+            <div data-mapping="customer" data-template="customer"></div>
+        </div>
+
+
+        <div>
+            <div class="bill-title">▲품목 세부</div>
+            <div class="bill-container">
+                <table class="item-list table-border">
+                    <thead>
+                    <tr>
+                        <th>품명</th>
+                        <th>규격</th>
+                        <th>수량</th>
+                        <th>단가</th>
+                        <th>금액</th>
+                        <th>부가세</th>
+                        <th>적요</th>
+                    </tr>
+                    </thead>
+                    <tbody data-mapping="items" data-template="items"></tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="3">합계</th>
+                        <th class="text-right" data-directive="price | number"></th>
+                        <th class="text-right" data-directive="total | number"></th>
+                        <th class="text-right" data-directive="vat | number"></th>
+                        <th></th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div data-directive=" | exists">
+            <div class="bill-title">▲참고사항</div>
+            <div class="bill-container bill-work-text">
+                <pre data-directive="text"></pre>
+            </div>
+        </div>
+
+        <br data-replace="!footer">
+    </div>
+
+
+    <!-- 거래명세표 -->
+    <div id="account" class="bill">
+
+        <div class="bill-header">
+            <strong>거래명세표</strong>
+            <span>(공급받는자 보관용)</span>
+        </div>
+
+        <div class="bill-container div-2">
+            <div data-mapping="$hancome" data-template="customer"></div>
+            <div data-mapping="customer" data-template="customer"></div>
+        </div>
+
+
+        <div class="bill-container">
+            <table class="item-list table-border">
+                <thead>
+                <tr>
+                    <th>품명</th>
+                    <th>규격</th>
+                    <th>수량</th>
+                    <th>단가</th>
+                    <th>금액</th>
+                    <th>부가세</th>
+                    <th>적요</th>
+                </tr>
+                </thead>
+                <tbody data-mapping="items" data-template="items"></tbody>
+            </table>
+        </div>
+
+        <div class="bill-container">
+            <table class="table-border total-table">
+                <tbody>
+                <tr>
+                    <th>금액</th>
+                    <td class="white-nowrap" data-directive="price | number"></td>
+                    <th>합계</th>
+                    <td class="white-nowrap" data-directive="total | number"></td>
+                    <th>세액</th>
+                    <td class="white-nowrap" data-directive="vat | number"></td>
+                    <th>인수자</th>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <br data-replace="!footer">
+    </div>
+
+    <!-- 간이영수증 -->
+    <div id="receipt" class="bill">
+
+        <div class="bill-header">
+            <strong>간이영수증</strong>
+            <span>(공급받는자용)</span>
+        </div>
+
+        <div class="recipient">
+            <strong data-directive="customer.name"></strong>
+            <span>귀하</span>
+        </div>
+
+        <div class="bill-container" data-mapping="$hancome" data-template="customer"></div>
+
+        <div class="bill-container">
+            <table class="table-border">
+                <thead>
+                <tr>
+                    <th>품명</th>
+                    <th>수량</th>
+                    <th>단가</th>
+                    <th>금액</th>
+                    <th>부가세</th>
+                </tr>
+                </thead>
+                <tbody data-mapping="items" data-template="simple-items"></tbody>
+            </table>
+        </div>
+
+        <div class="bill-container">
+            <table class="table-border total-table">
+                <tbody>
+                <tr>
+                    <th class="label">금액</th>
+                    <td class="white-nowrap" data-directive="price | number"></td>
+                    <th class="label">세액</th>
+                    <td class="white-nowrap" data-directive="vat | number"></td>
+                    <th class="label">합계</th>
+                    <td class="white-nowrap" data-directive="total | number"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <br data-replace="!footer">
+    </div>
+
+</div>

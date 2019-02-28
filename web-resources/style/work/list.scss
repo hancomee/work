@@ -23,10 +23,10 @@ main {
       font-size: 2rem;
       font-family: serif;
       font-weight: bold;
-      color: #ddd;
+      color: #505050;
       &.active {
         cursor: pointer;
-        color: $font-color;
+        color: $font-color-lighten;
       }
     }
 
@@ -44,6 +44,10 @@ main {
     display: flex;
     align-items: center;
     font-size: 14px;
+
+    & + &  {
+      margin-left: 1.5rem;
+    }
 
     &-name {
       margin-right: .5rem;
@@ -64,8 +68,8 @@ main {
           margin-left: .5rem;
         }
         &.active {
-          color: #4c82a9;
-          font-weight: 800;
+          color: #e4c108;
+          font-weight: 600;
         }
       }
     }
@@ -80,7 +84,7 @@ main {
     }
 
     &-option > span, &-input {
-      border: 1px solid #ddd;
+      border: 0;
       background-color: white;
     }
 
@@ -91,7 +95,7 @@ main {
         display: flex;
         align-items: center;
         padding: 0 1rem;
-        border-right: 0;
+        border-right: 1px solid #ccc;
         border-radius: 1.5rem 0 0 1.5rem;
       }
 
@@ -102,9 +106,9 @@ main {
 
     &-input {
       padding: 0 1rem;
-      height: 3rem;
+      height: 2.2rem;
       width: 19rem;
-      border-radius: 0 1.5rem 1.5rem 0;
+      border-radius: 0 1.1rem 1.1rem 0;
     }
   }
 
@@ -112,14 +116,13 @@ main {
   &-create {
     margin-left: 1rem;
     padding: 0 1rem;
-    border: 1px solid #ddd;
-    height: 3rem;
+    height: 2.2rem;
 
-    line-height: 3rem;
-    background-color: white;
-    border-radius: 1.5rem;
-
+    line-height: 2.2rem;
+    background-color: #11a8b5;
+    border-radius: 1.1rem;
     cursor: pointer;
+    color: white;
   }
 }
 
@@ -132,8 +135,8 @@ main {
     &-item {
 
       flex: 0 1 (( 100 / 7 ) * 1%);
-      padding: .5rem 1.5rem;
-      border: 1px solid #ddd;
+      padding: .5rem .5rem;
+      border: 1px solid $border-color-darken;
       background-color: white;
       transition: color .3s ease;
 
@@ -153,9 +156,21 @@ main {
         text-align: right;
       }
       &-count {
-        font-size: 3rem;
-        font-weight: bold;
-        line-height: 1;
+        // 당일
+        > i {
+          position: relative;
+          top: 2px;
+          margin-right: 5px;
+          font-size: 20px;
+          vertical-align: top;
+          font-style: normal;
+          color: #adadad;
+        }
+        > strong {
+          font-size: 3rem;
+          font-weight: bold;
+          line-height: 1;
+        }
       }
 
       &:hover {
@@ -178,7 +193,7 @@ main {
   &-list {
     margin-top: 2rem;
     padding: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid $border-color-darken;
     background-color: white;
 
     &-thumb {
@@ -198,6 +213,15 @@ main {
       &-name {
         float: right;
         font-size: 14px;
+
+        &:after {
+          display: inline-block;
+          position: relative;
+          top: -2px;
+          left: 2px;
+          content: '';
+          @include border-arrow-down(4px, #888);
+        }
       }
 
       > .dropdown-menu {
@@ -243,7 +267,7 @@ main {
         width: 3rem;
         height: 2.5rem;
 
-        border: 1px solid #ddd;
+        border: 1px solid $border-color-normal;
         font-size: 20px;
         text-align: center;
         line-height: 2.5rem;
@@ -259,6 +283,8 @@ main {
   }
 }
 
+
+// 작업추가
 #work-creator {
 
   display: none;
@@ -318,6 +344,7 @@ main {
     justify-content: stretch;
     margin-bottom: 2rem;
 
+    // 거래처 새로 만들기 버튼
     &-create {
       display: flex;
       align-items: center;
@@ -330,7 +357,8 @@ main {
       background-color: #f7f7f7;
 
       &.active {
-        color: #797979;
+        color: #545454;
+        cursor: pointer;
       }
     }
 
@@ -342,15 +370,16 @@ main {
       > input {
         @extend %input;
       }
-      // result 박스
+
+      // 검색결과 박스
       > div {
-        padding-top: .8rem;
+        padding: 1rem;
         overflow-y: scroll;
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
-        height: 15rem;
+        max-height: 22rem;
 
         background-color: white;
         border: 1px solid #ccc;
@@ -366,15 +395,6 @@ main {
           cursor: pointer;
           &:hover {
             background-color: #eee;
-          }
-          > i {
-            display: inline-block;
-            margin-right: 1rem;
-            width: 2rem;
-
-            font-size: 14px;
-            color: #bbb;
-            text-align: right;
           }
         }
       }
@@ -414,8 +434,20 @@ main {
       color: #ddd;
 
       .confirm-customer.confirm-title & {
-        color: $font-color;
+        color: $font-color-normal;
         cursor: pointer;
+      }
+    }
+  }
+}
+
+@media (min-width: 1441px) {
+  .state {
+
+    &-list {
+
+      &-item {
+        padding: .5rem 1.5rem;
       }
     }
   }

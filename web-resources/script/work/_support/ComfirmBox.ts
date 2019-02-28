@@ -5,12 +5,16 @@ export class ConfirmBox {
 
     private events: EventsGroup
     private handler
+    private _skip = false
 
     constructor(public element: HTMLElement) {
         this.events = new EventsGroup().off()
             .register(document, 'click', (e) => {
 
-                if (e['__skip']) return;
+                if (this._skip) {
+                    this._skip = false;
+                    return;
+                }
 
                 let target = <HTMLElement>e.target;
                 if (target.hasAttribute('data-submit')) {
@@ -25,17 +29,22 @@ export class ConfirmBox {
             })
     }
 
-    on(e: MouseEvent, handler: (flag: boolean) => void) {
+    on(x: number, y: number, handler: (flag: boolean) => void)
+    on(e: MouseEvent, handler: (flag: boolean) => void)
+    on(x, y, h?) {
         let {element} = this;
 
-        e['__skip'] = true;
+        if (!h) {
+            h = y;
+            y = x.pageY;
+            x = x.pageX;
+        }
 
-        if(this.handler) this.handler(false);
-        this.handler = handler;
+        this._skip = true;
 
-        element.setAttribute('style',
-            'top: ' + e.pageY + 'px; left: ' + e.pageX + 'px;');
-
+        if (this.handler) this.handler(false);
+        this.handler = h;
+        element.setAttribute('style', 'top: ' + y + 'px; left: ' + x + 'px;');
         element.classList.add('on');
         this.events.on();
         return this;
