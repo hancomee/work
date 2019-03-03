@@ -218,16 +218,22 @@ export namespace Formats {
 
         if (typeof val === 'string' && r_number.test(val))
             return val.replace(r_num_replace, ",");
-
         return '0';
     };
 
+    let r_bg = /('|"|\(|\))/g;
+    
+    export function bgURL(s: string) {
+        return s.replace(r_bg, '\\$1');
+    }
+    
     let directive = {
         number: number,
         datetime: datetime,
         duration: duration,
         filesize: filesize,
-        moneyToKor: moneyToKor
+        moneyToKor: moneyToKor,
+        bgURL: bgURL
     };
 
     export function getDirective(obj?) {

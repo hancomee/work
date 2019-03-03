@@ -4,7 +4,6 @@ import datetime = Formats.datetime;
 import {$delete, $get, $post} from "./_ajax";
 
 
-
 let
     $disassemble = {
         activetime(v) {
@@ -35,6 +34,11 @@ let
             v.forEach(a => this.addDraft(new WorkFile(a)));
         },
 
+        items(this: Work, v: any[]) {
+            if (v) {
+                v.map(a => new WorkItem(a).setWork(this));
+            }
+        },
 
         // work용
         // customer에도 같은 이름이 있으므로 이를 구분하는 분기가 있다.
@@ -70,7 +74,7 @@ let
             draft: false,
 
             memo(v) {
-                if(typeof v === 'string') this['memo'] = v;
+                if (typeof v === 'string') this['memo'] = v;
             }
         }
 
@@ -183,6 +187,7 @@ export class WorkMemo {
 
 
 export class WorkItem {
+    work: Work
     id: number
 
     // requried
@@ -204,9 +209,14 @@ export class WorkItem {
     /*
      *  draft와 print에 path를 넣어주기 위해서 어쩔 수 없이 work를 생성인자로..
      */
-    constructor(public work: Work, data?) {
+    constructor(data?) {
         data && $extend(this, data, $disassemble);
+    }
+
+    setWork(work: Work) {
+        this.work = work;
         work.addItem(this);
+        return this;
     }
 
     addDraft(v: WorkFile) {
@@ -360,7 +370,7 @@ export namespace Work {
 
             if (data.work) {
                 let work = new Work(data.work);
-                data.items.forEach(item => new WorkItem(work, item));
+                data.items.forEach(item => work.addItem(new WorkItem(item)));
                 return work;
             }
             else return null;

@@ -58,9 +58,16 @@ let
 
         },
         date(date: HTMLInputElement) {
-            let value = date.value;
-            if (value && r_date.test(value))
-                return new Date(value);
+            let value = date.value.trim();
+
+            console.log(value, date);
+            if(!value && date.hasAttribute('data-default')) {
+                value = date.getAttribute('data-default');
+                if(value === 'now') return new Date();
+            }
+
+            if (r_date.test(value))  return new Date(value);
+
             return null;
         },
         select(select: HTMLSelectElement) {
@@ -98,7 +105,7 @@ let
         },
         hidden(input: HTMLInputElement) {
             let {value} = input;
-            if(input.hasAttribute('identity') && !value) return null;
+            if (input.hasAttribute('identity') && !value) return null;
             return DATA_CONVERT(input.getAttribute('data-type'), value);
         },
         textarea(input: HTMLTextAreaElement) {
@@ -161,7 +168,7 @@ export type FormHandler = {
 
 // 같은 값이 있을때만 배열로
 function $serialize(input: INPUTS, obj, name = input.name) {
-    let {type} = input, v, vv;
+    let type = input.getAttribute('data-type') || input.type, v, vv;
 
     if (DEFAULT_GETTER[type]) {
         v = DEFAULT_GETTER[type](input)
@@ -203,6 +210,7 @@ function groupEach(target: Element, formGroup: FormGroups) {
         }
     }
 }
+
 // ************************ ▲ Forms Constructor ▲ ************************ //
 
 export class Forms {
@@ -271,14 +279,14 @@ export class Forms {
         return obj;
     }
 
-    valid(handler: VALID_HANDLER) {
+    valid(handler?: VALID_HANDLER) {
         return Forms.$valid(this, handler);
     }
 
     detach() {
         let {element} = this,
             parent = element.parentElement;
-        if(parent) parent.removeChild(element);
+        if (parent) parent.removeChild(element);
         return element;
     }
 
@@ -426,7 +434,7 @@ export namespace Forms {
 
                     while (l-- > 0) {
                         attr = attributes[l];
-                        if(fn = getValid(attr.name, type, name)) {
+                        if (fn = getValid(attr.name, type, name)) {
                             result = (valid = fn(input, attr.value)) ? result : false;
                             handler(valid, input, e, element);
                         }
@@ -440,9 +448,9 @@ export namespace Forms {
 
     export function input(i: INPUTS) {
         let {type, name, attributes, attributes: {length: l}} = i, fn;
-        while(l-- > 0) {
-            if(fn = getValid(attributes[l].name, type, name)) {
-                if(!fn(i, attributes[l].value)) return false;
+        while (l-- > 0) {
+            if (fn = getValid(attributes[l].name, type, name)) {
+                if (!fn(i, attributes[l].value)) return false;
             }
         }
         return true;
@@ -457,7 +465,7 @@ export namespace Forms {
     }
 
     export function set<T>(input: T, v: any): T {
-        let  f = DEFAULT_SETTER[input['getAttribute']('data-type') || input['type']];
+        let f = DEFAULT_SETTER[input['getAttribute']('data-type') || input['type']];
         if (f) {
             f(input, v);
         } else {

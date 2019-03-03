@@ -10,5 +10,4 @@ let
 
 Receivable.getAll().then( values => {
     $mapping.setData(values).$render(main);
-
 })

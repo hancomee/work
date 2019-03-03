@@ -14,19 +14,26 @@
     </div>
 
     <ul class="aside-menu">
+        <li class="aside-row" data-url="/work/main"><a href="/work/main">메인</a></li>
         <li class="aside-row" data-url="/work/list"><a href="/work/list">작업리스트</a></li>
-        <li class="aside-row" data-url="/work/receivable"><a href="/work/receivable">미수금</a></li>
+        <!--<li class="aside-row" data-url="/work/receivable"><a href="/work/receivable">미수금</a></li>-->
     </ul>
 
-    <!--<div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="todo">
+    <div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="todo">
         <span data-toggle="dropdown">간편메모</span>
-        <div class="pop-up"><#include "./aside/todo.html"></div>
+        <div class="pop-up">
+            <div class="pop-up-close" data-dismiss>닫기</div>
+            <#include "./aside/todo.html">
+        </div>
     </div>
 
-    <div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="m3">
-        <span data-toggle="dropdown">헤배계산</span>
-        <div class="pop-up"></div>
-    </div>-->
+    <div class="aside-pop aside-row dropdown" data-dropdown-event="aside.pop" data-pop="calculator">
+        <span data-toggle="dropdown">계산기</span>
+        <div class="pop-up">
+            <div class="pop-up-close" data-dismiss>닫기</div>
+            <#include "./aside/calculator.html">
+        </div>
+    </div>
 
 </aside>
 <script src="/dist/work/modules/aside.js"></script>

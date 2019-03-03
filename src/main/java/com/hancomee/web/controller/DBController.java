@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.util.*;
+
+import static com.boosteel.nativedb.core.DataConverter.data_by_dType;
 
 
 @Controller
@@ -15,6 +18,14 @@ public class DBController {
 
     @Autowired
     _WorkManager sql;
+
+
+    @RequestMapping(value = "report", method = RequestMethod.GET)
+    @ResponseBody
+    public Object customerSearch(@RequestParam("st") String st, @RequestParam("et") String et) throws Exception {
+        return sql.SQL.report(st, et);
+    }
+
 
     // ***************************** Work ************************************* //
     @RequestMapping(value = "create", method = RequestMethod.POST)
@@ -143,5 +154,33 @@ public class DBController {
         sql.removeMemo(id, workId);
 
     }
+
+
+    // ***************************** 간편메모 ************************************* //
+    @RequestMapping(value = "todo/list", method = RequestMethod.GET)
+    @ResponseBody
+    public Object todo() throws Exception {
+        return sql.SQL.todoList();
+    }
+    @RequestMapping(value = "todo", method = RequestMethod.POST)
+    @ResponseBody
+    public Object save(@RequestBody Map<String, Object> values) throws Exception {
+        return sql.SQL.insertTodo(values);
+    }
+    @RequestMapping(value = "todo/{id}", method = RequestMethod.POST)
+    @ResponseBody
+    public void update(@PathVariable("id") Object id, @RequestBody String value) throws Exception {
+        sql.SQL.updateTodo(id, value);
+    }
+    @RequestMapping(value = "todo/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void update(@PathVariable("id") Object id) throws Exception {
+        sql.SQL.deleteTodo(id);
+    }
+
+
+
+
+
 
 }

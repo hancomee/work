@@ -383,11 +383,11 @@ export namespace Events {
 
     export function dataEvent(element: HTMLElement, type: string, attr: string, directive)
     export function dataEvent<T>(element: HTMLElement, type: string, attr: string,
-                                 getObj: (e: Event) => T, directive: DIRECTIVE<T>)
+                                 getObj: (e: Event, attrValue: string) => T, directive: DIRECTIVE<T>)
     export function dataEvent<T>(element: HTMLElement,
                                  type: string,                  // 이벤트 타입
                                  attr: string,                  // 이벤트
-                                 getObj: (e: Event) => T,       // directive에 전달될 데이터
+                                 getObj: (e: Event, attrValue: string) => T,       // directive에 전달될 데이터
                                  dispatcher: DISPATCHER<T>,     // loop 핸들러
                                  directive: DIRECTIVE<T>
     )
@@ -413,17 +413,19 @@ export namespace Events {
                 dir = directive[target.getAttribute(attr)];
 
             if (dir) {
-                let obj = getObj(e), limit = element, h = dispatcher;
+                let obj = getObj(e, attrValue), limit = element, h = dispatcher;
                 while (target && (limit !== target)) {
 
-                    eventProperty(element, obj);
-                    if(h(target, obj, attrValue, e) === false) break;
+                    eventProperty(target, obj);
+                    if(h(target, obj, attrValue, e) === 'break') break;
                     target = target.parentElement
                 }
-                dir.call(dir, obj);
+                dir.call(directive, obj);
             }
         });
     }
+
+
 
 
     export function simpleTrigger(target: HTMLElement, type: string, bubbles = true, cancelable = true) {

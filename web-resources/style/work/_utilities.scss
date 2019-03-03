@@ -10,9 +10,10 @@ input, textarea {
   &:focus {
     outline: 0;
   }
+  resize: none !important;
 }
 
-[data-toggle], [data-event] {
+[data-toggle], [data-event], [data-modifier] {
   cursor: pointer;
 }
 
@@ -36,4 +37,10 @@ ul, ol, li {
 
 .white-normal {
   white-space: normal !important;;
+}
+
+.modifier-form {
+  & + * {
+    display: none !important;
+  }
 }

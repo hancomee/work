@@ -1,6 +1,14 @@
+import "../../../lib/core/component/toggle";
 import {Calendar} from "../../../lib/core/calendar";
 import {_zeroFill} from "../../../lib/core/_util/_zeroFill";
-import {getElementsByClassName, getElementsByTagName, querySelectorAll} from "../../../lib/core/_dom/selector";
+import {
+    getElementsByAttr,
+    getElementsByClassName,
+    getElementsByTagName,
+    querySelectorAll
+} from "../../../lib/core/_dom/selector";
+import {todo} from "./aside/todo";
+import {calculator} from "./aside/calculator";
 
 let
     aside = getElementsByTagName(document.body, 'aside', 0),
@@ -15,17 +23,29 @@ let
             date: date.date,
             week: c + '/' + t + '주차 ' + e
         };
+    },
+    values = data(),
+
+    sideProgram = {
+        todo: todo,
+        calculator: calculator
     }
 
 querySelectorAll(aside, '[data-url]', (v) => {
     if (pathname.indexOf(v.getAttribute('data-url')) !== -1)
         v.classList.add('active');
 });
-let values = data();
+
 querySelectorAll(aside, '[data-val]', (v) => {
     v.textContent = values[v.getAttribute('data-val')];
 });
 
+
+getElementsByAttr(aside, 'data-pop', (r, ele, v) => {
+    sideProgram[v] && sideProgram[v](ele);
+});
+
+// 시간
 (function (hour: HTMLElement, time: HTMLElement) {
 
     function clock() {

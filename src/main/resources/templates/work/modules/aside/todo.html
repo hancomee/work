@@ -1,36 +1,30 @@
-<div class="todo">
+<div class="todo" data-mapper="todo">
 
-    <div>
-
+    <div class="hide" data-ignore>
+        <script data-template="list" type="text/html">
+            <div class="todo-list-item" data-modifier-target="list" data-dismiss="false">
+                <pre data-directive="value"></pre>
+                <span class="todo-list-item-datetime"
+                      data-directive="datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></span>
+                <span data-modifier="modify">수정</span>
+                <span data-modifier="remove">삭제</span>
+            </div>
+        </script>
+        <script data-form="list" type="text/html">
+            <div class="todo-list-item" data-dismiss="false">
+                <textarea name="value"></textarea>
+                <span data-modifier="confirm">확인</span>
+                <span data-modifier="cancel">취소</span>
+            </div>
+        </script>
     </div>
 
-    <div class="todo-add">
-        <textarea></textarea>
-        <span data-todo="add">추가</span>
+    <div class="todo-add"
+         data-template-target=".todo-list" data-mapping="" data-modifier-pos="-1"
+         data-modifier-creator data-modifier-target="list">
+        <input type="hidden" name="datetime" data-type="date" data-default="now">
+        <textarea name="value" required></textarea>
+        <span data-modifier="create">등록</span>
     </div>
-    <div class="todo-list">
-        <div class="todo-list-item">
-            <pre>asdfasdfasdfasfdasfasdfasdfasdfasdf</pre>
-            <span>2019-02-26(화) 11:55</span>
-            <span data-todo="modify">수정</span>
-            <span data-todo="remove">삭제</span>
-        </div>
-        <div class="todo-list-item">
-            <textarea></textarea>
-            <span data-todo="modify">수정</span>
-            <span data-todo="remove">삭제</span>
-        </div>
-        <div class="todo-list-item">
-            <pre>asdfasdfasdfasfdasfasdfasdfasdfasdf</pre>
-            <span>2019-02-26(화) 11:55</span>
-            <span data-todo="modify">수정</span>
-            <span data-todo="remove">삭제</span>
-        </div>
-        <div class="todo-list-item">
-            <pre>asdfasdfasdfasfdasfasdfasdfasdfasdf</pre>
-            <span>2019-02-26(화) 11:55</span>
-            <span data-todo="modify">수정</span>
-            <span data-todo="remove">삭제</span>
-        </div>
-    </div>
+    <div class="todo-list" data-template="list"></div>
 </div>

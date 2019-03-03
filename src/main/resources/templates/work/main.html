@@ -1,16 +1,92 @@
 <!DOCTYPE html>
-<html lang="kr">
+<html lang="kor">
 <head>
     <meta charset="UTF-8">
-    <title>Work</title>
+    <title>한컴기획</title>
     <link rel="stylesheet" href="/dist/work/main.css">
+    <script src="/lib/js/es6-promise.js"></script>
+
+    <script data-template="customers" type="text/html">
+        <tr>
+            <td data-directive="name"></td>
+            <td class="text-center" data-directive="count | number"></td>
+            <td class="text-right" data-directive="total | number"></td>
+        </tr>
+    </script>
 </head>
 <body>
 
 <nav>
+    <span class="page-name">작업통계</span>
 
+    <div class="nav-btns">
+        <span data-date="currentMonth">이번달</span>
+        <span data-date="currentYear">올해</span>
+    </div>
+
+    <div class="nav-select">
+        <span>직접 선택</span>
+        <div class="dropdown">
+            <input type="date" id="st">
+        </div>
+        <div class="dropdown">
+            <input type="date" id="et">
+        </div>
+        <span class="nav-select-btn">확인</span>
+    </div>
 </nav>
 
+<#include "./modules/aside.html">
+
+<main class="main">
+
+    <div class="main-date">2019-03-01 ~ 2019-03-03</div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+                <div class="main-money main-panel">
+                    <span>총단가 (실소득)</span>
+                    <div><strong data-directive="price | number"></strong></div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="main-money main-panel">
+                    <span>총매출 (부가세 합)</span>
+                    <div data-directive="total | number"></div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="main-money main-panel">
+                    <span>부가세 총계</span>
+                    <div data-directive="vat | number"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid main-info">
+        <div class="row">
+            <div class="col-6">
+                <div class="main-customers main-panel">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>거래처</th>
+                            <th>건수</th>
+                            <th>매출</th>
+                        </tr>
+                        </thead>
+                        <tbody data-template="customers" data-mapping="customers"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</main>
 
 
 <script src="/dist/work/main.js"></script>

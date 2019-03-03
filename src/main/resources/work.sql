@@ -76,3 +76,10 @@ SELECT count(DISTINCT work.id)
 
 # select.receivable
 SELECT this.* FROM receivable this ORDER BY this.date DESC;
+
+
+# report.work
+SELECT * FROM hancomee_work this
+				INNER JOIN hancomee_customer customer ON this.customer_id = customer.id
+        INNER JOIN hancomee_workitem items ON this.id = items.work_id
+			  WHERE this.state = 6 AND this.activetime BETWEEN :st{st} AND :et{et};

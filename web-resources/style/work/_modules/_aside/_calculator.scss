@@ -1,0 +1,40 @@
+
+
+#m3-result {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #cea630;
+}
+
+// inputs
+#m3-price {
+  background-color: gainsboro;
+  color: #cc0f0f;
+}
+#m3-price, #m3-width, #m3-height {
+  width: 100%;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 2px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.m3 {
+
+  &-insert {
+    display: flex;
+    > div {
+      flex: 1 1 auto;
+      width: 33.333%;
+      > span {
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-input {
+    padding: .5rem;
+  }
+}

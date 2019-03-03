@@ -4210,17 +4210,32 @@ nav {
   font-size: 14px; }
 
 .todo-add {
-  margin: 1rem; }
+  display: flex; }
+  .todo-add > textarea, .todo-add > span {
+    background-color: #4c4c4c;
+    border: 1px solid #3c3c3c; }
   .todo-add > textarea {
     padding: .5rem;
     width: 100%;
     height: 6rem;
-    background-color: #545252;
-    border: 1px solid #313131;
     color: #b9b9b9; }
+  .todo-add > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    flex-grow: 1;
+    width: 3rem;
+    border-left: 0;
+    text-align: center;
+    font-size: 14px;
+    color: #949494; }
+  .todo-add.form-error > span {
+    cursor: default;
+    color: #5d5d5d; }
 
 .todo-list {
-  padding: 1rem; }
+  margin-top: 1rem; }
   .todo-list-item {
     padding: .7rem 0; }
     .todo-list-item + .todo-list-item {
@@ -4228,6 +4243,43 @@ nav {
     .todo-list-item > pre {
       margin: 0;
       color: #b9b9b9; }
+    .todo-list-item > span {
+      font-size: 14px; }
+    .todo-list-item > textarea {
+      height: 5.5rem;
+      padding: .7rem;
+      width: 100%;
+      border: 1px solid #3c3c3c;
+      background-color: #4c4c4c; }
+
+#m3-result {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #cea630; }
+
+#m3-price {
+  background-color: gainsboro;
+  color: #cc0f0f; }
+
+#m3-price, #m3-width, #m3-height {
+  width: 100%;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 2px;
+  font-size: 16px;
+  text-align: center; }
+
+.m3-insert {
+  display: flex; }
+  .m3-insert > div {
+    flex: 1 1 auto;
+    width: 33.333%; }
+    .m3-insert > div > span {
+      font-size: 12px; }
+
+.m3-input {
+  padding: .5rem; }
 
 aside {
   display: flex;
@@ -4288,19 +4340,29 @@ aside {
     text-align: center; }
 
 .aside-pop > span {
+  display: block;
+  padding: .4rem .5rem;
   font-size: 14px; }
 
 .aside-pop > .pop-up {
   display: none;
+  overflow-x: hidden;
   overflow-y: auto;
   position: fixed;
   top: 50px;
   left: 100px;
   bottom: 0;
+  padding: 2.5rem 1rem 1rem;
   width: 350px;
   background-color: #424242;
   border-right: 1px solid #292929;
   border-left: 1px solid #292929; }
+  .aside-pop > .pop-up > .pop-up-close {
+    position: absolute;
+    font-size: 14px;
+    top: .5rem;
+    right: 1rem;
+    cursor: pointer; }
 
 .aside-pop.open > span {
   color: yellow; }
@@ -4320,6 +4382,11 @@ aside {
   color: #dea436; }
 
 @media (min-width: 1441px) {
+  .aside-menu > li > a {
+    display: block;
+    padding-left: 0;
+    color: #9c9c9c;
+    text-align: center; }
   .aside-pop > .pop-up {
     left: 150px; } }
 
@@ -4375,11 +4442,12 @@ a:hover, a:visited {
   text-decoration: none; }
 
 input, textarea {
-  color: #888; }
+  color: #888;
+  resize: none !important; }
   input:focus, textarea:focus {
     outline: 0; }
 
-[data-toggle], [data-event] {
+[data-toggle], [data-event], [data-modifier] {
   cursor: pointer; }
 
 ul, ol, li {
@@ -4398,6 +4466,9 @@ ul, ol, li {
 
 .white-normal {
   white-space: normal !important; }
+
+.modifier-form + * {
+  display: none !important; }
 
 body, input, textarea, pre {
   font-family: "Roboto", "Nanum Gothic"; }
@@ -4607,6 +4678,9 @@ main {
     font-weight: bold;
     color: #777;
     letter-spacing: -1px; }
+  .work-list-customer {
+    font-weight: bold;
+    color: #924c48; }
   .work-list-item {
     display: flex;
     align-items: center; }

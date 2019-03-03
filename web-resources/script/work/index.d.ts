@@ -23,6 +23,23 @@ type UploadData = File | Blob
 type UploadObject = { name: string, data: UploadData }
 
 type MappingDirective = (ele: HTMLElement, data) => void
-type MappingTemplate = (data, target: HTMLElement) => HTMLElement
+type MappingTemplate = (data) => HTMLElement
+type MappingDirectives = { [index: string]: MappingDirective };
+type MappingTemplates = { [index: string]: MappingTemplate };
+
+interface iMapping {
+    directive: MappingDirectives
+    template: MappingTemplates
+    readData(mapping: string): any
+    createTemplate(name: string, data): HTMLElement
+
+    $render(ele: HTMLElement, data?: any): HTMLElement
+    $follow(name: string): this
+}
 
 
+interface iMapperObject {
+    name: string
+    mapping: string
+    mapper: HTMLElement
+}

@@ -1,4 +1,3 @@
-import "../../lib/core/component/toggle";
 import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./_core/Work";
 import {Calendar} from "../../lib/core/calendar";
 import {$extend} from "../../lib/core/core";
@@ -31,6 +30,7 @@ import number = Formats.number;
 import simpleTrigger = Events.simpleTrigger;
 import filesize = Formats.filesize;
 import acceptKeys = Events.acceptKeys;
+import {mapperDispatcher} from "./_support/mapper-event/dispatcher";
 
 class EventObject {
 
@@ -66,6 +66,7 @@ function $init($uuid: string, $path: string, $work: Work) {
     let
         {body} = document,
         element = <HTMLElement>document.getElementById('view'),
+        nav = getElementsByTagName(document.body, 'nav', 0),
 
         $uploadProgress = new FileUpload(document.getElementById('file-upload')),
         $screen = new Screen(document.getElementById('screen'), $path),
@@ -481,7 +482,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                 },
                 create(obj: any, work: Work) {
                     obj['priority'] = work.item_len;
-                    return WorkItem.save(new WorkItem(work, obj), work.id);
+                    return WorkItem.save(new WorkItem(obj).setWork(work), work.id);
                 },
                 remove(item: WorkItem, work: Work) {
                     return WorkItem.remove(item).then(v => {
@@ -519,15 +520,6 @@ function $init($uuid: string, $path: string, $work: Work) {
      */
     let $dataEvent: iEvents.dataEvent.directive<EventObject> = {
 
-        /*
-         *  수정 폼 이벤트
-         *  여기서는 DOM의 변화만을 다룬다.
-         *
-         *  name    : [data-mapper] 값
-         *  mapper  : [data-mapper] 엘리먼트
-         *  mapping : data-event 엘리먼트로부터 가장 가까운 곳에 있는 [data-mapping] 값이다.
-         *
-         */
         // 수정 버튼 클릭시
         modify({mapper, mapping, name, target}) {
             let forms = $viewForms[name].reset(access($work, mapping));
@@ -537,11 +529,9 @@ function $init($uuid: string, $path: string, $work: Work) {
         },
 
         // 확인 버튼 클릭시
-        confirm(obj) {
+        confirm({name, mapper}) {
 
-            let
-                {name, mapper} = obj,
-                forms = $viewForms[name],
+            let forms = $viewForms[name],
                 {element} = forms;
 
             // 수정
@@ -549,14 +539,16 @@ function $init($uuid: string, $path: string, $work: Work) {
                 let mapping = element.getAttribute('data-form-mapping');
                 CURD[name].update(forms.values(), access($work, mapping)).then(v => {
                     forms.detach();
-                    $mapping.$render(mapper).$follow(name);
+                    $mapping.$render(mapper);
+                    $mapping.$follow(name);
                 });
             }
             // 신규
             else {
                 CURD[name].create(forms.values(), $work).then(v => {
                     forms.detach();
-                    $mapping.$render(mapper).$follow(name);
+                    $mapping.$render(mapper);
+                    $mapping.$follow(name);
                 });
             }
         },
@@ -567,7 +559,8 @@ function $init($uuid: string, $path: string, $work: Work) {
             $confirm.on(e, (flag) => {
                 if (flag) {
                     CURD[name].remove(access($work, mapping), $work).then(v => {
-                        $mapping.$render(mapper).$follow(name);
+                        $mapping.$render(mapper);
+                        $mapping.$follow(name);
                     });
                 }
                 eventTarget.classList.remove('confirm-active');
@@ -594,7 +587,8 @@ function $init($uuid: string, $path: string, $work: Work) {
             CURD.memo.create(value, $work).then(v => {
                 textarea.value = '';
                 $eventTrigger('change', textarea);
-                $mapping.$render(mapper).$follow(name);
+                $mapping.$render(mapper);
+                $mapping.$follow(name);
                 textarea.removeAttribute('data-sending');
             });
         },
@@ -611,7 +605,8 @@ function $init($uuid: string, $path: string, $work: Work) {
             _recieveFiles((files) => {
                 $fileUpload('ref', $work.id, _map(files, fileTo), (file: WorkFile) => {
                     $work.addRef(file);
-                    $mapping.$render(mapper).$follow(name);
+                    $mapping.$render(mapper);
+                    $mapping.$follow(name);
                 });
             });
         },
@@ -673,19 +668,8 @@ function $init($uuid: string, $path: string, $work: Work) {
     };
 
     //************************************** ▼ Events ▼ **************************************//
-    dataEvent(body, 'click', 'data-event',
-        EventObject.$dispatcher,
-        (t: HTMLElement, o: EventObject) => {
-            let p;
-            if (!o.mapping && (p = t.getAttribute('data-mapping'))) {
-                o.mapping = p;
-            }
-            if ((p = t.getAttribute('data-mapper')) != null) {
-                o.mapper = t;
-                o.name = p;
-                return false;
-            }
-        }, $dataEvent);
+    dataEvent(element, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
+    dataEvent(nav, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
     //************************************** ▲ Events ▲ **************************************//
 
     $mapping.$render(element);

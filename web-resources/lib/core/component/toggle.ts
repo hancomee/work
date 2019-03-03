@@ -3,33 +3,37 @@ import {DOM} from "../dom";
 import className = DOM.className;
 import hasClass = DOM.hasClass;
 
-let
-    r_dropdown = ['dropdown'],
-    r_open = ['show', 'open'],
-
-    active: HTMLElement,
-
-    act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
-        let eventType,
-            dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
-
-        className(dropdown, r_open, flag);
-        dropdownMenu && className(dropdownMenu, r_open, flag);
-
-        // dropdown 이벤트
-        if ((eventType = dropdown.getAttribute('data-dropdown-event')) != null) {
-            let event = document.createEvent('Event');
-            event.initEvent(eventType, true, true);
-            event['data'] = {isOpen: flag, dropdown: dropdown, target: e.target};
-            dropdown.dispatchEvent(event);
-        }
-
-
-        if (flag) active = dropdown;
-        else active = null;
-    };
 
 (function () {
+
+    if(window['___toggle-on___']) return;
+    window['___toggle-on___'] = true;
+
+    let
+        r_dropdown = ['dropdown'],
+        r_open = ['show', 'open'],
+
+        active: HTMLElement,
+
+        act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
+            let eventType,
+                dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
+
+            className(dropdown, r_open, flag);
+            dropdownMenu && className(dropdownMenu, r_open, flag);
+
+            // dropdown 이벤트
+            if ((eventType = dropdown.getAttribute('data-dropdown-event')) != null) {
+                let event = document.createEvent('Event');
+                event.initEvent(eventType, true, true);
+                event['data'] = {isOpen: flag, dropdown: dropdown, target: e.target};
+                dropdown.dispatchEvent(event);
+            }
+
+
+            if (flag) active = dropdown;
+            else active = null;
+        };
 
     // 열기 커스텀 이벤트
     document.addEventListener('dropdown-open', (e) => {

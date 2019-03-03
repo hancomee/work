@@ -1,3 +1,5 @@
+import {$extend} from "../../../lib/core/core";
+import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./Work";
 
 export function $get(url: string): Promise<any> {
     return new Promise((resolve, error) => {
@@ -12,6 +14,7 @@ export function $get(url: string): Promise<any> {
         xhr.send(null);
     });
 }
+
 
 
 export function $post(url: string, data): Promise<any> {

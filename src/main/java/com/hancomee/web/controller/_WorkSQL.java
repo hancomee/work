@@ -33,6 +33,12 @@ public interface _WorkSQL {
     @SQLString("#count.work")
     String count(Map<String, Object> map);
 
+
+    // ************************ 레포팅 ************************ //
+    @SelectorJoin(value="#report.work", columns = {"items"})
+    List<Map<String, Object>> report(@Value("st") String st, @Value("et") String et);
+
+
     /*
      *  ************************************ 작업 상세 ************************************
      */
@@ -184,6 +190,25 @@ public interface _WorkSQL {
     int insertItem(Statement stmt, Map<String, Object> map, @Value("work_id") Object workId);
 
 
+    // ************************ 미수금 ************************ //
     @Selector(value="#select.receivable")
     List<Map<String, Object>> receivableList(Map<String, Object> map);
+
+
+    // ************************ 사이드바 간편메모 ************************ //
+    @Selector(value="SELECT this.* FROM todo this ORDER BY this.datetime DESC")
+    List<Map<String, Object>> todoList();
+
+    @Save("DELETE FROM todo WHERE id = :id{i}")
+    int deleteTodo(@Value("id") Object id);
+
+    @Save("UPDATE todo SET value = :value WHERE id = :id{i}")
+    int updateTodo(@Value("id") Object id, @Value("value") String value);
+
+    @Insert(value = "todo", lastId = true)
+    int insertTodo(Map<String, Object> values);
+
+
+
+
 }

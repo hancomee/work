@@ -258,6 +258,11 @@ main {
       letter-spacing: -1px;
     }
 
+    &-customer {
+      font-weight: bold;
+      color: #924c48;
+    }
+
     &-item {
       display: flex;
       align-items: center;

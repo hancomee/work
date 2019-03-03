@@ -1,5 +1,5 @@
-
 @import "_aside/todo";
+@import "_aside/calculator";
 
 aside {
   display: flex;
@@ -93,19 +93,33 @@ aside {
   &-pop {
 
     > span {
+      display: block;
+      padding: .4rem .5rem;
       font-size: 14px;
     }
+
     > .pop-up {
       display: none;
+      overflow-x: hidden;
       overflow-y: auto;
       position: fixed;
       top: $nav-height;
       left: $aside-width-response;
       bottom: 0;
+      padding: 2.5rem 1rem 1rem;
       width: 350px;
+
       background-color: #424242;
       border-right: 1px solid $border-color-darken;
       border-left: 1px solid $border-color-darken;
+
+      > .pop-up-close {
+        position: absolute;
+        font-size: 14px;
+        top: .5rem;
+        right: 1rem;
+        cursor: pointer;
+      }
     }
     &.open {
       > span {
@@ -146,6 +160,17 @@ aside {
 @media (min-width: 1441px) {
 
   .aside {
+
+    &-menu {
+      > li {
+        > a {
+          display: block;
+          padding-left: 0;
+          color: #9c9c9c;
+          text-align: center;
+        }
+      }
+    }
     &-pop {
       > .pop-up {
         left: $aside-width;

@@ -1,4 +1,3 @@
-import "../../lib/core/component/toggle";
 import {Work} from "./_core/Work";
 import {Search} from "../../lib/core/location";
 import {Mapping} from "./_support/Mapping";

@@ -60,14 +60,15 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 22);
+/******/ 	return __webpack_require__(__webpack_require__.s = 30);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Access;
@@ -123,7 +124,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 1 */
+
+/***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -135,167 +137,383 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 2 */,
-/* 3 */
+
+/***/ 21:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Arrays;
-    (function (Arrays) {
-        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
-        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
-            var limit = array.length, i = 0, colNum, row = -1;
-            if (col < 1)
-                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
-            for (; i < limit; i++) {
-                if ((colNum = i % col) === 0)
-                    row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
-                    return;
+    // 컨테이너 사이즈에 딱 맞추기
+    var _rate = function (N, n) { return (N - n) / n; }, _adjust = function (W, H, w, h) {
+        var height = h + (_rate(W, w) * h);
+        if (height > H)
+            return { w: w + (_rate(H, h) * w), h: H };
+        return { w: W, h: height };
+    };
+    exports.__cover = function (W, H, w, h) {
+        var height = h + (_rate(W, w) * h);
+        if (height < H)
+            return { w: w + (_rate(H, h) * w), h: H };
+        return { w: W, h: height };
+    }, exports.__adjustTo = function (parent, image, forceSize) {
+        if (forceSize === void 0) { forceSize = true; }
+        var _a;
+        var style = image.style, w = (_a = exports.__adjust(parent.offsetWidth, parent.offsetHeight, image.naturalWidth, image.naturalHeight, forceSize), _a.w), h = _a.h, x = _a.x, y = _a.y;
+        style.width = w + 'px';
+        style.height = h + 'px';
+        style.left = x + 'px';
+        style.top = y + 'px';
+        style.transform = '';
+        return image;
+    }, 
+    // 외부 사이즈(W,H)에 딱 맞추기
+    // 마지막 인자가 true면 무조건 외부사이즈에 맞춤. 아니면 본래 사이즈
+    exports.__adjust = function (W, H, w, h, forceSize) {
+        if (forceSize === void 0) { forceSize = true; }
+        var size, pos;
+        // 강제 맞춤옵션이거나, 이미지가 대지보다 클 경우
+        if (forceSize || W < w || H < h)
+            size = _adjust(W, H, w, h);
+        else
+            size = { w: w, h: h };
+        pos = exports.__center(W, H, size.w, size.h);
+        return { w: size.w, h: size.h, x: pos.x, y: pos.y };
+    }, 
+    // from에서 to로 변할때 val의 변환값
+    exports.__resize = function (from, to, val) {
+        var ratio = (to - from) / from;
+        return Math.floor(val + (val * ratio));
+    }, 
+    // 가로 사이즈에 딱 맞추기
+    exports.__adjustWidth = function (W, H, w, h) {
+        return { w: W, h: h + Math.round(_rate(W, w) * h) };
+    }, 
+    // 세로사이즈에 딱 맞추기
+    exports.__adjustHeigth = function (W, H, w, h) {
+        return { w: w + Math.round(_rate(H, h) * w), h: H };
+    }, 
+    // 가운데 맞춤
+    exports.__center = function (W, H, w, h) {
+        return { x: Math.round((W - w) / 2), y: Math.round((H - h) / 2) };
+    }, exports.__transform = function (value) {
+        if (value && value.indexOf('rotate') !== -1)
+            return parseInt(/\d+/.exec(value)[0]);
+        else
+            return 0;
+    };
+    /*
+     *  ## 단순히 이미지를 (좌 -> 우)로 박스 쌓듯이 쌓는다.
+     *
+     *  전체 가로사이즈와 분할갯수를 가지고 이미지 위치를 설정한다.
+     *  재사용을 위해 마지막 높이값을 반환한다.
+     */
+    function __puzzle(values, split, //
+    outerWidth, // 전체 가로 사이즈
+    call, // 콜백함수
+    tops // 시작높이
+    ) {
+        if (tops === void 0) { tops = []; }
+        var width = Math.round(outerWidth / split), index = split;
+        while (index-- > 0)
+            if (tops[index] == null)
+                tops[index] = 0;
+        values.forEach(function (v, i) {
+            var newHeight = exports.__resize(v.width, width, v.height), pos = i % split;
+            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
+            tops[pos] = tops[pos] + newHeight; // 높이 보정
+        });
+        return tops;
+    }
+    exports.__puzzle = __puzzle;
+    /*
+     *  ## [튜닝버전] 높이를 봐가면서 쌓기
+     */
+    function __puzzleTune(values, split, //
+    outerWidth, // 전체 가로 사이즈
+    call, // 콜백함수
+    tops // 시작높이
+    ) {
+        if (tops === void 0) { tops = []; }
+        var width = Math.floor(outerWidth / split), index = split;
+        while (index-- > 0)
+            if (tops[index] == null)
+                tops[index] = 0;
+        values.forEach(function (v, i) {
+            var newHeight = exports.__resize(v.width, width, v.height), pos = _min(tops);
+            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
+            tops[pos] = tops[pos] + newHeight; // 높이 보정
+        });
+        return tops;
+    }
+    exports.__puzzleTune = __puzzleTune;
+    function _min(array) {
+        var result = 0, i = 1, l = array.length, val = array[0];
+        for (; i < l; i++) {
+            if (array[i] < val) {
+                val = array[result = i];
             }
         }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
-            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
-            for (; i < len; i++) {
-                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
-            }
-            return result;
-        }
-        Arrays.slice = slice;
-        /*
-         *  DataTransferItemList 때문에 만든 함수
-         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
-         *  *사용법은 로직 참고
-         */
-        function promiseMap(array, handler) {
-            return new Promise(function (resolve, _) {
-                var check, len = check = array.length, result = [];
-                var _loop_1 = function () {
-                    var index = len;
-                    handler(array[index], function (d) {
-                        result[index] = d;
-                        --check === 0 && resolve(result);
-                    });
-                };
-                while (len-- > 0) {
-                    _loop_1();
-                }
-            });
-        }
-        Arrays.promiseMap = promiseMap;
-        // 숫자배열을 만들어준다.
-        // 시작넘버부터 객수
-        function rangeBySize(start, size) {
-            var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
-            }
-            return array;
-        }
-        Arrays.rangeBySize = rangeBySize;
-        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
-            var reverse = start > lastNum ? true : false, array = [];
-            /*
-             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
-             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
-             */
-            if (reverse) {
-                var temp = start;
-                start = lastNum;
-                lastNum = temp;
-            }
-            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
-                array.push(i + start);
-            }
-            return reverse ? array.reverse() : array;
-        }
-        Arrays.range_atob = range_atob;
-        // drive 배열의 원소만큼 루프를 돌린다.
-        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
-            if (drive == null)
-                return;
-            for (var i = 0; i < drive.length; i++) {
-                callback.call(drive, drive[i], driven, i);
-            }
-        }
-        Arrays._with = _with;
-        function fill(length, v) {
-            if (v === void 0) { v = null; }
-            var i = 0, array = [], handler = v;
-            if (typeof v !== 'function')
-                handler = function () { return v; };
-            for (; i < length; i++) {
-                array[i] = handler.call(array, i);
-            }
-            return array;
-        }
-        Arrays.fill = fill;
-        // 배열을 length의 갯수만큼 나눈다.
-        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
-            var result = [], temp, pos;
-            for (var i = 0, l = target.length; i < l; i++) {
-                pos = i % length;
-                if (!pos)
-                    result.push(temp = []);
-                temp[pos] = target[i];
-            }
-            return result;
-        }
-        Arrays.split = split;
-        // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
-            var i = 0, l = key.length;
-            if (target.length < l)
-                return false;
-            for (; i < l; i++) {
-                if (key[i] !== target[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
-            var i = 0, l = key.length, r = target.length - l;
-            if (r < 0)
-                return false;
-            for (; i < l; i++, r++) {
-                if (key[i] !== target[r])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.endWith = endWith;
-        // 값 비교
-        function equals(a, b) {
-            if (a === b)
-                return true;
-            if (a == null || b == null)
-                return false;
-            if (a.length != b.length)
-                return false;
-            // If you don't care about the order of the elements inside
-            // the array, you should sort both arrays here.
-            for (var i = 0, l = a.length; i < l; i++) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.equals = equals;
-    })(Arrays = exports.Arrays || (exports.Arrays = {}));
+        return result;
+    }
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
-/* 4 */
+
+/***/ 30:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(31)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ImageScreen = /** @class */ (function (_super) {
+        __extends(ImageScreen, _super);
+        function ImageScreen(ele) {
+            var _this = _super.call(this, ele) || this;
+            _this.events.register(ele, 'click', function (e) {
+                if (e.target === ele) {
+                    _this.off();
+                    _this.onClose && _this.onClose();
+                }
+            });
+            return _this;
+        }
+        ImageScreen.prototype.on = function () {
+            this.element.classList.add('on');
+            _super.prototype.on.call(this);
+            return this;
+        };
+        ImageScreen.prototype.off = function () {
+            this.element.classList.remove('on');
+            _super.prototype.off.call(this);
+            return this;
+        };
+        return ImageScreen;
+    }(Imager_1.ImageContainer));
+    exports.ImageScreen = ImageScreen;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 31:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(21)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ImageContainer = /** @class */ (function () {
+        function ImageContainer(element) {
+            var _this = this;
+            this.element = element;
+            this.cliendRect = element.getBoundingClientRect();
+            var handler, mouseWheelHandler = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                _this.wheelZoom(e);
+            };
+            this.events = new events_1.EventsGroup().off()
+                .register(element, 'mousedown', function (e) {
+                if (_this.imager) {
+                    handler = _this.move(e);
+                    e.stopPropagation();
+                }
+            })
+                .register(document, 'mouseup', function () { return handler = null; })
+                .register(document, 'mousemove', function (e) { return handler && handler(e); })
+                // 마우스 휠로 확대 축소
+                .register(document, 'mousewheel', mouseWheelHandler)
+                .register(document, 'DOMMouseScroll', mouseWheelHandler)
+                // 더블클릭으로 그림 회전
+                .register(element, 'dblclick', function (e) {
+                if (_this.imager) {
+                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
+                    e.stopPropagation();
+                }
+            })
+                // 이미지 움직일때 드래그 이벤트 봉쇄
+                .register(element, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
+        }
+        ImageContainer.prototype.on = function () {
+            this.events.on();
+            return this;
+        };
+        ImageContainer.prototype.off = function () {
+            this.events.off();
+            return this;
+        };
+        ImageContainer.prototype.putImage = function (image) {
+            var _a = this, element = _a.element, _b = _a.element, offsetWidth = _b.offsetWidth, offsetHeight = _b.offsetHeight;
+            this.imager = new Imager(image)
+                .setSize(position_1.__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
+            element.textContent = '';
+            element.appendChild(image);
+            return this;
+        };
+        // 이미지 줌
+        ImageContainer.prototype.wheelZoom = function (e) {
+            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e.wheelDelta < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
+            if (width + widthAdd < 300)
+                img.setWidth(300);
+            else
+                img.addWidth(widthAdd);
+            img.left = (left - ((img.width - width) * ratioX));
+            img.top = (top - ((img.height - height) * ratioY));
+        };
+        // 이미지 이동
+        ImageContainer.prototype.move = function (e, img) {
+            if (img === void 0) { img = this.imager; }
+            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
+            return function (e) {
+                img.left = left + e.pageX - pageX;
+                img.top = top + e.pageY - pageY;
+            };
+        };
+        return ImageContainer;
+    }());
+    exports.ImageContainer = ImageContainer;
+    var Imager = /** @class */ (function () {
+        // style을 설정한다.
+        function Imager(element) {
+            this.element = element;
+            this.CSSStyle = element.style;
+            this.left = 0;
+            this.top = 0;
+            this.width = element.naturalWidth;
+            this.height = element.naturalHeight;
+            this.position = 'relative';
+        }
+        Object.defineProperty(Imager.prototype, "zIndex", {
+            get: function () {
+                return parseInt(this.CSSStyle.zIndex);
+            },
+            set: function (v) {
+                this.CSSStyle.zIndex = v.toString();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "left", {
+            get: function () {
+                return parseInt(this.CSSStyle.left);
+            },
+            set: function (v) {
+                this.CSSStyle.left = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "top", {
+            get: function () {
+                return parseInt(this.CSSStyle.top);
+            },
+            set: function (v) {
+                this.CSSStyle.top = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "width", {
+            get: function () {
+                return parseInt(this.CSSStyle.width);
+            },
+            set: function (v) {
+                this.CSSStyle.width = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "height", {
+            get: function () {
+                return parseInt(this.CSSStyle.height);
+            },
+            set: function (v) {
+                this.CSSStyle.height = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "rotate", {
+            get: function () {
+                return position_1.__transform(this.CSSStyle.transform);
+            },
+            set: function (v) {
+                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "position", {
+            get: function () {
+                return this.CSSStyle.position;
+            },
+            set: function (v) {
+                this.CSSStyle.position = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Imager.prototype.setSize = function (_a) {
+            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
+            this.left = x;
+            this.top = y;
+            this.width = w;
+            this.height = h;
+            return this;
+        };
+        // 정중앙 정렬
+        Imager.prototype.center = function (W, H) {
+            var _a = this, width = _a.width, height = _a.height;
+            this.left = Math.ceil((W - width) / 2);
+            this.top = Math.ceil((H - height) / 2);
+            return this;
+        };
+        Imager.prototype.$setSize = function (drive, change, driven) {
+            return { driven: driven + (driven * (change / drive)), drive: drive + change };
+        };
+        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
+        Imager.prototype.setWidth = function (v) {
+            return this.addWidth(v - this.width);
+        };
+        Imager.prototype.setHeight = function (v) {
+            return this.addHeight(v - this.height);
+        };
+        // (+-)v 값만큼 크기 조정.
+        Imager.prototype.addWidth = function (v) {
+            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
+            this.width = drive;
+            this.height = driven;
+            return this;
+        };
+        Imager.prototype.addHeight = function (v) {
+            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
+            this.width = driven;
+            this.height = drive;
+            return this;
+        };
+        return Imager;
+    }());
+    exports.Imager = Imager;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -581,9 +799,168 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 5 */,
-/* 6 */,
-/* 7 */
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var Arrays;
+    (function (Arrays) {
+        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
+        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
+        function cols(array, col, callback) {
+            var limit = array.length, i = 0, colNum, row = -1;
+            if (col < 1)
+                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
+            for (; i < limit; i++) {
+                if ((colNum = i % col) === 0)
+                    row++;
+                if (callback.call(array, array[i], i, i % col, row) === false)
+                    return;
+            }
+        }
+        Arrays.cols = cols;
+        function slice(array, col, callback) {
+            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
+            for (; i < len; i++) {
+                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
+            }
+            return result;
+        }
+        Arrays.slice = slice;
+        /*
+         *  DataTransferItemList 때문에 만든 함수
+         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
+         *  *사용법은 로직 참고
+         */
+        function promiseMap(array, handler) {
+            return new Promise(function (resolve, _) {
+                var check, len = check = array.length, result = [];
+                var _loop_1 = function () {
+                    var index = len;
+                    handler(array[index], function (d) {
+                        result[index] = d;
+                        --check === 0 && resolve(result);
+                    });
+                };
+                while (len-- > 0) {
+                    _loop_1();
+                }
+            });
+        }
+        Arrays.promiseMap = promiseMap;
+        // 숫자배열을 만들어준다.
+        // 시작넘버부터 객수
+        function rangeBySize(start, size) {
+            var array = [];
+            for (var l = start + size; start < l; start++) {
+                array.push(start);
+            }
+            return array;
+        }
+        Arrays.rangeBySize = rangeBySize;
+        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
+        function range_atob(start, lastNum) {
+            var reverse = start > lastNum ? true : false, array = [];
+            /*
+             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
+             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
+             */
+            if (reverse) {
+                var temp = start;
+                start = lastNum;
+                lastNum = temp;
+            }
+            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
+                array.push(i + start);
+            }
+            return reverse ? array.reverse() : array;
+        }
+        Arrays.range_atob = range_atob;
+        // drive 배열의 원소만큼 루프를 돌린다.
+        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
+        function _with(drive, driven, callback) {
+            if (drive == null)
+                return;
+            for (var i = 0; i < drive.length; i++) {
+                callback.call(drive, drive[i], driven, i);
+            }
+        }
+        Arrays._with = _with;
+        function fill(length, v) {
+            if (v === void 0) { v = null; }
+            var i = 0, array = [], handler = v;
+            if (typeof v !== 'function')
+                handler = function () { return v; };
+            for (; i < length; i++) {
+                array[i] = handler.call(array, i);
+            }
+            return array;
+        }
+        Arrays.fill = fill;
+        // 배열을 length의 갯수만큼 나눈다.
+        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
+        function split(target, length) {
+            var result = [], temp, pos;
+            for (var i = 0, l = target.length; i < l; i++) {
+                pos = i % length;
+                if (!pos)
+                    result.push(temp = []);
+                temp[pos] = target[i];
+            }
+            return result;
+        }
+        Arrays.split = split;
+        // target의 앞부터 다 맞으면 오케이
+        function startWith(key, target) {
+            var i = 0, l = key.length;
+            if (target.length < l)
+                return false;
+            for (; i < l; i++) {
+                if (key[i] !== target[i])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.startWith = startWith;
+        function endWith(key, target) {
+            var i = 0, l = key.length, r = target.length - l;
+            if (r < 0)
+                return false;
+            for (; i < l; i++, r++) {
+                if (key[i] !== target[r])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.endWith = endWith;
+        // 값 비교
+        function equals(a, b) {
+            if (a === b)
+                return true;
+            if (a == null || b == null)
+                return false;
+            if (a.length != b.length)
+                return false;
+            // If you don't care about the order of the elements inside
+            // the array, you should sort both arrays here.
+            for (var i = 0, l = a.length; i < l; i++) {
+                if (a[i] !== b[i])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.equals = equals;
+    })(Arrays = exports.Arrays || (exports.Arrays = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -599,7 +976,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(3), __webpack_require__(4), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(6), __webpack_require__(5), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -936,14 +1313,14 @@ var __extends = (this && this.__extends) || (function () {
             return new Events(element, type, function (e) {
                 var target = e.target, attrValue = target.getAttribute(attr), dir = directive[target.getAttribute(attr)];
                 if (dir) {
-                    var obj = getObj(e), limit = element, h = dispatcher;
+                    var obj = getObj(e, attrValue), limit = element, h = dispatcher;
                     while (target && (limit !== target)) {
-                        eventProperty(element, obj);
-                        if (h(target, obj, attrValue, e) === false)
+                        eventProperty(target, obj);
+                        if (h(target, obj, attrValue, e) === 'break')
                             break;
                         target = target.parentElement;
                     }
-                    dir.call(dir, obj);
+                    dir.call(directive, obj);
                 }
             });
         }
@@ -963,10 +1340,11 @@ var __extends = (this && this.__extends) || (function () {
 
 
 /***/ }),
-/* 8 */
+
+/***/ 9:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
@@ -1010,389 +1388,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
-/***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    // 컨테이너 사이즈에 딱 맞추기
-    var _rate = function (N, n) { return (N - n) / n; }, _adjust = function (W, H, w, h) {
-        var height = h + (_rate(W, w) * h);
-        if (height > H)
-            return { w: w + (_rate(H, h) * w), h: H };
-        return { w: W, h: height };
-    };
-    exports.__cover = function (W, H, w, h) {
-        var height = h + (_rate(W, w) * h);
-        if (height < H)
-            return { w: w + (_rate(H, h) * w), h: H };
-        return { w: W, h: height };
-    }, exports.__adjustTo = function (parent, image, forceSize) {
-        if (forceSize === void 0) { forceSize = true; }
-        var _a;
-        var style = image.style, w = (_a = exports.__adjust(parent.offsetWidth, parent.offsetHeight, image.naturalWidth, image.naturalHeight, forceSize), _a.w), h = _a.h, x = _a.x, y = _a.y;
-        style.width = w + 'px';
-        style.height = h + 'px';
-        style.left = x + 'px';
-        style.top = y + 'px';
-        style.transform = '';
-        return image;
-    }, 
-    // 외부 사이즈(W,H)에 딱 맞추기
-    // 마지막 인자가 true면 무조건 외부사이즈에 맞춤. 아니면 본래 사이즈
-    exports.__adjust = function (W, H, w, h, forceSize) {
-        if (forceSize === void 0) { forceSize = true; }
-        var size, pos;
-        // 강제 맞춤옵션이거나, 이미지가 대지보다 클 경우
-        if (forceSize || W < w || H < h)
-            size = _adjust(W, H, w, h);
-        else
-            size = { w: w, h: h };
-        pos = exports.__center(W, H, size.w, size.h);
-        return { w: size.w, h: size.h, x: pos.x, y: pos.y };
-    }, 
-    // from에서 to로 변할때 val의 변환값
-    exports.__resize = function (from, to, val) {
-        var ratio = (to - from) / from;
-        return Math.floor(val + (val * ratio));
-    }, 
-    // 가로 사이즈에 딱 맞추기
-    exports.__adjustWidth = function (W, H, w, h) {
-        return { w: W, h: h + Math.round(_rate(W, w) * h) };
-    }, 
-    // 세로사이즈에 딱 맞추기
-    exports.__adjustHeigth = function (W, H, w, h) {
-        return { w: w + Math.round(_rate(H, h) * w), h: H };
-    }, 
-    // 가운데 맞춤
-    exports.__center = function (W, H, w, h) {
-        return { x: Math.round((W - w) / 2), y: Math.round((H - h) / 2) };
-    }, exports.__transform = function (value) {
-        if (value && value.indexOf('rotate') !== -1)
-            return parseInt(/\d+/.exec(value)[0]);
-        else
-            return 0;
-    };
-    /*
-     *  ## 단순히 이미지를 (좌 -> 우)로 박스 쌓듯이 쌓는다.
-     *
-     *  전체 가로사이즈와 분할갯수를 가지고 이미지 위치를 설정한다.
-     *  재사용을 위해 마지막 높이값을 반환한다.
-     */
-    function __puzzle(values, split, //
-    outerWidth, // 전체 가로 사이즈
-    call, // 콜백함수
-    tops // 시작높이
-    ) {
-        if (tops === void 0) { tops = []; }
-        var width = Math.round(outerWidth / split), index = split;
-        while (index-- > 0)
-            if (tops[index] == null)
-                tops[index] = 0;
-        values.forEach(function (v, i) {
-            var newHeight = exports.__resize(v.width, width, v.height), pos = i % split;
-            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
-            tops[pos] = tops[pos] + newHeight; // 높이 보정
-        });
-        return tops;
-    }
-    exports.__puzzle = __puzzle;
-    /*
-     *  ## [튜닝버전] 높이를 봐가면서 쌓기
-     */
-    function __puzzleTune(values, split, //
-    outerWidth, // 전체 가로 사이즈
-    call, // 콜백함수
-    tops // 시작높이
-    ) {
-        if (tops === void 0) { tops = []; }
-        var width = Math.floor(outerWidth / split), index = split;
-        while (index-- > 0)
-            if (tops[index] == null)
-                tops[index] = 0;
-        values.forEach(function (v, i) {
-            var newHeight = exports.__resize(v.width, width, v.height), pos = _min(tops);
-            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
-            tops[pos] = tops[pos] + newHeight; // 높이 보정
-        });
-        return tops;
-    }
-    exports.__puzzleTune = __puzzleTune;
-    function _min(array) {
-        var result = 0, i = 1, l = array.length, val = array[0];
-        for (; i < l; i++) {
-            if (array[i] < val) {
-                val = array[result = i];
-            }
-        }
-        return result;
-    }
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ImageScreen = /** @class */ (function (_super) {
-        __extends(ImageScreen, _super);
-        function ImageScreen(ele) {
-            var _this = _super.call(this, ele) || this;
-            _this.events.register(ele, 'click', function (e) {
-                if (e.target === ele) {
-                    _this.off();
-                    _this.onClose && _this.onClose();
-                }
-            });
-            return _this;
-        }
-        ImageScreen.prototype.on = function () {
-            this.element.classList.add('on');
-            _super.prototype.on.call(this);
-            return this;
-        };
-        ImageScreen.prototype.off = function () {
-            this.element.classList.remove('on');
-            _super.prototype.off.call(this);
-            return this;
-        };
-        return ImageScreen;
-    }(Imager_1.ImageContainer));
-    exports.ImageScreen = ImageScreen;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ImageContainer = /** @class */ (function () {
-        function ImageContainer(element) {
-            var _this = this;
-            this.element = element;
-            this.cliendRect = element.getBoundingClientRect();
-            var handler, mouseWheelHandler = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                _this.wheelZoom(e);
-            };
-            this.events = new events_1.EventsGroup().off()
-                .register(element, 'mousedown', function (e) {
-                if (_this.imager) {
-                    handler = _this.move(e);
-                    e.stopPropagation();
-                }
-            })
-                .register(document, 'mouseup', function () { return handler = null; })
-                .register(document, 'mousemove', function (e) { return handler && handler(e); })
-                // 마우스 휠로 확대 축소
-                .register(document, 'mousewheel', mouseWheelHandler)
-                .register(document, 'DOMMouseScroll', mouseWheelHandler)
-                // 더블클릭으로 그림 회전
-                .register(element, 'dblclick', function (e) {
-                if (_this.imager) {
-                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
-                    e.stopPropagation();
-                }
-            })
-                // 이미지 움직일때 드래그 이벤트 봉쇄
-                .register(element, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
-        }
-        ImageContainer.prototype.on = function () {
-            this.events.on();
-            return this;
-        };
-        ImageContainer.prototype.off = function () {
-            this.events.off();
-            return this;
-        };
-        ImageContainer.prototype.putImage = function (image) {
-            var _a = this, element = _a.element, _b = _a.element, offsetWidth = _b.offsetWidth, offsetHeight = _b.offsetHeight;
-            this.imager = new Imager(image)
-                .setSize(position_1.__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
-            element.textContent = '';
-            element.appendChild(image);
-            return this;
-        };
-        // 이미지 줌
-        ImageContainer.prototype.wheelZoom = function (e) {
-            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e.wheelDelta < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
-            if (width + widthAdd < 300)
-                img.setWidth(300);
-            else
-                img.addWidth(widthAdd);
-            img.left = (left - ((img.width - width) * ratioX));
-            img.top = (top - ((img.height - height) * ratioY));
-        };
-        // 이미지 이동
-        ImageContainer.prototype.move = function (e, img) {
-            if (img === void 0) { img = this.imager; }
-            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
-            return function (e) {
-                img.left = left + e.pageX - pageX;
-                img.top = top + e.pageY - pageY;
-            };
-        };
-        return ImageContainer;
-    }());
-    exports.ImageContainer = ImageContainer;
-    var Imager = /** @class */ (function () {
-        // style을 설정한다.
-        function Imager(element) {
-            this.element = element;
-            this.CSSStyle = element.style;
-            this.left = 0;
-            this.top = 0;
-            this.width = element.naturalWidth;
-            this.height = element.naturalHeight;
-            this.position = 'relative';
-        }
-        Object.defineProperty(Imager.prototype, "zIndex", {
-            get: function () {
-                return parseInt(this.CSSStyle.zIndex);
-            },
-            set: function (v) {
-                this.CSSStyle.zIndex = v.toString();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "left", {
-            get: function () {
-                return parseInt(this.CSSStyle.left);
-            },
-            set: function (v) {
-                this.CSSStyle.left = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "top", {
-            get: function () {
-                return parseInt(this.CSSStyle.top);
-            },
-            set: function (v) {
-                this.CSSStyle.top = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "width", {
-            get: function () {
-                return parseInt(this.CSSStyle.width);
-            },
-            set: function (v) {
-                this.CSSStyle.width = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "height", {
-            get: function () {
-                return parseInt(this.CSSStyle.height);
-            },
-            set: function (v) {
-                this.CSSStyle.height = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "rotate", {
-            get: function () {
-                return position_1.__transform(this.CSSStyle.transform);
-            },
-            set: function (v) {
-                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "position", {
-            get: function () {
-                return this.CSSStyle.position;
-            },
-            set: function (v) {
-                this.CSSStyle.position = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Imager.prototype.setSize = function (_a) {
-            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
-            this.left = x;
-            this.top = y;
-            this.width = w;
-            this.height = h;
-            return this;
-        };
-        // 정중앙 정렬
-        Imager.prototype.center = function (W, H) {
-            var _a = this, width = _a.width, height = _a.height;
-            this.left = Math.ceil((W - width) / 2);
-            this.top = Math.ceil((H - height) / 2);
-            return this;
-        };
-        Imager.prototype.$setSize = function (drive, change, driven) {
-            return { driven: driven + (driven * (change / drive)), drive: drive + change };
-        };
-        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
-        Imager.prototype.setWidth = function (v) {
-            return this.addWidth(v - this.width);
-        };
-        Imager.prototype.setHeight = function (v) {
-            return this.addHeight(v - this.height);
-        };
-        // (+-)v 값만큼 크기 조정.
-        Imager.prototype.addWidth = function (v) {
-            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
-            this.width = drive;
-            this.height = driven;
-            return this;
-        };
-        Imager.prototype.addHeight = function (v) {
-            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
-            this.width = driven;
-            this.height = drive;
-            return this;
-        };
-        return Imager;
-    }());
-    exports.Imager = Imager;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
 /***/ })
-/******/ ]);
+
+/******/ });

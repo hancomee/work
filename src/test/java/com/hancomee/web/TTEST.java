@@ -1,9 +1,12 @@
 package com.hancomee.web;
 
 import com.boosteel.nativedb.NativeDB;
+import com.boosteel.nativedb.core.DataAccess;
 import com.boosteel.nativedb.core.anno.SQLString;
 import com.boosteel.nativedb.core.anno.Selector;
 import com.boosteel.nativedb.core.support.RepositoryConfig;
+import com.boosteel.util.IAccess;
+import com.boosteel.util.support.MapAccess;
 import com.boosteel.util.support.Patterns;
 import org.junit.Test;
 
@@ -13,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.time.LocalDate;
@@ -20,12 +24,26 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import static com.boosteel.nativedb.core.DataConverter.data_by_dType;
+
 public class TTEST {
 
     private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
 
     @Test
     public void copy() throws Exception {
+
+        String k = "SELECT * FROM hancomee_work this\n" +
+                "\t\t\t\tINNER JOIN hancomee_customer customer ON this.customer_id = customer.id\n" +
+                "            INNER JOIN hancomee_workitem item ON this.id = item.work_id\n" +
+                "\t\t\tWHERE this.activetime BETWEEN '2019-03-01 00:00:00.000' AND '2019-03-01 23:59:59.999';";
+
+
+
+    }
+
+
+    public void 합계계산() {
         db.doWork(s -> {
 
             Statement stmt1 = s.createStatement(),

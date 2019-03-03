@@ -23,8 +23,9 @@ import java.util.Map;
 @Component
 public class _WorkManager {
 
-    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
-    private _WorkSQL SQL;
+    NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
+     _WorkSQL SQL;
+     RepositoryConfig CONFIG;
 
     public _WorkManager() throws Exception {
         System.out.println("-----------------------------------------------------------");
@@ -36,7 +37,7 @@ public class _WorkManager {
 
         SQL = db.createRepository(
                 _WorkSQL.class,
-                new RepositoryConfig()
+                CONFIG = new RepositoryConfig()
                         .addSQL(_WorkManager.class.getClassLoader().getResourceAsStream("work.sql"))
         );
     }
@@ -199,7 +200,7 @@ public class _WorkManager {
                     "w.state = " + state + ", " +
                     "w.activetime = " +
                     "CASE " +
-                    "WHEN " + state + " > 2 AND w.activetime = w.datetime THEN now() " +
+                    "WHEN " + state + " > 5 AND w.activetime = w.datetime THEN now() " +
                     "ELSE w.activetime " +
                     "END " +
                     "WHERE w.id = " + id;
@@ -330,5 +331,6 @@ public class _WorkManager {
     public Object receivableList(Map<String, Object> map) {
         return SQL.receivableList(map);
     }
+
 
 }

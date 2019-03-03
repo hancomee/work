@@ -1,16 +1,14 @@
-import {_forEach, _makeArray} from "../../../lib/core/_func/array";
+import {_forEach} from "../../../lib/core/_func/array";
 import {Access} from "../../../lib/core/access";
 import {DOM} from "../../../lib/core/dom";
-import access = Access.access;
 import {_replaceHTML} from "../../../lib/core/_html/replaceHTML";
 import {Formats} from "../../../lib/core/format";
+import {AbstractUtilClass} from "./mapping/_AbstractUtilClass";
+import access = Access.access;
 import expValParse = Formats.expValParse;
 import number = Formats.number;
 import datetime = Formats.datetime;
-import {Events} from "../../../lib/core/events";
 
-type MappingDirectives = { [index: string]: MappingDirective };
-type MappingTemplates = { [index: string]: MappingTemplate };
 
 function isAlikeArray(target) {
     if (target && typeof target.length === 'number') {
@@ -43,7 +41,11 @@ function $$mapping(prefix: string, val: any) {
 }
 
 function render(ele: HTMLElement, mapping: string,
-                data, $val, Mapping) {
+                data, $val, Mapping: Mapping) {
+
+
+    if(ele.hasAttribute('data-ignore'))
+        return;
 
     let $mapping = ele.getAttribute('data-mapping'),
         attrVal: string;
@@ -55,10 +57,12 @@ function render(ele: HTMLElement, mapping: string,
     /*
      *
      */
-    if (attrVal = ele.getAttribute('data-directive')) {
+    if ((attrVal = ele.getAttribute('data-directive')) != null) {
+
         let {directive} = Mapping,
             [name, filter, primitive] = expValParse(attrVal),
             v = access($val, name);
+
 
         if (v == null)
             ele.textContent = '';
@@ -82,7 +86,7 @@ function render(ele: HTMLElement, mapping: string,
         // ① 배열인 경우
         if (isAlikeArray($val)) {
             _forEach($val, (v, p) => {
-                let c = temple(v, ele),
+                let c = temple(v),
                     prop = $$mapping(mapping, p);
 
                 render(c, prop, data, v, Mapping);
@@ -92,7 +96,7 @@ function render(ele: HTMLElement, mapping: string,
         }
         // ② 단일 객체
         else {
-            let c = temple(ele, $val);
+            let c = temple(ele);
             render(c, mapping, data, $val, Mapping);
             c.setAttribute('data-mapping', mapping);
             fragment.appendChild(c);
@@ -123,12 +127,11 @@ function render(ele: HTMLElement, mapping: string,
              *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
              */
             noRender = attrVal[0] === '!',
-            clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val, ele);
+            clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val);
 
         render(clone, mapping, data, $val, Mapping);
 
-        // clone 엘리먼트에 data-replace를 붙이지 않으므로, 다음번 렌더링부터는 건너띤다
-        noRender || clone.setAttribute('data-replace', attrVal);
+        noRender || ele.setAttribute('data-ignore', 'true');
 
         ele.parentElement.replaceChild(clone, ele);
     }
@@ -142,7 +145,7 @@ function render(ele: HTMLElement, mapping: string,
 
 };
 
-export class Mapping {
+export class Mapping extends AbstractUtilClass<Mapping> {
 
     data
     html = {}
@@ -154,7 +157,7 @@ export class Mapping {
         return this;
     }
 
-    addHTML(target: HTMLElement): Mapping {
+    addHTML(target: HTMLElement): this {
         let {html} = this;
         _forEach(target.querySelectorAll('[data-html]'), (e: HTMLElement) => {
             html[e.getAttribute('data-html')] = _replaceHTML(e.innerText);
@@ -162,9 +165,9 @@ export class Mapping {
         return this;
     }
 
-    addTemplate(target: HTMLElement): Mapping
-    addTemplate(obj: MappingTemplates): Mapping
-    addTemplate(name: string, templeate: MappingTemplate): Mapping
+    addTemplate(target: HTMLElement): this
+    addTemplate(obj: MappingTemplates): this
+    addTemplate(name: string, templeate: MappingTemplate): this
     addTemplate(a, b?) {
         if (typeof a === 'string') this.template[a] = b;
         else if (a.nodeType === 1) this.addTemplate(Mapping.createTemplates(a));
@@ -175,8 +178,8 @@ export class Mapping {
         return this;
     }
 
-    addDirective(obj: MappingDirectives): Mapping
-    addDirective(name: string, directive: MappingDirective): Mapping
+    addDirective(obj: MappingDirectives): this
+    addDirective(name: string, directive: MappingDirective): this
     addDirective(a, b?) {
         if (typeof a === 'string') this.directive[a] = b;
         else {
@@ -186,9 +189,20 @@ export class Mapping {
         return this;
     }
 
+    readData(mapping: string) {
+        return access(this.data, mapping);
+    }
+
+
+    createTemplate(name: string, data): HTMLElement {
+        let element = this.template[name](data);
+        this.$render(element, data);
+        return element;
+    }
+
     $render(ele: HTMLElement, data = this.data) {
-        render(ele, null, data, data, this);
-        return this;
+        render(ele, null, this.data, data, this);
+        return ele;
     }
 
     $follow(name: string) {
@@ -202,10 +216,6 @@ export class Mapping {
 
 }
 
-/*
- *    ① 이 루프는 데이터 구조를 모두 알고 있다는 전제하에 쓰여진다.
- *
- */
 export namespace Mapping {
 
     import createHTML = DOM.createHTML;

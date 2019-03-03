@@ -43,6 +43,7 @@ export class WorkCreator {
 
             $load = () => {
                 Customer.search(keyword).then(values => {
+
                     if ((data = values).length) {
 
                         // 딱 맞는 이름이 있는지
@@ -60,6 +61,8 @@ export class WorkCreator {
 
                     } else {
                         result.textContent = '';
+                        if (!keyword) cClass.remove('active');
+                        else cClass.add('active');
                     }
                 })
             },
@@ -67,7 +70,10 @@ export class WorkCreator {
                 eClass.remove('confirm-customer');
                 title.disabled = true;
                 if (keyword = key) $load();
-                else result.textContent = '';
+                else {
+                    result.textContent = '';
+                    cClass.remove('active');
+                }
             },
             $create = () => {
                 if (eClass.contains('confirm-title') && eClass.contains('confirm-customer')) {
