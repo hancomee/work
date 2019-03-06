@@ -50,7 +50,7 @@ export namespace Todo {
     }
 
     export function update(id, value) {
-        return $post('/work/db/todo/' + id, value)
+        return $post('/work/db/todo/' + id, {value: value})
     }
 
     export function list(): Promise<Todo[]> {

@@ -44,7 +44,7 @@ export namespace Access {
     export function access<T>(target: T, _props: string, val, force: boolean): T
     export function access(target, _props: string, val?, force?: boolean) {
 
-        if(_props == null || _props === '') return target;
+        if(target == null || _props == null || _props === '') return target;
 
         let
             props = _props.split(r_a),

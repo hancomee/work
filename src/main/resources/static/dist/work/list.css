@@ -4671,21 +4671,30 @@ main {
           cursor: default; }
   .work-list-datetime {
     display: inline-block; }
+  .work-list-title, .work-list-customer {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; }
+    .work-list-title:hover, .work-list-customer:hover {
+      color: #2371a9; }
   .work-list-title {
-    display: inline-block;
-    margin-top: .6rem;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #777;
     letter-spacing: -1px; }
   .work-list-customer {
+    margin-top: .6rem;
     font-weight: bold;
-    color: #924c48; }
+    color: #4c82a9;
+    font-size: 20px;
+    letter-spacing: -.8px; }
   .work-list-item {
     display: flex;
-    align-items: center; }
+    align-items: center;
+    margin-top: .5rem; }
     .work-list-item-len {
-      margin: 0 .3rem 0 auto;
+      margin: 0 .6rem 0 auto;
       width: 3rem;
       height: 2.5rem;
       border: 1px solid #ccc;

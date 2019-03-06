@@ -18,7 +18,7 @@ import WorkListValue = Work.WorkListValue;
 
 class ListManager extends Search {
 
-    $data: ListData<WorkListValue>
+    $data: ListData<Work>
 
     duration = 'all'
     size = 8
@@ -26,7 +26,7 @@ class ListManager extends Search {
     state = 0
     search: string
     searchType = 'customerName'
-    orders = '<work.datetime'
+    orders = '<this.datetime'
 
     reset() {
         super.reset(location.hash.substring(1));
@@ -53,15 +53,22 @@ let
     $directive = {
 
         // 시안파일 background-image 적용하기
-        draft(ele: HTMLAnchorElement, v: WorkListValue) {
-            let {work, work: {uuid}} = v;
-            if (v.draft) {
-                let path = Work.toPath(uuid);
-                ele.style.backgroundImage = 'url("/workdata/' +
-                    path + v.draft.getSaveName() +
-                    '")'
-            }
+        draft(ele: HTMLAnchorElement, work: Work) {
+            let {uuid} = work;
+            Work.getDraft(work.id).then(v => {
+                if(v && v.save_name) {
+                    let path = Work.toPath(uuid);
+                    ele.style.backgroundImage = 'url("/workdata/' +
+                        path + v.save_name + '.' + v.filetype + '")'
+                }
+            });
             ele.href = "/work/view/" + work.uuid;
+        },
+
+        // 거래처 이름
+        customer(ele: HTMLAnchorElement, v: Work) {
+            ele.textContent = v.customer.name;
+            ele.href = "/work/view/" + v.uuid;
         },
 
         // 제목에 href 달기
@@ -222,7 +229,7 @@ let
             })
 
             // rendering 될때마다 input값 확인
-                $alert[$resetIndex++] = () => {
+            $alert[$resetIndex++] = () => {
                 let {searchType} = $manager;
                 btn.textContent = searchTypes[searchType];
                 input.value = $manager.search || '';

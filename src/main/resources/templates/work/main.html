@@ -11,6 +11,7 @@
             <td data-directive="name"></td>
             <td class="text-center" data-directive="count | number"></td>
             <td class="text-right" data-directive="total | number"></td>
+            <td class="text-right" data-directive="vat | number"></td>
         </tr>
     </script>
 </head>
@@ -74,7 +75,8 @@
                         <tr>
                             <th>거래처</th>
                             <th>건수</th>
-                            <th>매출</th>
+                            <th>공급단가</th>
+                            <th>부가세</th>
                         </tr>
                         </thead>
                         <tbody data-template="customers" data-mapping="customers"></tbody>

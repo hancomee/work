@@ -138,6 +138,11 @@ public class DBController {
         sql.deleteDraft(id);
     }
 
+    @RequestMapping(value = "get/draft/{workId}", method = RequestMethod.GET)
+    @ResponseBody
+    public Object getDraft(@PathVariable("workId") int id) throws Exception {
+        return sql.SQL.getDraft(id);
+    }
 
     // ***************************** 메모 ************************************* //
     @RequestMapping(value = "memo/{workId}", method = RequestMethod.POST)
@@ -169,8 +174,8 @@ public class DBController {
     }
     @RequestMapping(value = "todo/{id}", method = RequestMethod.POST)
     @ResponseBody
-    public void update(@PathVariable("id") Object id, @RequestBody String value) throws Exception {
-        sql.SQL.updateTodo(id, value);
+    public void update(@PathVariable("id") Object id, @RequestBody Map<String, Object> values) throws Exception {
+        sql.SQL.updateTodo(id, values.get("value").toString());
     }
     @RequestMapping(value = "todo/{id}", method = RequestMethod.DELETE)
     @ResponseBody

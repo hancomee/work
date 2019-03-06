@@ -1,11 +1,11 @@
 <div>
     <div class="ctrl">
-        <div class="sel year" ::year>
+        <div class="sel year" :year>
             <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
             <span class="current">{{val}}</span>
             <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
         </div>
-        <div class="sel month" ::month>
+        <div class="sel month" :month>
             <span class="move prev" data-move="{{prev}}">&lt; {{_.val === 0 ? 12 : _.val}}</span>
             <span class="current">{{_.val + 1}}</span>
             <span class="move next" data-move="{{next}}">{{_.val === 11 ? 1 : (_.val + 2)}} &gt;</span>
@@ -24,8 +24,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr :tr>
-            <td class="{{className}}" ::td>
+        <tr :date>
+            <td class="{{className}}" :>
                 <span data-dismiss="{{val}}">{{date}}</span>
             </td>
         </tr>

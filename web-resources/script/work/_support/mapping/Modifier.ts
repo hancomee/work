@@ -215,7 +215,7 @@ export class Modifier extends AbstractUtilClass<Modifier> {
     }
 
     private remove(obj: ModifierEventObject) {
-        this.removeConfirm(obj, (flag) => flag && this.remove(obj));
+        this.removeConfirm(obj, (flag) => flag && this.$remove(obj));
     }
 
     // list객체만 해당된다.

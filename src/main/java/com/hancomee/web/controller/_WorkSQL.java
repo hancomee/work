@@ -209,6 +209,8 @@ public interface _WorkSQL {
     int insertTodo(Map<String, Object> values);
 
 
+    @Selector("#select.draft")
+    Map<String, Object> getDraft(@Value("workId") Object workId);
 
 
 }

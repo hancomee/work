@@ -59,7 +59,10 @@ export function todo(element: HTMLElement) {
                                 })
                             },
                             remove(own) {
-                                return Todo.remove(own.id).then(() => lenCheck())
+                                return Todo.remove(own.id).then(() => {
+                                    $list.splice($list.indexOf(own), 1);
+                                    lenCheck();
+                                })
                             },
                             save(data) {
                                 return Todo.save(new Todo(data)).then(v => {

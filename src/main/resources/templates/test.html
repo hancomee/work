@@ -8,18 +8,17 @@
 
     <script id="uu" type="text/html">
         <div>
-            <div class="ctrl" :year>
-                <div class="sel year">
+            <div class="ctrl">
+                <div class="sel year" :year>
                     <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
                     <span class="current">{{val}}</span>
                     <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
                 </div>
-                <div class="sel year">
-                    <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
-                    <span class="current">{{val}}</span>
-                    <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
+                <div class="sel month" :month>
+                    <span class="move prev" data-move="{{prev}}">&lt; {{_.val === 0 ? 12 : _.val}}</span>
+                    <span class="current">{{_.val + 1}}</span>
+                    <span class="move next" data-move="{{next}}">{{_.val === 11 ? 1 : (_.val + 2)}} &gt;</span>
                 </div>
-
             </div>
             <table>
                 <thead>
@@ -34,64 +33,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr :tr>
-                    <td class="{{className}}" ::td>
+                <tr :date>
+                    <td class="{{className}}" :>
                         <span data-dismiss="{{val}}">{{date}}</span>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-
     </script>
 <body>
-
-<div class="magic">
-    <div class="magic-0">0</div>
-    <div class="magic-1">1</div>
-    <div class="magic-2">2</div>
-    <div class="magic-3">3</div>
-    <div class="magic-4">4</div>
-    <div class="magic-5">5</div>
-    <div class="magic-6">6ww</div>
-</div>
-
-
 <main>
-    <div id="test">
-        <div class="ctrl">
-            <div class="sel year">
-                <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
-                <span class="current">{{val}}</span>
-                <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
-            </div>
-            <div class="sel month">
-                <span class="move prev" data-move="{{prev}}">&lt; {{_.val === 0 ? 12 : _.val}}</span>
-                <span class="current">{{_.val + 1}}</span>
-                <span class="move next" data-move="{{next}}">{{_.val === 11 ? 1 : (_.val + 2)}} &gt;</span>
-            </div>
-        </div>
-        <table>
-            <thead>
-            <tr>
-                <th>일</th>
-                <th>월</th>
-                <th>화</th>
-                <th>수</th>
-                <th>목</th>
-                <th>금</th>
-                <th>토</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr data-template="week" data-mapping="week">
-                <td class="{{className}}" data-template="date">
-                    <span data-dismiss="{{val}}" data-directive></span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
 </main>
 <script src="../static/dist/work/test.js"></script>
 </body>

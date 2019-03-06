@@ -1,10 +1,8 @@
 import {HTML} from "../html";
 import {Calendar, Month} from "../calendar";
-import {StringBuffer} from "../support/StringBuffer";
+import {_compile} from "../_html/replaceHTML";
 
-import htmlParser = HTML.htmlParser;
-
-let [$temp, {td, year, month}] = htmlParser(require("./SelectCalendar.html"));
+let $html = _compile(require("./SelectCalendar.html"));
 
 
 export class SelectCalendar {
@@ -49,7 +47,7 @@ export class SelectCalendar {
     create(calendar: Calendar)
     create(year: number, month: number, date?: number)
     create(y, m?, d?) {
-        this.element.innerHTML = SelectCalendar.create(y, m, d);
+        this.element.innerHTML = $html(SelectCalendar.create(y, m, d));
     }
 }
 
@@ -61,7 +59,7 @@ export namespace SelectCalendar {
     export function create(date: Date)
     export function create(calendar: Calendar)
     export function create(year: number, month: number, date?: number)
-    export function create(y, m?, d?): string {
+    export function create(y, m?, d?) {
 
         if (typeof y !== 'number') {
             m = y.getMonth();
@@ -69,44 +67,38 @@ export namespace SelectCalendar {
             y = y.getFullYear();
         }
 
-        let buf = new StringBuffer(),
-            M = new Month(y, m),
+        let M = new Month(y, m),
             $result = {};
 
-        $result['year'] = year({
+        $result['year'] = {
             val: y,
             prev: (y - 1) + '-' + (m + 1),
             next: (y + 1) + '-' + (m + 1)
-        });
+        };
 
-        $result['month'] = month({
+        $result['month'] = {
             val: m,
             prev: M.move(-1).toString(),
             next: M.move(1).toString()
-        });
+        };
 
-        Calendar.toArray(y, m).forEach(row => {
+        $result['date'] = Calendar.toArray(y, m).map(row => {
 
-            buf.append('<tr>');
-            row.forEach(col => {
-                let {date: current, month: mm} = col,
-                    className = mm === m ? 'current' : '';
+            return row.map(col => {
+                let {date, month} = col,
+                    className = month === m ? 'current' : '';
 
-                if (current === d) className = 'today';
+                if (date === d) className = 'today';
 
-                buf.append(td({
+                return {
                     className: className,
                     val: col.isodate,
-                    date: current
-                }))
+                    date: date
+                };
             });
-            buf.append('</tr>');
         });
 
-        $result['tr'] = buf.toString();
-
-
-        return $temp($result);
+        return $result;
     }
 
 

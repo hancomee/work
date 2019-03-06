@@ -110,7 +110,7 @@ import {_map} from "../../lib/core/_func/array";
                 customer = customers[name];
 
             if (!customer) {
-                customer = customers[name] = {name: name, count: 0, total: 0};
+                customer = customers[name] = {name: name, count: 0, total: 0, vat: 0};
                 cArray.push(customer);
             }
 
@@ -118,7 +118,8 @@ import {_map} from "../../lib/core/_func/array";
                 let {count, price: p, total: t, vat: v, subject} = item;
 
                 customer.count++;
-                customer.total += t;
+                customer.total += (p * count);
+                customer.vat += v;
                 total += t;
                 vat += v;
                 price += (p * count);

@@ -114,6 +114,11 @@ export class Work {
         data && $extend(this, data, $disassemble);
     }
 
+    setCustomer(customer: Customer) {
+        this.customer = customer;
+        return this;
+    }
+
     addRef(v: WorkFile) {
         this.refs.push(v);
         this.file_len = this.refs.length;
@@ -331,17 +336,15 @@ export namespace Work {
 
     export type WorkListValue = { work: Work, customer: Customer, draft: WorkFile }
 
+    export function getDraft(workId) {
+        return $get('/work/db/get/draft/' + workId);
+    }
+
     // 리스트 로딩
-    export function list(query: string): Promise<ListData<WorkListValue>> {
+    export function list(query: string): Promise<ListData<Work>> {
         return $post('/work/list?' + query, null).then((e: ListData<any>) => {
             let {contents, price, count, today} = e;
-            e.contents = contents.map(values => {
-                return {
-                    work: new Work(values.work),
-                    customer: new Customer(values.customer),
-                    draft: values.draft.id ? new WorkFile(values.draft) : null
-                }
-            })
+            e.contents = contents.map(value =>  new Work(value))
             e.states = count.map((v, i) => {
                 return {
                     index: i,
@@ -370,7 +373,7 @@ export namespace Work {
 
             if (data.work) {
                 let work = new Work(data.work);
-                data.items.forEach(item => work.addItem(new WorkItem(item)));
+                data.items.forEach(item => new WorkItem(item).setWork(work));
                 return work;
             }
             else return null;

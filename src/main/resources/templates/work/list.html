@@ -31,19 +31,19 @@
         <div class="col-3">
             <div class="work-list">
                 <a class="work-list-thumb" data-directive=" | draft"></a>
-                <div class="work-list-state dropdown" data-directive="work | state">
+                <div class="work-list-state dropdown" data-directive=" | state">
                     <div class="work-list-datetime"
-                         data-directive="work.datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></div>
+                         data-directive="datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></div>
                     <span class="work-list-state-name" data-toggle="dropdown"></span>
                     <div class="dropdown-menu dropdown-menu-right">
                         <ul></ul>
                     </div>
                 </div>
-                <a class="work-list-title" data-directive="work | title"></a>
-                <div class="work-list-customer" data-directive="customer.name"></div>
+                <a class="work-list-customer" data-directive=" | customer"></a>
+                <a class="work-list-title" data-directive=" | title"></a>
                 <div class="work-list-item">
-                    <span class="work-list-item-len" data-directive="work.item_len"></span>
-                    <span class="work-list-item-total" data-directive="work.total | number"></span>
+                    <span class="work-list-item-len" data-directive="item_len"></span>
+                    <span class="work-list-item-total" data-directive="total | number"></span>
                 </div>
             </div>
         </div>
@@ -67,10 +67,10 @@
 
     <div class="ctrl-btns">
         <ul class="ctrl-btns-list">
-            <li data-load="orders=<work.datetime">최근등록순</li>
-            <li data-load="orders=<work.updatetime">최근수정순</li>
-            <li data-load="orders=<work.total">큰금액순</li>
-            <li data-load="orders=>work.total">작은금액순</li>
+            <li data-load="orders=<this.datetime">최근등록순</li>
+            <li data-load="orders=<this.updatetime">최근수정순</li>
+            <li data-load="orders=<this.total">큰금액순</li>
+            <li data-load="orders=>this.total">작은금액순</li>
         </ul>
     </div>
 

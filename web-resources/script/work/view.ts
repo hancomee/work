@@ -237,7 +237,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                         (val: number[]) => {
                             if (val[2] == null) {
                                 let [c, p] = val;
-                                inputs[2].value = (val[2] = (c * p) / 10).toString()
+                                inputs[2].value = (val[2] = Math.ceil((c * p) / 10)).toString()
                             }
                             return val[2];
                         },
@@ -460,7 +460,6 @@ function $init($uuid: string, $path: string, $work: Work) {
                         .then(memo => work.addMemo(memo));
                 },
                 update(data, own: WorkMemo) {
-                    console.log(data);
                     data.id = own.id;
                     return WorkMemo.save(own.work, data)
                         .then(() => own.value = data.value);
@@ -474,7 +473,6 @@ function $init($uuid: string, $path: string, $work: Work) {
 
             items: {
                 update(data, own: WorkItem) {
-                    console.log(data);
                     let {work} = own;
                     data['id'] = own.id;
                     return WorkItem.save(data, work.id)
@@ -668,8 +666,7 @@ function $init($uuid: string, $path: string, $work: Work) {
     };
 
     //************************************** ▼ Events ▼ **************************************//
-    dataEvent(element, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
-    dataEvent(nav, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
+    dataEvent(body, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
     //************************************** ▲ Events ▲ **************************************//
 
     $mapping.$render(element);
