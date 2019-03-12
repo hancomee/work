@@ -6,6 +6,10 @@ import {Access} from "../access";
 import {__noop} from "../_func/_noop";
 import {Formats} from "../format";
 import date = Formats.date;
+import datetime = Formats.datetime;
+import toDate = Formats.toDate;
+import {Events} from "../events";
+import simpleTrigger = Events.simpleTrigger;
 
 let
 
@@ -59,17 +63,13 @@ let
         },
         date(date: HTMLInputElement) {
             let value = date.value.trim();
-
-            console.log(value, date);
             if(!value && date.hasAttribute('data-default')) {
                 value = date.getAttribute('data-default');
                 if(value === 'now') return new Date();
             }
-
-            if (r_date.test(value))  return new Date(value);
-
-            return null;
+            return toDate(value);
         },
+        datetime: 'date',
         select(select: HTMLSelectElement) {
             let {selectedIndex} = select;
             if (selectedIndex !== -1) return select[selectedIndex].value;
@@ -101,7 +101,7 @@ let
             return 0;
         },
         text(input: HTMLInputElement) {
-            return DATA_CONVERT(input.getAttribute('data-type'), input.value);
+            return input.value;
         },
         hidden(input: HTMLInputElement) {
             let {value} = input;
@@ -129,6 +129,14 @@ let
             else {
                 if (val instanceof Date)
                     input.value = date(val);
+                else input.value = val;
+            }
+        },
+        datetime(input: HTMLInputElement, val) {
+            if (val == null) input.value = '';
+            else {
+                if (val instanceof Date)
+                    input.value = datetime(val);
                 else input.value = val;
             }
         },
@@ -166,6 +174,8 @@ export type FormHandler = {
     }
 }
 
+type ValidHandler = (forms: Forms, element: HTMLElement, valid: boolean) => void
+
 // 같은 값이 있을때만 배열로
 function $serialize(input: INPUTS, obj, name = input.name) {
     let type = input.getAttribute('data-type') || input.type, v, vv;
@@ -178,6 +188,8 @@ function $serialize(input: INPUTS, obj, name = input.name) {
                 vv.push(v);
             } else obj[name] = v;
         }
+    } else {
+        obj[name] = input.value;
     }
 }
 
@@ -222,10 +234,17 @@ export class Forms {
 
     private own: FormGroups
     groups: FormGroups[] = []
+
     private defaultHandler: FormHandler = dummy
+    validHandler: ValidHandler = __noop
 
     constructor(public element: HTMLElement) {
         formEach(element, this);
+    }
+
+    $element(handler: (element: HTMLElement, forms: this) => void) {
+        handler(this.element, this);
+        return this;
     }
 
     setHandlers(handlers: FormHandler) {
@@ -264,6 +283,7 @@ export class Forms {
                 Forms.set(input, v);
             });
         });
+        simpleTrigger(this.element, 'reset', false, false);
         return this;
     }
 
@@ -280,7 +300,9 @@ export class Forms {
     }
 
     valid(handler?: VALID_HANDLER) {
-        return Forms.$valid(this, handler);
+        let valid = Forms.$valid(this, handler);
+        this.validHandler(this, this.element, valid);
+        return valid;
     }
 
     detach() {
@@ -288,6 +310,11 @@ export class Forms {
             parent = element.parentElement;
         if (parent) parent.removeChild(element);
         return element;
+    }
+
+    prepend(ele: HTMLElement) {
+        ele.parentElement.insertBefore(this.element, ele);
+        return this;
     }
 
 }
@@ -321,7 +348,8 @@ export namespace Forms {
         input_valid: INPUT_MAP = _remap({
 
             // 두번째 인자값은 해당 어트리뷰트의 값
-            required(target) {
+            required(target, v: string) {
+                if(v === 'false') return true;
                 return !!target.value;
             },
 

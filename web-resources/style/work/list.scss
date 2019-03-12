@@ -1,4 +1,6 @@
 @import "base";
+@import "../component/pager";
+@import "../component/dropdown-box";
 
 main {
   padding: 2rem;
@@ -8,36 +10,47 @@ main {
   cursor: pointer;
 }
 
+// 페이지 네비게이션
+.component-pager {
+
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+
+  &-prev, &-next {
+    font-size: 2rem;
+    font-family: serif;
+    font-weight: bold;
+    color: #ddd;
+
+    &.disabled {
+      color: #5a5a5a;
+      cursor: default;
+    }
+
+    &.active {
+      cursor: pointer;
+      color: $font-color-lighten;
+    }
+  }
+
+  &-current, &-total {
+    font-size: 1.2rem;
+  }
+
+  &-page {
+    > span {
+      font-size: 24px;
+      margin: 0 .4rem;
+      font-weight: bold;
+    }
+  }
+}
+
 .ctrl {
 
   display: flex;
   align-items: center;
-
-  // 페이지 네비게이션
-  &-pager {
-    display: flex;
-    align-items: center;
-    margin-right: 1rem;
-
-    &-prev, &-next {
-      font-size: 2rem;
-      font-family: serif;
-      font-weight: bold;
-      color: #505050;
-      &.active {
-        cursor: pointer;
-        color: $font-color-lighten;
-      }
-    }
-
-    &-page {
-      > span {
-        font-size: 24px;
-        margin: 0 .4rem;
-        font-weight: bold;
-      }
-    }
-  }
 
   // 정렬버튼
   &-btns {
@@ -45,7 +58,7 @@ main {
     align-items: center;
     font-size: 14px;
 
-    & + &  {
+    & + & {
       margin-left: 1.5rem;
     }
 
@@ -126,7 +139,6 @@ main {
   }
 }
 
-
 .state {
 
   &-list {
@@ -185,8 +197,6 @@ main {
     }
   }
 }
-
-
 
 .work {
 
@@ -301,7 +311,6 @@ main {
 
   }
 }
-
 
 // 작업추가
 #work-creator {
@@ -419,7 +428,6 @@ main {
       }
     }
   }
-
 
   &-title {
     &-input {

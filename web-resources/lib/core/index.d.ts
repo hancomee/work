@@ -103,3 +103,17 @@ interface DropdownEvent extends Event {
         target: HTMLElement
     }
 }
+
+
+interface DataQuery {
+    page?: number
+    size?: number
+    order?: string
+    startWith?: {[key: string]: string}
+    contains?: {[key: string]: string}
+    endWith?: {[key: string]: string}
+    duration?: {[key: string]: [string, string]}
+    greater?: {[key: string]: number}
+    lesser?: {[key: string]: number}
+    equals?: {[key: string]: string|number}
+}

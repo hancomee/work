@@ -1,0 +1,246 @@
+$calendar-bgcolor: #464646;
+
+// 전체배경, 테이블배경, 테이블선색, 셀렉터 윗선색, 셀렉터 아래선색
+// th배경, td위쪽선색, td왼쪽선색, td마우스오버시 배경색
+// th글씨색, td글씨색(일반날짜색상), disabled색상,
+// 선택날짜 td배경색, 선택날짜 글씨색
+@mixin createCalendar(
+
+
+  $bg,
+  $table-bg,
+  $table-border,
+  $ctrl-top-color,
+  $ctrl-bottom-color,
+
+  $th-bg,
+  $td-top-color,
+  $td-left-color,
+  $td-hover-bg,
+
+  $th-color,
+  $color,
+  $disabled-color,
+
+  $td-select-bg,
+  $td-select-color
+) {
+
+  background-color: $bg !important;
+
+  > .ctrl {
+
+    > .sel {
+      display: flex;
+      align-items: center;
+      > span {
+        flex: 1 1 33.333%;
+      }
+      > .move {
+        font-size: 14px;
+      }
+      > .prev {
+        cursor: pointer;
+      }
+      > .next {
+        text-align: right;
+        cursor: pointer;
+      }
+      > .current {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      padding: .2rem 0;
+      border-bottom: 1px solid $ctrl-top-color;
+
+      & + .sel {
+        border-top: 1px solid $ctrl-bottom-color;
+        border-bottom: 0;
+      }
+    }
+  }
+
+  > table {
+
+    margin-top: .6rem;
+    width: 100%;
+    border: 1px solid $table-border;
+    background-color: $table-bg;
+
+    > thead, > tbody {
+      > tr {
+        > td, > th {
+          text-align: center;
+          vertical-align: middle;
+          font-size: 14px;
+        }
+      }
+    }
+
+    > thead {
+      > tr {
+        > th {
+          width: 100 / 7 * 1%;
+          color: $th-color;
+          background-color: $th-bg;
+        }
+      }
+    }
+    > tbody {
+      > tr {
+        > td {
+
+          & + td {
+            border-left: 1px solid $td-left-color;
+          }
+
+          color: $disabled-color;
+
+          &.current {
+            color: $color;
+          }
+
+          &:hover {
+            background-color: $td-hover-bg;
+          }
+
+          &.select {
+            color: $td-select-color;
+            background-color: $td-select-bg;
+          }
+
+          > span {
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            cursor: pointer;
+          }
+        }
+        & + tr {
+          > td {
+            border-top: 1px solid $td-top-color;
+          }
+        }
+      }
+    }
+  }
+
+}
+
+/*
+.component-calendar {
+
+  padding: 1rem;
+
+  > .ctrl {
+
+    > .sel {
+      display: flex;
+      align-items: center;
+      > span {
+        flex: 1 1 33.333%;
+      }
+      > .prev {
+        cursor: pointer;
+      }
+      > .next {
+        text-align: right;
+        cursor: pointer;
+      }
+      > .current {
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      & + .sel {
+        margin-top: .2rem;
+        padding-top: .2rem;
+        border-top: 1px solid #ddd;
+      }
+    }
+  }
+
+  > table {
+
+    margin-top: .6rem;
+    width: 100%;
+    border: 1px solid #ccc;
+
+    > thead, > tbody {
+      > tr {
+        > td, > th {
+          color: #ddd;
+          text-align: center;
+          vertical-align: middle;
+          font-size: 14px;
+        }
+      }
+    }
+
+    > thead {
+      > tr {
+        > th {
+          width: 100 / 7 * 1%;
+          background-color: #444;
+        }
+      }
+    }
+    > tbody {
+      > tr {
+        > td {
+
+          & + td {
+            border-left: 1px solid #ddd;
+          }
+
+          &.current {
+            color: #777;
+          }
+
+          &:hover {
+            background-color: #f5f5f5;
+          }
+
+          &.select {
+            color: #ffffff;
+            background-color: #2c72c5;
+          }
+
+          > span {
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            cursor: pointer;
+          }
+        }
+        & + tr {
+          > td {
+            border-top: 1px solid #ddd;
+          }
+        }
+      }
+    }
+  }
+}*/
+
+.component-calendar {
+
+  padding: 1rem;
+
+  // 전체배경, 테이블배경, 테이블선색, 셀렉터 윗선색, 셀렉터 아래선색
+  // th배경, td위쪽선색, td왼쪽선색, td마우스오버시 배경색
+  // th글씨색, td글씨색(일반날짜색상), disabled색상,
+  // 선택날짜 td배경색, 선택날짜 글씨색
+  @include createCalendar(
+                  #444, #353535, #252525, #525252, #353535,
+                  #292929, #292929, #292929, #2f2f2f,
+                  #a5a5a5, #a5a5a5, #555,
+                  #1a578a, #ddd
+  )
+
+}

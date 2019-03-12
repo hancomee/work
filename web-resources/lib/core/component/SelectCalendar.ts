@@ -14,16 +14,8 @@ export class SelectCalendar {
 
     onSelect
 
-    constructor(date: Date)
-    constructor(year: number, month: number, date?: number)
-    constructor(year, month?, date?) {
-
-        if(year instanceof Date) {
-            date = this.date = year.getDate();
-            month = this.month = year.getMonth();
-            year = year.getFullYear();
-        }
-
+    constructor() {
+        this.element.classList.add('component-calendar');
         this.element.addEventListener('click', (e) => {
             let target = <HTMLElement>e.target;
             if (target.hasAttribute('data-move')) {
@@ -35,7 +27,11 @@ export class SelectCalendar {
                 this.onSelect && this.onSelect(target.getAttribute('data-dismiss'));
             }
         });
-        this.create(year, month, date);
+    }
+
+    $element(handler: (ele: HTMLElement, c: this) => void) {
+        handler(this.element, this);
+        return this;
     }
 
     appendTo(element: HTMLElement) {
@@ -43,12 +39,41 @@ export class SelectCalendar {
         return this;
     }
 
+    detach() {
+        let {element} = this,
+            parent = element.parentElement;
+        if (parent) parent.removeChild(element);
+        return element;
+    }
+
+
+
     create(date: Date)
     create(calendar: Calendar)
     create(year: number, month: number, date?: number)
     create(y, m?, d?) {
+
+        if(typeof  y !== 'number') {
+            m = y.getMonth()
+            d = y.getDate();
+            y = y.getFullYear();
+        }
+
+        if(typeof d === 'number') {
+            this.year = y;
+            this.month = m;
+            this.date = d;
+        }
+
+        // 이미 선택된
+        if(this.year === y && this.month === m) {
+            d = this.date;
+        }
+
         this.element.innerHTML = $html(SelectCalendar.create(y, m, d));
+        return this;
     }
+
 }
 
 export namespace SelectCalendar {
@@ -88,7 +113,7 @@ export namespace SelectCalendar {
                 let {date, month} = col,
                     className = month === m ? 'current' : '';
 
-                if (date === d) className = 'today';
+                if (month === m && date === d) className = 'select';
 
                 return {
                     className: className,

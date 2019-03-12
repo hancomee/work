@@ -395,13 +395,13 @@ export namespace Events {
                               getObj?, dispatcher?, directive?) {
 
         // arguments : 4
-        if(!dispatcher) {
+        if (!dispatcher) {
             directive = getObj;
             getObj = getObject;
             dispatcher = __returnTrue;
         }
         // arguments : 5
-        else if(!directive) {
+        else if (!directive) {
             directive = dispatcher;
             dispatcher = __returnTrue;
         }
@@ -417,7 +417,7 @@ export namespace Events {
                 while (target && (limit !== target)) {
 
                     eventProperty(target, obj);
-                    if(h(target, obj, attrValue, e) === 'break') break;
+                    if (h(target, obj, attrValue, e) === 'break') break;
                     target = target.parentElement
                 }
                 dir.call(directive, obj);
@@ -426,7 +426,68 @@ export namespace Events {
     }
 
 
+    /*
+     *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
+     *
+     */
+    export let onFocus = (function () {
 
+        let elements = [], index = 0;
+
+        document.addEventListener('click', (e) => {
+
+            if (!index) return;
+
+            let i: number, checks = [],
+                target = <HTMLElement>e.target;
+
+            while (target) {
+
+                for (i = 0; i < index; i++) {
+                    if (elements[i].ele === target) checks[i] = true;
+                }
+
+                target = target.parentElement;
+            }
+
+
+            // blur
+            for (i = 0; i < index; i++) {
+                if (!checks[i]) elements[i].handler(false);
+            }
+
+            // focus
+            for (i = 0; i < index; i++) {
+                if (checks[i]) elements[i].handler(true);
+            }
+        });
+
+        return (ele: HTMLElement, focusHandler, blurHandler) => {
+
+            let active = false;
+
+            elements[index++] = {
+                ele: ele,
+                handler(matched: boolean) {
+                    if (matched) {
+                        if (!active) {
+                            active = true;
+                            ele.classList.add('focus-in');
+                            focusHandler();
+                        }
+                    } else {
+                        if (active) {
+                            active = false;
+                            ele.classList.remove('focus-in');
+                            blurHandler();
+                        }
+                    }
+
+                }
+            }
+
+        };
+    })();
 
     export function simpleTrigger(target: HTMLElement, type: string, bubbles = true, cancelable = true) {
         let e = document.createEvent('Event');

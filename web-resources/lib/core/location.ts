@@ -92,24 +92,28 @@ export namespace Search {
         return array.join("&");
     }
 
+    let r_1 = /&/,
+        r_2 = /=/;
+
     // querystring  ====>  Object
     export function toObject(query: string, dest?) {
 
         let obj = {};
 
         if (query[0] === '?') query = query.slice(1);
+        if (!query) return dest ? dest : obj;
 
-        query.split(/&/)
+        query.split(r_1)
             .filter(a => a && a.indexOf('=') !== -1)
             .forEach(v => {
-                let [key, _value] = v.split(/=/),
+                let [key, _value] = v.split(r_2),
                     value = Access.access(obj, key);
 
                 // decoding
                 _value = primitive(decodeURIComponent(_value));
 
                 // key가 같은 경우 array로
-                if (value) {
+                if (value != null) {
                     if (!Array.isArray(value)) value = [value];
                     value.push(_value);
                 } else value = _value;

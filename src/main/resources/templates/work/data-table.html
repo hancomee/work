@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="kor">
+<head>
+    <meta charset="UTF-8">
+    <title>데이터 테이블</title>
+    <link rel="stylesheet" href="/dist/work/data-table.css">
+    <script src="/lib/js/es6-promise.js"></script>
+
+    <script type="text/html" id="form-template">
+        <tr class="data-form">
+            <td><input type="hidden" data-type="number" name="id"></td>
+            <td class="dropdown" data-dropdown-event ::>
+                <input data-type="{{type}}" name="{{$.index}}" required="{{required}}"
+                       {{_.readOnly ? 'readonly' : ''}}>
+            </td>
+            <td>
+                <span data-form="confirm">확인</span>
+                <span data-form="cancel">취소</span>
+            </td>
+        </tr>
+    </script>
+
+
+    <script type="text/html" id="table-header-template">
+        <table>
+            <thead>
+            <tr>
+                <th>No</th>
+                <th data-order-value="{{$.index}}" style="width: {{size}};" ::headers>
+                    {{title}}
+                    <span class="data-order-desc">↑</span>
+                    <span class="data-order-asc">↓</span>
+                </th>
+                <th>...</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </script>
+
+    <script type="text/html" id="table-body-template">
+        <tr data-element="target" data-value="index:{{$.index}}" ::>
+            <td>{{$.total--}}</td>
+            <td ::>{{_}}</td>
+            <td>
+                <span data-form="modify">수정</span>
+                <span data-form="remove">삭제</span>
+            </td>
+        </tr>
+    </script>
+
+    <script type="text/html" id="search-list-template">
+        <li class="{{_.check ? \'active\' : \'\'}}" ' +
+        'data-key="{{_.key}}" data-dismiss="{{_.title}}" ::><span>{{_.title}}</span></li>
+    </script>
+
+</head>
+<body>
+
+<nav>
+</nav>
+
+<#include "./modules/aside.html">
+
+<main>
+
+    <ul class="container-tabs">
+        <li class="active">미수금</li>
+        <li>계좌관리</li>
+        <li>거래처</li>
+    </ul>
+
+    <div class="container-table">
+        <div class="data-ctrl">
+            <div class="data-ctrl-pager">
+                <span class="component-pager-prev">이전</span>
+                <div class="dropdown">
+                    <span class="component-pager-current"></span>
+                    <i>/</i>
+                    <span class="component-pager-total"></span>
+                    <span data-toggle="dropdown">▼</span>
+                    <div class="component-pager-table dropdown-box"></div>
+                </div>
+                <span class="component-pager-next">다음</span>
+            </div>
+            <div class="data-ctrl-search">
+                <div class="dropdown data-ctrl-search-before">
+                    <span data-toggle="dropdown">검색</span>
+                    <ul class="dropdown-box dropdown-list"></ul>
+                </div>
+                <input>
+                <span class="data-ctrl-search-after">검색</span>
+            </div>
+            <span data-form="create">추가</span>
+        </div>
+        <div id="data-table"></div>
+    </div>
+
+</main>
+
+
+<script src="/dist/work/data-table.js"></script>
+</body>
+</html>

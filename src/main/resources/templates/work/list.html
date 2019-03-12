@@ -58,11 +58,15 @@
     <span class="page-name">WorkList</span>
 
     <div class="ctrl-pager" data-pre-processor="pager">
-        <span class="ctrl-pager-prev" data-move="-1">&lt;</span>
-        <div class="ctrl-pager-page">
-            <span data-toggle="dropdown"></span>
+        <span class="component-pager-prev">&lt;</span>
+        <div class="dropdown">
+            <span class="component-pager-current"></span>
+            <i>/</i>
+            <span class="component-pager-total"></span>
+            <span  data-toggle="dropdown">▼</span>
+            <div class="component-pager-table dropdown-box"></div>
         </div>
-        <span class="ctrl-pager-next" data-move="1">&gt;</span>
+        <span class="component-pager-next">&gt;</span>
     </div>
 
     <div class="ctrl-btns">

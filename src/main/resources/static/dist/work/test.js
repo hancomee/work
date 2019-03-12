@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 51);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -243,6 +243,23 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Formats.datetime = datetime;
         ;
+        var r_full = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2} \d{2}[^\d]\d{2}[^\d]\d{2}/, r_simple = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2}/, r_split = /[^\d]/g;
+        function toDate(str) {
+            if (str.length > 10) {
+                if (r_full.test(str)) {
+                    var _a = str.split(r_split), y = _a[0], m = _a[1], d = _a[2], h = _a[3], mm = _a[4], s = _a[5];
+                    return new Date(parseInt(y), parseInt(m) - 1, parseInt(d), parseInt(h), parseInt(mm), parseInt(s));
+                }
+            }
+            else {
+                if (r_simple.test(str)) {
+                    var _b = str.split(r_split), y = _b[0], m = _b[1], d = _b[2];
+                    return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                }
+            }
+            return null;
+        }
+        Formats.toDate = toDate;
         function datetimeFull(val) {
             var m = val.getMonth() + 1, d = val.getDate(), h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
             return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
@@ -353,419 +370,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 13:
+/***/ 10:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var date = format_1.Formats.date;
-    var datetime = format_1.Formats.datetime;
-    var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"], __month = function (year, month, val) {
-        var i = 1;
-        if (val < 0)
-            val = val * (i = -1);
-        while (val-- > 0) {
-            month = month + i;
-            if (month > 11) {
-                year++;
-                month = 0;
-            }
-            else if (month < 0) {
-                year--;
-                month = 11;
-            }
-        }
-        return [year, month];
-    };
-    var Month = /** @class */ (function () {
-        // month는 0부터
-        function Month(year, month) {
-            this.year = year;
-            this.month = month;
-        }
-        Month.prototype.move = function (val) {
-            var _b = __month(this.year, this.month, val), year = _b[0], month = _b[1];
-            return new Month(year, month);
-        };
-        Month.prototype.toArray = function () {
-            return Calendar.toArray(this.year, this.month);
-        };
-        Month.prototype.toString = function () {
-            return this.year + '-' + (this.month + 1);
-        };
-        return Month;
-    }());
-    exports.Month = Month;
-    var Calendar = /** @class */ (function () {
-        function Calendar(_value) {
-            if (_value == null)
-                this.value = new Date();
-            else
-                this.value = _value instanceof Date ? _value : new Date(_value);
-        }
-        Object.defineProperty(Calendar.prototype, "year", {
-            get: function () {
-                return this.value.getFullYear();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Calendar.prototype, "month", {
-            get: function () {
-                return this.value.getMonth();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Calendar.prototype, "date", {
-            get: function () {
-                return this.value.getDate();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Calendar.prototype, "day", {
-            get: function () {
-                return this.value.getDay();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Calendar.prototype, "longtime", {
-            get: function () {
-                return this.value.getTime();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // Date와 인터페이스를 맞추기 위한 메서드들
-        Calendar.prototype.getFullYear = function () {
-            return this.year;
-        };
-        Calendar.prototype.getMonth = function () {
-            return this.month;
-        };
-        Calendar.prototype.$date = function (num) {
-            if (!num)
-                return this;
-            return new Calendar(new Date(this.longtime + (num * day)));
-        };
-        Calendar.prototype.$month = function (num) {
-            if (!num)
-                return this;
-            var date = this.date, _b = __month(this.year, this.month, num), year = _b[0], month = _b[1], lastDate = new Date(year, month + 1, -1).getDate();
-            return new Calendar(new Date(year, month, date > lastDate ? lastDate : date));
-        };
-        Calendar.prototype.$year = function (num) {
-            if (!num)
-                return this;
-            var _a = this, year = _a.year, month = _a.month, date = _a.date;
-            return new Calendar(new Date(year + num, month, date));
-        };
-        // 주차를 알려준다.
-        Calendar.prototype.$week = function () {
-            var _b = this, day = _b.day, date = _b.date, year = _b.year, month = _b.month, firstDate = this.getFirstDate().day, // 첫번째 요일
-            lastDate = this.getLastDate().date, // 마지막 일
-            current = Math.ceil((firstDate + date) / 7), total = Math.ceil((firstDate + lastDate) / 7); // 총 주차 수
-            return [current, total];
-        };
-        Calendar.prototype.getFirstDate = function () {
-            return new Calendar(new Date(this.year, this.month, 1));
-        };
-        Calendar.prototype.getLastDate = function () {
-            var _b = __month(this.year, this.month, 1), year = _b[0], month = _b[1];
-            return new Calendar(new Date(year, month, 0));
-        };
-        Calendar.prototype.setTime = function (value) {
-            if (value === void 0) {
-                value = new Date();
-            }
-            var _a = this, year = _a.year, month = _a.month, date = _a.date;
-            return new Calendar(new Date(year, month, date, value.getHours(), value.getMinutes(), value.getSeconds()));
-        };
-        Object.defineProperty(Calendar.prototype, "isodate", {
-            get: function () {
-                return date(this.value);
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Calendar.prototype.year_kr = function (str) {
-            if (str === void 0) { str = '년'; }
-            return this.year + str;
-        };
-        Calendar.prototype.month_kr = function (str, zerofill) {
-            if (str === void 0) { str = '월'; }
-            if (zerofill === void 0) { zerofill = true; }
-            var month = this.month + 1, val = month.toString();
-            if (zerofill)
-                val = (month < 10 ? '0' : '') + month;
-            return val + str;
-        };
-        Calendar.prototype.date_kr = function (str, zerofill) {
-            if (str === void 0) { str = '일'; }
-            if (zerofill === void 0) { zerofill = true; }
-            var date = this.date, val = date.toString();
-            if (zerofill)
-                val = (date < 10 ? '0' : '') + date;
-            return val + str;
-        };
-        Calendar.prototype.day_kr = function () {
-            return __day[this.day];
-        };
-        Calendar.prototype.durationDate = function (target) {
-            var origLong = Math.floor(this.longtime / day) * day, targetLong = Math.floor(target.getTime() / day) * day;
-            return (targetLong - origLong) / day;
-        };
-        Calendar.prototype.durationMonth = function (target) {
-            var origY = this.getFullYear() * 12 + this.getMonth(), targetY = target.getFullYear() * 12 + target.getMonth();
-            return targetY - origY;
-        };
-        Calendar.prototype.durationYear = function (target) {
-            return target.getFullYear() - this.getFullYear();
-        };
-        Calendar.prototype.format = function (str) {
-            if (str === void 0) {
-                str = 'yyyy-MM-dd';
-            }
-            return datetime(this.value, str);
-        };
-        Calendar.prototype.equals = function (data) {
-            var _a = this, year = _a.year, month = _a.month, date = _a.date;
-            if (year !== data.getFullYear())
-                return false;
-            if (month !== data.getMonth())
-                return false;
-            if (date !== data.getDate())
-                return false;
-            return true;
-        };
-        Calendar.prototype.toString = function () {
-            return datetime(this.value);
-        };
-        Calendar.prototype.clone = function () {
-            return new Calendar(this.longtime);
-        };
-        return Calendar;
-    }());
-    exports.Calendar = Calendar;
-    (function (Calendar) {
-        Calendar.format = datetime;
-        function create(v1, v2, v3, v4, v5, v6) {
-            var v = v1;
-            if (typeof v6 === 'number')
-                v = new Date(v1, v2 - 1, v3, v4, v5, v6);
-            else if (typeof v3 === 'number')
-                v = new Date(v1, v2 - 1, v3);
-            return new Calendar(v);
-        }
-        Calendar.create = create;
-        function monthInfo(year, month) {
-            var first = new Date(year, month, 1), last = new Date(year, month + 1, 0);
-            return [first.getDate(), first.getDay(), last.getDate(), last.getDay()];
-        }
-        function today(str) {
-            if (str === void 0) { str = 'yyyy-MM-dd'; }
-            return datetime(new Date(), str);
-        }
-        // 달력을 만들기 위한 배열
-        function toArray(y, m) {
-            var _a = monthInfo(y, m), fd = _a[1], l = _a[2], start = new Calendar(new Date(y, m, 1)).$date((fd % 7 * -1) - 1), // 1를 빼는 이유는 일요일도 포함시키기 위함
-            row = Math.ceil((l + fd % 7) / 7), i = 0, result = [];
-            while (row > 0) {
-                var r = [];
-                for (; i < 7; i++) {
-                    r.push(start = start.$date(1));
-                }
-                result.push(r);
-                i = 0;
-                row--;
-            }
-            return result;
-        }
-        Calendar.toArray = toArray;
-        function isodate(y, m, d) {
-            var dd = y;
-            if (typeof dd === 'number')
-                dd = new Date(y, m, d);
-            return date(dd);
-        }
-        Calendar.isodate = isodate;
-        function _day(date, opt) {
-            if (opt === void 0) { opt = 'kr'; }
-            return __day[date.getDay()];
-        }
-        Calendar._day = _day;
-    })(Calendar = exports.Calendar || (exports.Calendar = {}));
-    exports.Calendar = Calendar;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 2:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_number = /^[+-]?\d+$/;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 43:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(9), __webpack_require__(13)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, selector_1, replaceHTML_1, calendar_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function run(fns, nums) {
-        return fns.map(function (f) {
-            var startTime = new Date().getTime(), i = 0;
-            for (; i < nums; i++) {
-                f();
-            }
-            var endTime = new Date().getTime();
-            return endTime - startTime;
-        });
-    }
-    var main = selector_1.getElementsByTagName(document, 'main', 0), uu = selector_1.getElementById('uu').innerText, c = replaceHTML_1._compile(uu);
-    main.innerHTML = c(create(2019, 2, 6));
-    var d = create(2019, 2, 6);
-    console.log(run([function () { return c(d); }], 1000));
-    function create(y, m, d) {
-        if (typeof y !== 'number') {
-            m = y.getMonth();
-            d = y.getDate();
-            y = y.getFullYear();
-        }
-        var M = new calendar_1.Month(y, m), $result = {};
-        $result['year'] = {
-            val: y,
-            prev: (y - 1) + '-' + (m + 1),
-            next: (y + 1) + '-' + (m + 1)
-        };
-        $result['month'] = {
-            val: m,
-            prev: M.move(-1).toString(),
-            next: M.move(1).toString()
-        };
-        $result['date'] = calendar_1.Calendar.toArray(y, m).map(function (row) {
-            return row.map(function (col) {
-                var date = col.date, month = col.month, className = month === m ? 'current' : '';
-                if (date === d)
-                    className = 'today';
-                return {
-                    className: className,
-                    val: col.isodate,
-                    date: date
-                };
-            });
-        });
-        return $result;
-    }
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 8:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function _func(prop, ele, s, opt, data) {
-        var type = typeof opt, list = ele[prop](s), l = list.length;
-        if (type === 'number')
-            return list[opt];
-        var i = l, r = [];
-        while (i-- > 0)
-            r[i] = list[i];
-        if (type === 'function') {
-            i++;
-            for (; i < l; i++)
-                opt.call(ele, r[i], i, data);
-            return data;
-        }
-        return r;
-    }
-    function getElementById(id) {
-        return document.getElementById(id);
-    }
-    exports.getElementById = getElementById;
-    function querySelector(ele, s) {
-        return ele.querySelector(s);
-    }
-    exports.querySelector = querySelector;
-    function querySelectorCut(ele, s) {
-        var d = ele.querySelector(s);
-        if (d)
-            d.parentElement.removeChild(d);
-        return d;
-    }
-    exports.querySelectorCut = querySelectorCut;
-    function querySelectorAll(ele, s, opt, data) {
-        return _func('querySelectorAll', ele, s, opt, data);
-    }
-    exports.querySelectorAll = querySelectorAll;
-    function getElementsByClassName(ele, s, opt, data) {
-        return _func('getElementsByClassName', ele, s, opt, data);
-    }
-    exports.getElementsByClassName = getElementsByClassName;
-    function getElementsByTagName(ele, s, opt, data) {
-        return _func('getElementsByTagName', ele, s, opt, data);
-    }
-    exports.getElementsByTagName = getElementsByTagName;
-    function getElementsByAttr(target, attrName, c, d) {
-        var i = 0, list = target.querySelectorAll('[' + attrName + ']'), l = list.length;
-        if (l) {
-            if (typeof c === 'function') {
-                for (; i < l; i++)
-                    c(d, list[i], list[i].getAttribute(attrName), i);
-                return d;
-            }
-            else {
-                for (; i < l; i++)
-                    c[list[i].getAttribute(attrName)](list[i], target, d);
-            }
-        }
-        return target;
-    }
-    exports.getElementsByAttr = getElementsByAttr;
-    function getElementChilds(ele) {
-        var r = [], childNodes = ele.childNodes, l = childNodes.length, i = 0, pos = 0;
-        for (; i < l; i++)
-            if (childNodes[i].nodeType === 1)
-                r[pos++] = childNodes[i];
-        return r;
-    }
-    exports.getElementChilds = getElementChilds;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1, _indexOf_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expValParse = format_1.Formats.expValParse;
     var access = access_1.Access.access;
-    var directive = format_1.Formats.getDirective(), r_compile = / :([^>]*)>$/, 
-    // [create] ==> func(data, directive)
-    __createFunction = function (str) {
-        var _a = expValParse(str), _prop = _a[0], dir = _a[1], opt = _a[2], prop = (_prop[0] === '_' || _prop[0] === '$') ? _prop : '_.' + _prop, func = new Function('_', '$', 'return _ == null ? null : (' + prop + ');');
-        return function (data, directive, opData) {
+    var directive = format_1.Formats.getDirective(), ___createFunction = function (exp) { return new Function('_', '$', 'return _ == null ? null : (' + exp + ');'); }, __createFunction = function (str) {
+        var _a = expValParse(str), _prop = _a[0], dir = _a[1], opt = _a[2], prop = (_prop[0] === '_' || _prop[0] === '$') ? _prop : '_.' + _prop, func = ___createFunction(prop);
+        return function (data, opData, directive) {
             var v = func(data, opData);
             if (directive[dir])
                 v = directive[dir](v, opt);
@@ -779,17 +394,38 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         while (html[pos] !== ' ' && html[pos] !== '>')
             pos++;
         return html.substring(i, pos);
-    }, 
-    // 태그 닫는 문자 찾기   attr="name > value" 등을 피해가기 위한 함수
-    __findClose = function (html, pos) {
-        var t;
-        while ((t = html[pos++]) !== '>') {
-            if (t === '"')
-                pos = html.indexOf('"', pos) + 1;
+    }, __parse = function (str) {
+        var l = str.length, pos = _indexOf_1.indexOfChar(str, ':');
+        if (pos !== -1) {
+            pos--;
+            // ① :="..."
+            if (str[pos + 2] === '=') {
+                if (str[pos + 3] === '"') {
+                    var d = str.lastIndexOf('"');
+                    return [str.substring(0, pos) + str.substring(d + 1, l), '=',
+                        str.substring(pos + 4, d)];
+                }
+            }
+            // ② ::prop
+            else if (str[pos + 2] === ':') {
+                var i = pos + 3;
+                while (str[i] !== '/' && str[i++] !== '>')
+                    ;
+                return [str.substring(0, pos) + str.substring(i - 1, l), '::',
+                    str.substring(pos + 3, i - 1)];
+            }
+            // ③ :prop>   :prop/>   공백이 없어야 함
+            else if (str.indexOf(' ', pos + 2) === -1) {
+                var i = pos + 2;
+                while (str[i] !== '/' && str[i++] !== '>')
+                    ;
+                return [str.substring(0, pos) + str.substring(i - 1, l), ':',
+                    str.substring(pos + 2, i - 1)];
+            }
         }
-        return pos;
+        return [str, ''];
     };
-    function __replaceHTML(html, pos, limit) {
+    function __replaceHTML(html, pos, limit, directive) {
         var index = 0, func = [], fi = 0;
         do {
             // ...{{  사이에 문자열이 있으면
@@ -799,7 +435,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             index = pos = pos + 2; // 커서를 {{ 다음으로 옮긴다.
             pos = html.indexOf('}}', index); // }}를 찾는다
             if (pos === -1) {
-                throw new Error('표현식이 잘못되었습니다. 닫는 "}}" 문자열이 없습니다');
+                throw new Error('표현식이 잘못되었습니다. 닫는 "}}" 문자열이 없습니다' + '\n' + html);
             }
             func[fi++] = __createFunction(html.substring(index, pos));
             index = pos + 2;
@@ -808,64 +444,74 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         if (index < limit) {
             func[fi++] = html.substring(index, limit);
         }
-        return function (obj, dir, opt) {
+        return function (obj, opt, dir) {
             if (dir == null)
                 dir = directive;
             var i = 0, f = func, l = fi, r = [];
             for (; i < l; i++) {
-                r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, dir, opt);
+                r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, opt, dir);
             }
             return r.join('');
         };
     }
-    function __compile(html, idx, lines, tagStack, index) {
+    function __compile(html, directive, idx, lines, tagStack, index) {
         if (idx === void 0) { idx = { val: 0 }; }
         if (lines === void 0) { lines = []; }
         if (tagStack === void 0) { tagStack = []; }
         if (index === void 0) { index = 0; }
-        var pos, i = pos = idx.val, e, r = [], rIdx = 0, tag, handler = function (data) {
+        var pos, i = pos = idx.val, e, r = [], rIdx = 0, tag, handler = function (data, opt) {
             var result = [];
             for (var i_1 = 0; i_1 < rIdx; i_1++)
-                result[i_1] = r[i_1](data);
+                result[i_1] = r[i_1](data, opt, directive);
             var d = result.join('');
             return d;
         };
         // ① 태그인 경우
         if (index) {
-            var line = lines[index - 1], v = r_compile.exec(line);
-            // expression이 있을 경우
-            if (v) {
-                var index_1 = v.index, prop_1 = v[1], _handler_1 = handler;
-                // 함수로 변경.  :="expression"
-                if (prop_1[0] === '=') {
-                    var fn_1 = new Function('_', 'return _ == null ? null : (' +
-                        prop_1.substring(2, prop_1.length - 1) + ');');
-                    handler = function (data) {
-                        if (fn_1(data))
-                            return _handler_1(data);
+            var _a = __parse(lines[index - 1]), line = _a[0], type = _a[1], exp_1 = _a[2], _handler_1 = handler;
+            switch (type) {
+                // ① 함수로 변경  :="expression"
+                case '=':
+                    var fn_1 = ___createFunction(exp_1);
+                    handler = function (data, opt) {
+                        var d = fn_1(data, opt);
+                        if (d != null)
+                            return _handler_1(d, opt);
                         return '';
                     };
-                }
-                // 단순 변수.  :prop
-                else {
-                    handler = function (data) {
-                        var val = access(data, prop_1);
+                    break;
+                // ② 루프     ::prop
+                case '::':
+                    handler = function (data, opt) {
+                        if (opt === void 0) { opt = { index: 0 }; }
+                        var val = access(data, exp_1);
                         if (val != null) {
                             if (Array.isArray(val)) {
-                                return val.map(function (v) { return _handler_1(v); }).join('');
+                                return val.map(function (v, i) { return _handler_1(v, (opt.index = i, opt)); }).join('');
                             }
-                            return _handler_1(val);
+                            else {
+                                var r_1 = [], i_2 = 0, p = void 0;
+                                for (p in val) {
+                                    opt.index = p;
+                                    r_1[i_2++] = _handler_1(val[p], opt);
+                                }
+                                return r_1.join('');
+                            }
                         }
                         return '';
                     };
-                }
-                // 정규식 부분은 지운다.
-                line = line.substring(0, v.index) + line.substring(index_1 + v[0].length - 1, line.length);
+                    break;
+                // ③ 단순 변수  :prop
+                case ':':
+                    handler = function (data, opt) {
+                        var val = access(data, exp_1);
+                        return val != null ? _handler_1(val, opt) : '';
+                    };
             }
             r[rIdx++] = _replaceHTML(line);
         }
         while ((pos = html.indexOf('<', pos)) !== -1) {
-            e = __findClose(html, pos);
+            e = _indexOf_1.indexOfChar(html, '>', pos) + 1;
             // ① 여는 태그
             if (html[pos + 1] !== '/') {
                 // prefix string
@@ -875,7 +521,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 lines[index] = html.substring(pos, e);
                 tag = tagStack[index] = __getTagName(html, pos + 1);
                 idx.val = e;
-                r[rIdx++] = __compile(html, idx, lines, tagStack, index + 1);
+                r[rIdx++] = __compile(html, directive, idx, lines, tagStack, index + 1);
                 e = idx.val;
             }
             // ② 닫는 태그
@@ -907,17 +553,236 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     /*
      *  단순히 문자열을 치환할때 쓴다.
      */
-    function _replaceHTML(html) {
+    function _replaceHTML(html, dir) {
+        if (dir === void 0) { dir = directive; }
         var pos = html.indexOf('{{');
         if (pos === -1)
             return function () { return html; };
-        return __replaceHTML(html, pos, html.length);
+        return __replaceHTML(html, pos, html.length, dir);
     }
     exports._replaceHTML = _replaceHTML;
-    function _compile(html) {
-        return __compile(html);
+    function _compile(html, directive) {
+        return __compile(html, directive);
     }
     exports._compile = _compile;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
+    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
+    function indexOfChar(str, char, i) {
+        if (i === void 0) { i = 0; }
+        var quit = false, l = str.length;
+        for (; i < l; i++) {
+            if (!quit && str[i] === char)
+                return i;
+            if (str[i] === '"')
+                quit = !quit;
+        }
+        return -1;
+    }
+    exports.indexOfChar = indexOfChar;
+    function lastIndexOfChar(str, char, i) {
+        if (i === void 0) { i = str.length; }
+        var quit = false, l = -1;
+        for (; i > l; i--) {
+            if (!quit && str[i] === char)
+                return i;
+            if (str[i] === '"')
+                quit = !quit;
+        }
+        return -1;
+    }
+    exports.lastIndexOfChar = lastIndexOfChar;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 2:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.r_number = /^[+-]?\d+$/;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 51:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, selector_1, replaceHTML_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function run(fns, nums) {
+        return fns.map(function (f) {
+            var startTime = new Date().getTime(), i = 0;
+            for (; i < nums; i++) {
+                f();
+            }
+            var endTime = new Date().getTime();
+            return endTime - startTime;
+        });
+    }
+    var __findClose = function (html, pos) {
+        var t;
+        while ((t = html[pos++]) !== '>') {
+            if (t === '"')
+                pos = html.indexOf('"', pos) + 1;
+        }
+        return pos;
+    }, str = ['<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::>',
+        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}">',
+        '<input :="asdf adf"/>',
+        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::df>',
+        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :="_ + 5">',
+        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :adf>',
+        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :>'];
+    function str2(str) {
+        var l = str.length, pos = str.lastIndexOf(' :');
+        if (pos !== -1) {
+            // ① :="..."
+            if (str[pos + 2] === '=') {
+                console.log('=');
+                if (str[pos + 3] === '"') {
+                    var d_1 = str.lastIndexOf('"');
+                    return [str.substring(0, pos) + str.substring(d_1 + 1, l), '=',
+                        str.substring(pos + 4, d_1)];
+                }
+            }
+            // ② ::prop
+            else if (str[pos + 2] === ':') {
+                console.log('::');
+                var i = pos + 3;
+                while (str[i] !== '/' && str[i++] !== '>')
+                    ;
+                return [str.substring(0, pos) + str.substring(i - 1, l), '::',
+                    str.substring(pos + 3, i - 1)];
+            }
+            // ③ :prop>   :prop/>   공백이 없어야 함
+            else if (str.indexOf(' ', pos + 2) === -1) {
+                var i = pos + 2;
+                while (str[i] !== '/' && str[i++] !== '>')
+                    ;
+                return [str.substring(0, pos) + str.substring(i - 1, l), ':',
+                    str.substring(pos + 2, i - 1)];
+            }
+        }
+        return [str, 'none'];
+    }
+    var d = replaceHTML_1._compile(selector_1.getElementById('test').innerText);
+    console.log(d({}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 7:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function _func(prop, ele, s, opt, data) {
+        if (typeof ele === 'string') {
+            opt = s;
+            s = ele;
+            ele = document;
+        }
+        var type = typeof opt, list = ele[prop](s), l = list.length;
+        if (type === 'number')
+            return list[opt];
+        var i = l, r = [];
+        while (i-- > 0)
+            r[i] = list[i];
+        if (type === 'function') {
+            i++;
+            for (; i < l; i++)
+                opt.call(ele, r[i], i, data);
+            return data;
+        }
+        return r;
+    }
+    function getElementById(id) {
+        return document.getElementById(id);
+    }
+    exports.getElementById = getElementById;
+    function querySelector(ele, s) {
+        if (typeof ele === 'string') {
+            s = ele;
+            ele = document;
+        }
+        return ele.querySelector(s);
+    }
+    exports.querySelector = querySelector;
+    function querySelectorCut(ele, s) {
+        if (typeof ele === 'string') {
+            s = ele;
+            ele = document;
+        }
+        var d = ele.querySelector(s);
+        if (d)
+            d.parentElement.removeChild(d);
+        return d;
+    }
+    exports.querySelectorCut = querySelectorCut;
+    function querySelectorAll(ele, s, opt, data) {
+        return _func('querySelectorAll', ele, s, opt, data);
+    }
+    exports.querySelectorAll = querySelectorAll;
+    function getElementsByClassName(ele, s, opt, data) {
+        return _func('getElementsByClassName', ele, s, opt, data);
+    }
+    exports.getElementsByClassName = getElementsByClassName;
+    function getElementsByTagName(ele, s, opt, data) {
+        return _func('getElementsByTagName', ele, s, opt, data);
+    }
+    exports.getElementsByTagName = getElementsByTagName;
+    function getElementsByAttr(target, attrName, c, d) {
+        var i = 0, list = target.querySelectorAll('[' + attrName + ']'), l = list.length;
+        if (l) {
+            if (!c) {
+                var r = {};
+                for (; i < l; i++)
+                    r[list[i].getAttribute(attrName)] = list[i];
+                return r;
+            }
+            if (typeof c === 'function') {
+                for (; i < l; i++)
+                    c(d, list[i], list[i].getAttribute(attrName), i);
+                return d;
+            }
+            else {
+                for (; i < l; i++)
+                    c[list[i].getAttribute(attrName)](list[i], target, d);
+            }
+        }
+        return target;
+    }
+    exports.getElementsByAttr = getElementsByAttr;
+    function getElementChilds(ele) {
+        var r = [], childNodes = ele.childNodes, l = childNodes.length, i = 0, pos = 0;
+        for (; i < l; i++)
+            if (childNodes[i].nodeType === 1)
+                r[pos++] = childNodes[i];
+        return r;
+    }
+    exports.getElementChilds = getElementChilds;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

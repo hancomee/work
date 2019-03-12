@@ -61,14 +61,14 @@ export namespace Formats {
     export function expValParse(s: string) {
         let r = [], i = s.indexOf(' | ');
 
-        if(i === -1) r[0] = s;
+        if (i === -1) r[0] = s;
         else {
             r[0] = s.substring(0, i);
             s = s.substring(i + 3, s.length);
 
             // : 를 찾는다.
             i = s.indexOf(' : ');
-            if(i === -1) {
+            if (i === -1) {
                 r[1] = s;
             }
             else {
@@ -130,6 +130,27 @@ export namespace Formats {
             else return $1;
         });
     };
+
+    let r_full = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2} \d{2}[^\d]\d{2}[^\d]\d{2}/,
+        r_simple = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2}/,
+        r_split = /[^\d]/g;
+
+    export function toDate(str: string) {
+        if (str.length > 10) {
+            if (r_full.test(str)) {
+                let [y, m, d, h, mm, s] = str.split(r_split);
+                return new Date(parseInt(y), parseInt(m) - 1, parseInt(d),
+                    parseInt(h), parseInt(mm), parseInt(s));
+            }
+        }
+        else {
+            if (r_simple.test(str)) {
+                let [y, m, d] = str.split(r_split);
+                return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            }
+        }
+        return null;
+    }
 
     function datetimeFull(val: Date) {
         let m = val.getMonth() + 1, d = val.getDate(),
@@ -222,11 +243,11 @@ export namespace Formats {
     };
 
     let r_bg = /('|"|\(|\))/g;
-    
+
     export function bgURL(s: string) {
         return s.replace(r_bg, '\\$1');
     }
-    
+
     let directive = {
         number: number,
         datetime: datetime,

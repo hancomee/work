@@ -42,3 +42,22 @@
   border-right: $size solid transparent;
   border-top: $size solid $color;
 }
+
+@mixin table-border($left, $top) {
+
+  > tbody, > thead {
+    > tr {
+      > td, > th {
+        & + td, & + th {
+          border-left: 1px solid $left;
+        }
+      }
+      & + tr {
+        > td, > th {
+          border-top: 1px solid $top;
+        }
+      }
+    }
+  }
+
+}

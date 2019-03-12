@@ -176,7 +176,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             state(ele: HTMLElement) {
 
                 let {$state} = Work,
-                    [span, ul] = selectAll(ele, ['<0> span', '<0> ul']),
+                    [span, ul] = selectAll(ele, ['tag="span"[0]', 'tag="ul"[0]']),
                     current = $work.state.toString(),
                     $active = (i: string) => {
                         span.textContent = $state[current = i];

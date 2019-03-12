@@ -15,19 +15,27 @@ import hasClass = DOM.hasClass;
 
         active: HTMLElement,
 
+        onEvent = ((type) => {
+            let event = document.createEvent('Event');
+            event.initEvent(type, false, false);
+            return event;
+        })('dropdown.on'),
+
+        offEvent = ((type) => {
+            let event = document.createEvent('Event');
+            event.initEvent(type, false, false);
+            return event;
+        })('dropdown.off'),
+
         act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
-            let eventType,
-                dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
+            let dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
 
             className(dropdown, r_open, flag);
             dropdownMenu && className(dropdownMenu, r_open, flag);
 
             // dropdown 이벤트
-            if ((eventType = dropdown.getAttribute('data-dropdown-event')) != null) {
-                let event = document.createEvent('Event');
-                event.initEvent(eventType, true, true);
-                event['data'] = {isOpen: flag, dropdown: dropdown, target: e.target};
-                dropdown.dispatchEvent(event);
+            if (dropdown.hasAttribute('data-dropdown-event')) {
+                dropdown.dispatchEvent(flag ? onEvent : offEvent);
             }
 
 
@@ -35,7 +43,7 @@ import hasClass = DOM.hasClass;
             else active = null;
         };
 
-    // 열기 커스텀 이벤트
+    /*// 열기 커스텀 이벤트
     document.addEventListener('dropdown-open', (e) => {
         let ele = <HTMLElement>e.target;
         while (ele) {
@@ -63,7 +71,7 @@ import hasClass = DOM.hasClass;
                 ele = ele.parentElement;
             }
         }
-    });
+    });*/
 
     // 사용자 클릭 이벤트
     document.addEventListener('click', (e) => {
@@ -87,7 +95,7 @@ import hasClass = DOM.hasClass;
             // 끄기 버튼
             else if (ele.hasAttribute('data-dismiss'))
                 if (ele.getAttribute('data-dismiss') === 'false')
-                    return
+                    return;
                 else
                     dismiss = true;
 

@@ -13,8 +13,8 @@ import {
 import {selectAll} from "../../lib/core/_dom/_select";
 import {_replaceHTML} from "../../lib/core/_html/replaceHTML";
 import {WorkCreator} from "./list/WorkCreator";
+import {Pager} from "../../lib/core/component/Pager";
 import className = DOM.className;
-import WorkListValue = Work.WorkListValue;
 
 class ListManager extends Search {
 
@@ -83,12 +83,12 @@ let
 
             return (ele: HTMLElement, work: Work) => {
                 selectAll(ele,
-                    ['= [data-toggle="dropdown"]', '<0> ul'],
+                    ['sel="[data-toggle="dropdown"]"', 'tag="ul"[0]'],
                     (btn: HTMLElement, ul: HTMLUListElement) => {
                         btn.textContent = stateObj[work.state];
                         ul.innerHTML = _range(0, 7, (v, r) => {
                             stateObj.index = v;
-                            r[v] = ff(work, null, stateObj);
+                            r[v] = ff(work, stateObj);
                         }, []).join('')
                     })
             }
@@ -158,27 +158,30 @@ let
 
         // 페이지 네비게이션
         pager(ele: HTMLElement) {
-            let cName = ['active'],
+            let pager = new Pager(ele, 10, 5)
+                .setHandler((page) => $manager.run({page: page}));
+            /*let cName = ['active'],
                 [prev, btn, next] = selectAll(ele,
-                    ['"0" ctrl-pager-prev', '= [data-toggle="dropdown"]', '"0" ctrl-pager-next']),
-                $page = -1;
+                    ['class="ctrl-pager-prev"[0]', 'sel="[data-toggle="dropdown"]"',
+                        'class="ctrl-pager-next"[0]']),
+                $page = -1;*/
 
-            $alert[$resetIndex++] = (manager, query) => {
-                let {$data: {page, totalPages, size}} = manager;
-                btn.textContent = page + ' / ' + totalPages;
+            $alert[$resetIndex++] = ({$data: {page, totalPages, size}}, query) => {
+                pager.render(page, totalPages);
+                /*btn.textContent = page + ' / ' + totalPages;
                 className(prev, cName, page > 1);
                 className(next, cName, page < totalPages);
-                $page = page;
+                $page = page;*/
             };
 
-            ele.addEventListener('click', (e) => {
+            /*ele.addEventListener('click', (e) => {
                 e.stopPropagation();
                 let target = <HTMLElement>e.target,
                     move = target.getAttribute('data-move');
                 if (move && target.classList.contains('active')) {
                     $manager.run({page: $page + parseInt(move)});
                 }
-            });
+            });*/
         },
 
 

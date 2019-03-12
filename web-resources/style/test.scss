@@ -1,0 +1,23 @@
+
+
+
+.magic {
+  float: left;
+  width: 500px;
+}
+
+.focus-panel {
+  display: none;
+  position: absolute;
+  margin: 1rem;
+  width: 10rem;
+  height: 10rem;
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.focus-in {
+  > .focus-panel {
+    display: block;
+  }
+}

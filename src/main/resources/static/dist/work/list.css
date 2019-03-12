@@ -4517,31 +4517,116 @@ body {
   .page-name {
     width: 150px; } }
 
+.component-pager-prev {
+  margin-right: .2em; }
+
+.component-pager-next {
+  margin-left: .2em; }
+
+.component-pager-prev, .component-pager-next {
+  font-size: 14px;
+  cursor: pointer; }
+  .component-pager-prev.disabled, .component-pager-next.disabled {
+    color: #d2d2d2;
+    cursor: default; }
+
+.component-pager-table {
+  display: none;
+  position: absolute;
+  padding: 1rem; }
+  .open > .component-pager-table {
+    display: block; }
+  .component-pager-table > div {
+    display: flex;
+    align-items: center; }
+    .component-pager-table > div > .number {
+      margin: 0 auto; }
+    .component-pager-table > div > [data-nav] {
+      cursor: pointer; }
+    .component-pager-table > div > .disabled {
+      color: #ddd; }
+  .component-pager-table > table {
+    border: 1px solid #eee; }
+    .component-pager-table > table > tbody > tr > td + td, .component-pager-table > table > tbody > tr > td + th, .component-pager-table > table > tbody > tr > th + td, .component-pager-table > table > tbody > tr > th + th, .component-pager-table > table > thead > tr > td + td, .component-pager-table > table > thead > tr > td + th, .component-pager-table > table > thead > tr > th + td, .component-pager-table > table > thead > tr > th + th {
+      border-left: 1px solid #ddd; }
+    .component-pager-table > table > tbody > tr + tr > td, .component-pager-table > table > tbody > tr + tr > th, .component-pager-table > table > thead > tr + tr > td, .component-pager-table > table > thead > tr + tr > th {
+      border-top: 1px solid #ddd; }
+    .component-pager-table > table > tbody > tr > td > span {
+      display: block;
+      width: 2rem;
+      height: 2rem;
+      line-height: 2rem;
+      text-align: center; }
+    .component-pager-table > table > tbody > tr > td.link > span {
+      cursor: pointer; }
+    .component-pager-table > table > tbody > tr > td.link:hover {
+      background-color: #eee; }
+    .component-pager-table > table > tbody > tr > td.current {
+      background-color: #3172ce;
+      color: white; }
+    .component-pager-table > table > tbody > tr > td.disabled {
+      color: #eee; }
+
+.dropdown-box {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1039;
+  margin-top: .2rem;
+  border: 1px solid #c3c3c3;
+  background-color: white;
+  box-shadow: 3px 3px 9px;
+  border-radius: 7px; }
+  .open > .dropdown-box {
+    display: block; }
+  .dropdown-box.dropdown-box-right {
+    right: 0; }
+
+.dropdown-list {
+  padding: .5rem 0; }
+  .dropdown-list > li > span {
+    display: block;
+    padding: .4rem 2rem .3rem 1rem;
+    cursor: pointer;
+    white-space: nowrap; }
+  .dropdown-list > li:hover {
+    background-color: #f9f9f9; }
+  .dropdown-list > li.active {
+    background-color: #2878af;
+    color: white; }
+
 main {
   padding: 2rem; }
 
 [data-load] {
   cursor: pointer; }
 
+.component-pager {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem; }
+  .component-pager-prev, .component-pager-next {
+    font-size: 2rem;
+    font-family: serif;
+    font-weight: bold;
+    color: #ddd; }
+    .component-pager-prev.disabled, .component-pager-next.disabled {
+      color: #5a5a5a;
+      cursor: default; }
+    .component-pager-prev.active, .component-pager-next.active {
+      cursor: pointer;
+      color: #aaa; }
+  .component-pager-current, .component-pager-total {
+    font-size: 1.2rem; }
+  .component-pager-page > span {
+    font-size: 24px;
+    margin: 0 .4rem;
+    font-weight: bold; }
+
 .ctrl {
   display: flex;
   align-items: center; }
-  .ctrl-pager {
-    display: flex;
-    align-items: center;
-    margin-right: 1rem; }
-    .ctrl-pager-prev, .ctrl-pager-next {
-      font-size: 2rem;
-      font-family: serif;
-      font-weight: bold;
-      color: #505050; }
-      .ctrl-pager-prev.active, .ctrl-pager-next.active {
-        cursor: pointer;
-        color: #aaa; }
-    .ctrl-pager-page > span {
-      font-size: 24px;
-      margin: 0 .4rem;
-      font-weight: bold; }
   .ctrl-btns {
     display: flex;
     align-items: center;

@@ -1,34 +1,32 @@
-<div>
-    <div class="ctrl">
-        <div class="sel year" :year>
-            <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
-            <span class="current">{{val}}</span>
-            <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
-        </div>
-        <div class="sel month" :month>
-            <span class="move prev" data-move="{{prev}}">&lt; {{_.val === 0 ? 12 : _.val}}</span>
-            <span class="current">{{_.val + 1}}</span>
-            <span class="move next" data-move="{{next}}">{{_.val === 11 ? 1 : (_.val + 2)}} &gt;</span>
-        </div>
+<div class="ctrl">
+    <div class="sel year" :year>
+        <span class="move prev" data-move="{{prev}}">&lt; {{_.val - 1}}</span>
+        <span class="current">{{val}}</span>
+        <span class="move next" data-move="{{next}}">{{_.val + 1}} &gt;</span>
     </div>
-    <table>
-        <thead>
-        <tr>
-            <th>일</th>
-            <th>월</th>
-            <th>화</th>
-            <th>수</th>
-            <th>목</th>
-            <th>금</th>
-            <th>토</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr :date>
-            <td class="{{className}}" :>
-                <span data-dismiss="{{val}}">{{date}}</span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="sel month" :month>
+        <span class="move prev" data-move="{{prev}}">&lt; {{_.val === 0 ? 12 : _.val}}</span>
+        <span class="current">{{_.val + 1}}</span>
+        <span class="move next" data-move="{{next}}">{{_.val === 11 ? 1 : (_.val + 2)}} &gt;</span>
+    </div>
 </div>
+<table>
+    <thead>
+    <tr>
+        <th>일</th>
+        <th>월</th>
+        <th>화</th>
+        <th>수</th>
+        <th>목</th>
+        <th>금</th>
+        <th>토</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ::date>
+        <td class="{{className}}" ::>
+            <span data-dismiss="{{val}}">{{date}}</span>
+        </td>
+    </tr>
+    </tbody>
+</table>

@@ -2,18 +2,18 @@ import {Access} from "../access";
 import {Formats} from "../format";
 import expValParse = Formats.expValParse;
 import access = Access.access;
+import {indexOfChar} from "./_indexOf";
 
-let directive = Formats.getDirective(),
-    r_compile = / :([^>]*)>$/,
-
-    // [create] ==> func(data, directive)
+let
+    directive = Formats.getDirective(),
+    ___createFunction = (exp) => new Function('_', '$', 'return _ == null ? null : (' + exp + ');'),
     __createFunction = (str: string) => {
 
         let [_prop, dir, opt] = expValParse(str),
             prop = (_prop[0] === '_' || _prop[0] === '$') ? _prop : '_.' + _prop,
-            func = new Function('_', '$', 'return _ == null ? null : (' + prop + ');')
+            func = ___createFunction(prop);
 
-        return (data, directive, opData) => {
+        return (data, opData, directive) => {
             let v = func(data, opData);
 
             if (directive[dir])
@@ -31,17 +31,47 @@ let directive = Formats.getDirective(),
         return html.substring(i, pos);
     },
 
-    // 태그 닫는 문자 찾기   attr="name > value" 등을 피해가기 위한 함수
-    __findClose = (html: string, pos: number) => {
-        let t;
-        while ((t = html[pos++]) !== '>') {
-            if (t === '"') pos = html.indexOf('"', pos) + 1;
+    __parse = (str: string) => {
+
+        let l = str.length,
+            pos = indexOfChar(str, ':');
+
+        if (pos !== -1) {
+
+            pos--;
+
+            // ① :="..."
+            if (str[pos + 2] === '=') {
+                if (str[pos + 3] === '"') {
+                    let d = str.lastIndexOf('"');
+                    return [str.substring(0, pos) + str.substring(d + 1, l), '=',
+                        str.substring(pos + 4, d)]
+                }
+            }
+
+            // ② ::prop
+            else if (str[pos + 2] === ':') {
+                let i = pos + 3;
+                while (str[i] !== '/' && str[i++] !== '>') ;
+
+                return [str.substring(0, pos) + str.substring(i - 1, l), '::',
+                    str.substring(pos + 3, i - 1)]
+            }
+
+            // ③ :prop>   :prop/>   공백이 없어야 함
+            else if (str.indexOf(' ', pos + 2) === -1) {
+                let i = pos + 2;
+                while (str[i] !== '/' && str[i++] !== '>') ;
+                return [str.substring(0, pos) + str.substring(i - 1, l), ':',
+                    str.substring(pos + 2, i - 1)]
+            }
         }
-        return pos;
-    };
+
+        return [str, ''];
+    }
 
 
-function __replaceHTML(html: string, pos: number, limit: number) {
+function __replaceHTML(html: string, pos: number, limit: number, directive) {
 
     let index = 0, func = [], fi = 0;
 
@@ -55,7 +85,7 @@ function __replaceHTML(html: string, pos: number, limit: number) {
         pos = html.indexOf('}}', index);    // }}를 찾는다
 
         if (pos === -1) {
-            throw new Error('표현식이 잘못되었습니다. 닫는 "}}" 문자열이 없습니다')
+            throw new Error('표현식이 잘못되었습니다. 닫는 "}}" 문자열이 없습니다' + '\n' + html)
         }
 
         func[fi++] = __createFunction(html.substring(index, pos));
@@ -70,67 +100,73 @@ function __replaceHTML(html: string, pos: number, limit: number) {
         func[fi++] = html.substring(index, limit);
     }
 
-    return (obj, dir?, opt?) => {
+    return (obj, opt?, dir?) => {
 
         if (dir == null) dir = directive;
 
         let i = 0, f = func, l = fi, r = [];
         for (; i < l; i++) {
-            r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, dir, opt);
+            r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, opt, dir);
         }
         return r.join('');
     }
 }
 
-function __compile(html: string, idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
+function __compile(html: string, directive, idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
 
     let pos: number, i = pos = idx.val, e: number,
         r = [], rIdx = 0, tag: string,
-        handler = (data) => {
+        handler = (data, opt?) => {
             let result = [];
             for (let i = 0; i < rIdx; i++)
-                result[i] = r[i](data);
+                result[i] = r[i](data, opt, directive);
             let d = result.join('');
             return d;
         };
 
     // ① 태그인 경우
     if (index) {
-        let line = lines[index - 1],
-            v = r_compile.exec(line);
+        let [line, type, exp] = __parse(lines[index - 1]),
+            _handler = handler;
 
-        // expression이 있을 경우
-        if (v) {
-            let index = v.index, prop = v[1],
-                _handler = handler;
-
-            // 함수로 변경.  :="expression"
-            if (prop[0] === '=') {
-                let fn = new Function('_', 'return _ == null ? null : (' +
-                    prop.substring(2, prop.length - 1) + ');');
-                handler = (data) => {
-                    if (fn(data)) return _handler(data);
+        switch (type) {
+            // ① 함수로 변경  :="expression"
+            case '=' :
+                let fn = ___createFunction(exp);
+                handler = (data, opt) => {
+                    let d = fn(data, opt);
+                    if (d != null) return _handler(d, opt);
                     return '';
                 }
-            }
-            // 단순 변수.  :prop
-            else {
-                handler = (data) => {
-                    let val = access(data, prop);
+                break;
+
+            // ② 루프     ::prop
+            case '::' :
+                handler = (data, opt = {index: 0}) => {
+                    let val = access(data, exp);
                     if (val != null) {
                         if (Array.isArray(val)) {
-                            return val.map(v => _handler(v)).join('');
+                            return val.map((v, i) => _handler(v, (opt.index = i, opt))).join('');
                         }
-                        return _handler(val);
+                        else {
+                            let r = [], i = 0, p;
+                            for (p in val) {
+                                opt.index = p;
+                                r[i++] = _handler(val[p], opt);
+                            }
+                            return r.join('');
+                        }
                     }
                     return '';
                 }
-            }
+                break;
 
-
-            // 정규식 부분은 지운다.
-            line = line.substring(0, v.index) + line.substring(index + v[0].length - 1, line.length);
-
+            // ③ 단순 변수  :prop
+            case ':' :
+                handler = (data, opt) => {
+                    let val = access(data, exp);
+                    return val != null ? _handler(val, opt) : '';
+                }
         }
 
         r[rIdx++] = _replaceHTML(line);
@@ -139,7 +175,7 @@ function __compile(html: string, idx = {val: 0}, lines: string[] = [], tagStack 
 
     while ((pos = html.indexOf('<', pos)) !== -1) {
 
-        e = __findClose(html, pos);
+        e = indexOfChar(html, '>', pos) + 1;
 
         // ① 여는 태그
         if (html[pos + 1] !== '/') {
@@ -149,11 +185,12 @@ function __compile(html: string, idx = {val: 0}, lines: string[] = [], tagStack 
                 r[rIdx++] = _replaceHTML(html.substring(i, pos));
             }
 
+
             lines[index] = html.substring(pos, e);
             tag = tagStack[index] = __getTagName(html, pos + 1);
 
             idx.val = e;
-            r[rIdx++] = __compile(html, idx, lines, tagStack, index + 1);
+            r[rIdx++] = __compile(html, directive, idx, lines, tagStack, index + 1);
             e = idx.val;
         }
 
@@ -188,24 +225,25 @@ function __compile(html: string, idx = {val: 0}, lines: string[] = [], tagStack 
     if (i < html.length) {
         r[rIdx++] = _replaceHTML(html.substring(i, html.length));
     }
-    return handler
+
+    return handler;
 }
 
 
 /*
  *  단순히 문자열을 치환할때 쓴다.
  */
-export function _replaceHTML(html: string) {
+export function _replaceHTML(html: string, dir = directive) {
 
     let pos = html.indexOf('{{');
     if (pos === -1) return () => html;
-    return __replaceHTML(html, pos, html.length);
+    return __replaceHTML(html, pos, html.length, dir);
 
 }
 
 
-export function _compile(html) {
-    return __compile(html);
+export function _compile(html, directive?) {
+    return __compile(html, directive);
 }
 
 

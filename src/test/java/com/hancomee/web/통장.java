@@ -20,16 +20,20 @@ public class 통장 {
     public void copy() throws Exception {
 
         Set<AccountData> set = new HashSet<>();
+        List<String> query = new ArrayList<>();
 
         Path file = Paths.get(getClass().getClassLoader().getResource("이체결과.txt").toURI());
         List<String> lines = Files.readAllLines(file);
 
         for(String line : lines) {
             AccountData data = new AccountData(line.split("\t"));
-            if(set.add(data))
-                out(data);
+            if(set.add(data)) {
+                query.add(data.query());
+            }
         }
 
+
+        out("INSERT INTO bank_account (bank, nums, owner) VALUES " + String.join(", ", query) + ";");
 
 
     }
@@ -61,6 +65,9 @@ public class 통장 {
         public int hashCode() {
 
             return Objects.hash(value, name, bank);
+        }
+        public String query() {
+            return "('" +  bank + "', '" + value + "', '" + name + "')";
         }
 
         @Override

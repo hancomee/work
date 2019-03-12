@@ -55,30 +55,25 @@ function lookup(r: any[], index: number) {
 }
 
 export function select(context, selector: string) {
-    let sChar = selector[0],
-        i = 0, prefix, r, hasIndex = false;
 
-    if(sChar === '=') return context.querySelector(selector.slice(2));
+    let
+        i = selector.indexOf('='), l = selector.lastIndexOf('"'),
+        key = selector.substring(0, i),
+        value = selector.substring(i + 2, l),
+        r;
 
-    i = selector.indexOf(' ');
-    prefix = selector.substring(0, i);
-    selector = selector.slice(i + 1);
-    i = prefix.length;
-    if(i !== 2) {
-        hasIndex = true;
-        i = parseInt(prefix.substring(1, i - 1));
-    }
-
-    switch (sChar) {
-        case '[' :
-            r = context.querySelectorAll(selector);
-            return hasIndex ? lookup(r, i) : r;
-        case '"' :
-            r = context.getElementsByClassName(selector);
-            return hasIndex ? lookup(r, i) : r;
-        case '<' :
-            r = context.getElementsByTagName(selector);
-            return hasIndex ? lookup(r, i) : r;
+    switch (key) {
+        case 'sel' :
+            return context.querySelector(value);
+        case 'class' :
+            r = context.getElementsByClassName(value);
+            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
+        case 'tag' :
+            r = context.getElementsByTagName(value);
+            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
+        case 'all' :
+            r = context.querySelectorAll(value);
+            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
     }
 
 }
@@ -97,7 +92,7 @@ export function selectAll(element: Element, arg, handler?) {
         if (typeof str === 'string') {
 
             // :1 일 경우 앞선 결과를 element 주체로 사용한다.
-            if(str[0] === ':') {
+            if (str[0] === ':') {
                 let i = str.indexOf(' ');
                 args[index++] = select(args[str.substring(1, i)], str.slice(i + 1))
             }

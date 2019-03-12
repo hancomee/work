@@ -157,9 +157,17 @@ export namespace DOM {
             return parent;
         }
 
-        return function (html): HTMLElement {
+        return function (html, safe = false): HTMLElement {
+            let div = document.createElement('div');
+
+            if (safe) {
+                div.innerHTML = html;
+                let c = div.firstElementChild;
+                div.removeChild(c);
+                return <HTMLElement>c;
+            }
             html = html.trim();
-            return get(document.createElement('div'), html, r.exec(html)[1]);
+            return get(div, html, r.exec(html)[1]);
         }
 
     })();
