@@ -1,3 +1,5 @@
+import {_isPlainObject} from "./_isPlainObject";
+
 function jQueryExtend(...args) {
     var options, name, src, copy, copyIsArray, clone,
         target = arguments[ 0 ] || {},
@@ -40,14 +42,14 @@ function jQueryExtend(...args) {
                 }
 
                 // Recurse if we're merging plain objects or arrays
-                if ( deep && copy && ( isPlainObject( copy ) ||
+                if ( deep && copy && ( _isPlainObject( copy ) ||
                     ( copyIsArray = Array.isArray( copy ) ) ) ) {
                     src = target[ name ];
 
                     // Ensure proper type for the source value
                     if ( copyIsArray && !Array.isArray( src ) ) {
                         clone = [];
-                    } else if ( !copyIsArray && !isPlainObject( src ) ) {
+                    } else if ( !copyIsArray && !_isPlainObject( src ) ) {
                         clone = {};
                     } else {
                         clone = src;

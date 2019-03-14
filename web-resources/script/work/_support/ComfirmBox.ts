@@ -1,52 +1,65 @@
 import {EventsGroup} from "../../../lib/core/events";
+import {DOM} from "../../../lib/core/dom";
+import className = DOM.className;
+import {Forms} from "../../../lib/core/form/Forms";
+import set = Forms.set;
 
+let cName = ['confirm-active'];
 
 export class ConfirmBox {
 
+    eventTarget: HTMLElement
     private events: EventsGroup
     private handler
-    private _skip = false
 
     constructor(public element: HTMLElement) {
         this.events = new EventsGroup().off()
             .register(document, 'click', (e) => {
 
-                if (this._skip) {
-                    this._skip = false;
-                    return;
-                }
+                /*
+                 *   여러가지 역할을 하는 로직이다.
+                 *   ① click이벤트에 의해 comfirmbox를 구동할 경우, event가 attach되자마자
+                 *      바로 아래 로직이 불려서 오동작하는 걸 방지한다.
+                 */
+                if(this.eventTarget.contains(e.target)) return;
 
                 let target = <HTMLElement>e.target;
                 if (target.hasAttribute('data-submit')) {
-                    this.handler(true);
-                    this.off();
+                    this.done(true).off();
                 }
                 if (target.hasAttribute('data-cancel') || !element.contains(target)) {
-                    this.handler(false);
-                    this.off();
+                    this.done(false).off();
                 }
 
             })
     }
 
-    on(x: number, y: number, handler: (flag: boolean) => void)
-    on(e: MouseEvent, handler: (flag: boolean) => void)
-    on(x, y, h?) {
-        let {element} = this;
 
-        if (!h) {
-            h = y;
-            y = x.pageY;
-            x = x.pageX;
+    on(x: number, y: number, eventTarget: HTMLElement, handler: (flag: boolean) => void) {
+
+        let {element, element: {offsetWidth}} = this,
+            {innerWidth} = window;
+
+        if (this.handler) this.done(false);
+        this.handler = handler;
+        className(this.eventTarget = eventTarget, cName, true);
+
+        // flip
+        if(innerWidth < x + offsetWidth) {
+            x -= offsetWidth;
         }
-
-        this._skip = true;
-
-        if (this.handler) this.handler(false);
-        this.handler = h;
         element.setAttribute('style', 'top: ' + y + 'px; left: ' + x + 'px;');
         element.classList.add('on');
-        this.events.on();
+
+        // 만약 이벤트 중이라면 현재 이벤트를 건너기 위함
+        setTimeout(()=>this.events.on())
+        return this;
+    }
+
+    done(flag: boolean) {
+        className(this.eventTarget, cName, false);
+        this.handler(flag);
+        this.eventTarget = null;
         return this;
     }
 

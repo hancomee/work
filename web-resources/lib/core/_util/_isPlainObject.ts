@@ -1,27 +1,26 @@
-
-let dummy = {},
-    {hasOwnProperty} = dummy,
-    fnToString = hasOwnProperty.toString,
-    getProto = Object.getPrototypeOf,
-    ObjectFunctionString = fnToString.call( Object );
-
-function isPlainObject( obj ) {
-    var proto, Ctor;
-
-    // Detect obvious negatives
-    // Use toString instead of jQuery.type to catch host objects
-    if ( !obj || toString.call( obj ) !== "[object Object]" ) {
-        return false;
+const
+    _toString = Object.prototype.toString,
+    isObjectLike = (value) => {
+        return typeof value == 'object' && value !== null
+    },
+    getTag = (value) => {
+        if (value == null) {
+            return value === undefined ? '[object Undefined]' : '[object Null]'
+        }
+        return _toString.call(value)
     }
 
-    proto = getProto( obj );
 
-    // Objects with no prototype (e.g., `Object.create( null )`) are plain
-    if ( !proto ) {
-        return true;
+export function _isPlainObject(value) {
+    if (!isObjectLike(value) || getTag(value) != '[object Object]') {
+        return false
     }
-
-    // Objects with prototype are plain iff they were constructed by a global Object function
-    Ctor = hasOwnProperty.call( proto, "constructor" ) && proto.constructor;
-    return typeof Ctor === "function" && fnToString.call( Ctor ) === ObjectFunctionString;
+    if (Object.getPrototypeOf(value) === null) {
+        return true
+    }
+    let proto = value
+    while (Object.getPrototypeOf(proto) !== null) {
+        proto = Object.getPrototypeOf(proto)
+    }
+    return Object.getPrototypeOf(value) === proto
 }

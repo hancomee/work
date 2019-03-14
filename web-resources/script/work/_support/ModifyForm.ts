@@ -7,7 +7,7 @@ let vf_className = ['form-error'],
     validHandler = (valid, input, g, f) => className(input, vf_className, !valid);
 
 
-export class ViewForm extends Forms {
+export class ModifyForm extends Forms {
 
     private _handler
 

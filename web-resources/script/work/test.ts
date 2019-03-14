@@ -5,6 +5,11 @@ import {Calendar, Month} from "../../lib/core/calendar";
 import {Formats} from "../../lib/core/format";
 import toDate = Formats.toDate;
 import {indexOfChar} from "../../lib/core/_html/_indexOf";
+import {iEvents} from "../../lib/core/events";
+import directive = iEvents.dataEvent.directive;
+import {_isPlainObject} from "../../lib/core/_util/_isPlainObject";
+import {DOM} from "../../lib/core/dom";
+import offset = DOM.offset;
 
 function run(fns: any[], nums: number) {
 
@@ -76,6 +81,39 @@ function str2(str: string) {
     return [str, 'none'];
 }
 
-let d = _compile(getElementById('test').innerText);
+class B {
 
-console.log(d({}));
+}
+
+document.addEventListener('click', (e) => {
+    let target = <HTMLElement>e.target;
+
+    bounding(target);
+
+})
+
+
+/*
+ *
+ */
+function _offset(ele: HTMLElement, limit: HTMLElement = document.body, overflow = false) {
+
+    let top = 0, left = 0;
+
+    while(ele !== limit && ele != null) {
+        console.log(ele, ele.offsetTop, ele.offsetLeft, ele.offsetWidth, ele.offsetHeight);
+        top += ele.offsetTop;
+        left += ele.offsetLeft;
+        ele = ele.parentElement;
+    }
+    console.log(top, left);
+}
+
+function bounding(ele: HTMLElement) {
+    if(ele == null) return;
+    let width = ele.offsetWidth, height = ele.offsetHeight,
+        top = ele.offsetTop, left = ele.offsetLeft;
+
+    bounding(ele.parentElement);
+    console.log(ele.tagName, 'width:', width, 'height:', height, 'top:', top, 'left', left);
+}

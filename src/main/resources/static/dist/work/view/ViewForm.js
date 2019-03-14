@@ -2385,7 +2385,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         };
         return ViewForm;
     }(Forms_1.Forms));
-    exports.ViewForm = ViewForm;
+    exports.ModifyForm = ViewForm;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

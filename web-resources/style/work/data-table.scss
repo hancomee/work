@@ -2,6 +2,7 @@
 @import "../component/calendar";
 @import "../component/pager";
 @import "../component/dropdown-box";
+@import "_support/confirm-box";
 
 $border-color-lighten-xl: lighten($border-color-lighten, 6%);
 
@@ -162,6 +163,16 @@ main {
         > td {
           height: 3rem;
         }
+
+        &.confirm-active {
+          opacity: .5;
+          > td {
+            > [data-form="remove"] {
+              color: darkred;
+              font-weight: bold;
+            }
+          }
+        }
       }
     }
   }
@@ -188,6 +199,9 @@ tr.data-form {
       &[readonly] {
         border: 0;
       }
+      &.form-error {
+        border-color: red;
+      }
     }
   }
 
@@ -201,7 +215,6 @@ tr.data-form {
     }
   }
 
-
 }
 
 .modify-form {
@@ -213,4 +226,5 @@ tr.data-form {
 [data-form] {
   cursor: pointer;
 }
+
 

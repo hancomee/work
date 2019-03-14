@@ -417,6 +417,7 @@ export namespace Events {
                 while (target && (limit !== target)) {
 
                     eventProperty(target, obj);
+                    obj['event'] = e;
                     if (h(target, obj, attrValue, e) === 'break') break;
                     target = target.parentElement
                 }

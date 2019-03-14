@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 52);
+/******/ 	return __webpack_require__(__webpack_require__.s = 53);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -668,6 +668,249 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var DOM;
+    (function (DOM) {
+        var doc = document;
+        function contains(parent, target) {
+            var p;
+            while (p = target.parentNode) {
+                if (parent === p)
+                    return true;
+            }
+            return false;
+        }
+        DOM.contains = contains;
+        function closest(target, handler, limit) {
+            if (limit === void 0) { limit = null; }
+            var index = 0;
+            do {
+                if (handler(target, index++))
+                    return target;
+            } while ((target = target.parentElement) && target !== limit);
+            return target;
+        }
+        DOM.closest = closest;
+        function offset(e, parent, extend) {
+            if (parent === void 0) { parent = document.body; }
+            if (extend === void 0) { extend = false; }
+            var l = 0, t = 0, target = e;
+            do {
+                t += target.offsetTop - target.scrollTop;
+                l += target.offsetLeft - target.scrollLeft;
+            } while ((target = target.offsetParent) && target !== parent);
+            var result = { left: l, top: t };
+            if (extend === true) {
+                var w = e.offsetWidth, h = e.offsetHeight;
+                result['width'] = w;
+                result['height'] = h;
+                result['right'] = w + l;
+                result['bottom'] = t + h;
+            }
+            return result;
+        }
+        DOM.offset = offset;
+        function isAssignableFrom(target, parent) {
+            do {
+                if (target === parent)
+                    return true;
+            } while (target = target.parentElement);
+            return false;
+        }
+        DOM.isAssignableFrom = isAssignableFrom;
+        function selector(selector, parent) {
+            if (parent === void 0) { parent = document; }
+            return toArray(parent.querySelectorAll(selector));
+        }
+        DOM.selector = selector;
+        // NodeList등을 array로!!
+        function toArray(elements, result) {
+            if (result === void 0) { result = []; }
+            var len = elements['length'];
+            if (typeof len === 'number') {
+                for (var i = 0; i < len; i++) {
+                    result.push(elements[i]);
+                }
+            }
+            else
+                result.push(elements);
+            return result;
+        }
+        DOM.toArray = toArray;
+        // obj는 인터폴레이터용
+        function stringToDOM(str, obj) {
+            var v, div = document.createElement('div');
+            if (obj) {
+                str = str.replace(/{{(.+?)}}/g, function (_, p) {
+                    if ((v = obj[p]) != null) {
+                        if (typeof v === 'function')
+                            return v.call(obj);
+                        return v;
+                    }
+                    return '';
+                });
+            }
+            div.innerHTML = str;
+            return toArray(div.children);
+        }
+        DOM.stringToDOM = stringToDOM;
+        function hasClass(element, name) {
+            var className = element.className.split(c_r), names = Array.isArray(name) ? name : [name];
+            return names.every(function (v) { return className.indexOf(v) !== -1; });
+        }
+        DOM.hasClass = hasClass;
+        /*
+         *  isAdd가 null이면 toggleClass로 작동한다.
+         */
+        var c_r = /\s+/, uuid = 1;
+        /*
+         *  2018-01-20
+         *  원래는 <div> 하나의 객체를 만들어서 재활용하는 형태로 사용했었다.
+         *  하지만 그렇게 할 경우 ie에서 버그가 생긴다.
+         */
+        DOM.createHTML = (function () {
+            var r = /^<([^\s>]+)/i;
+            function get(parent, html, tag) {
+                var index;
+                switch (tag) {
+                    case 'option':
+                        index = 2;
+                        parent.innerHTML = '<select>' + html + '</select>';
+                        break;
+                    case 'thead':
+                    case 'tbody':
+                    case 'tfoot':
+                    case 'colgroup':
+                    case 'caption':
+                        index = 2;
+                        parent.innerHTML = '<table>' + html + '</table>';
+                        break;
+                    case 'col':
+                        index = 3;
+                        parent.innerHTML = '<table><colgroup>' + html + '</colgroup></table>';
+                        break;
+                    case 'tr':
+                        index = 3;
+                        parent.innerHTML = '<table><tbody>' + html + '</tbody></table>';
+                        break;
+                    case 'td':
+                    case 'th':
+                        index = 4;
+                        parent.innerHTML = '<table><tbody><tr>' + html + '</tr></tbody></table>';
+                        break;
+                    default:
+                        parent.innerHTML = html;
+                        return parent.firstElementChild;
+                }
+                while (index-- > 0)
+                    parent = parent.firstElementChild;
+                return parent;
+            }
+            return function (html, safe) {
+                if (safe === void 0) { safe = false; }
+                var div = document.createElement('div');
+                if (safe) {
+                    div.innerHTML = html;
+                    var c = div.firstElementChild;
+                    div.removeChild(c);
+                    return c;
+                }
+                html = html.trim();
+                return get(div, html, r.exec(html)[1]);
+            };
+        })();
+        function className(element, value, isAdd) {
+            if (element == null)
+                return element;
+            var className = element.className.trim(), array = className ? className.split(c_r) : [], result;
+            if (typeof value === 'function') {
+                result = value.call(element, array, element);
+            }
+            else {
+                var values = Array.isArray(value) ? value : [value];
+                // ① ['a', 'u']  ==> ['!a', 'b']  ====>  ['u', 'b'];
+                if (isAdd == null)
+                    result = __toggleClass(array, values);
+                else if (isAdd === true)
+                    result = __addClass(array, values);
+                else
+                    result = __removeClass(array, values);
+            }
+            element.className = result.join(' ');
+            return element;
+        }
+        DOM.className = className;
+        function __addClass(array, target) {
+            var i = 0, l = target.length;
+            for (; i < l; i++) {
+                array.indexOf(target[i]) === -1 && array.push(target[i]);
+            }
+            return array;
+        }
+        function __removeClass(array, target) {
+            var i = 0, l = array.length, result = [], pos = 0;
+            for (; i < l; i++) {
+                target.indexOf(array[i]) === -1 && (result[pos++] = array[i]);
+            }
+            return result;
+        }
+        function __toggleClass(array, values) {
+            var l = values.length, i = 0, pos = -1, result = [], v, removal;
+            for (; i < l; i++) {
+                if (removal = ((v = values[i])[0] === '!')) {
+                    if ((pos = array.indexOf(v.slice(1))) !== -1)
+                        array.splice(pos, 1);
+                }
+                else {
+                    if ((pos = array.indexOf(v)) === -1)
+                        result.push(v);
+                }
+            }
+            return array.concat(result);
+        }
+        function eachAttrs(ele, handler) {
+            var attributes = ele.attributes, length = ele.attributes.length;
+            while (length-- > 0)
+                if (handler.call(ele, attributes[length].name, attributes[length].value) === false)
+                    return;
+        }
+        DOM.eachAttrs = eachAttrs;
+        DOM.attrMap = (function (r_data, r_up, fn) {
+            var rename = function (s) { return s.replace(r_data, '').replace(r_up, fn); };
+            return function (element) {
+                var attributes = element.attributes, length = attributes.length, attr, result = {};
+                while (length-- > 0) {
+                    attr = attributes[length];
+                    result[rename(attr.name)] = attr.value;
+                }
+                return result;
+            };
+        })(/^data-/, /-([^-])/g, function (_, i) { return i.toUpperCase(); });
+        function _classList(ele, values, isAdd) {
+            if (isAdd === void 0) { isAdd = true; }
+            var classList = ele.classList;
+            if (typeof values === 'string') {
+                isAdd ? classList.add(values) : classList.remove(values);
+            }
+            else {
+                var l = values.length;
+                while (l-- > 0)
+                    isAdd ? classList.add(values[l]) : classList.remove(values[l]);
+                return ele;
+            }
+        }
+        DOM._classList = _classList;
+    })(DOM = exports.DOM || (exports.DOM = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * Created by hellofunc on 2017-02-28.
  */
@@ -681,7 +924,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(5), __webpack_require__(3), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(6), __webpack_require__(3), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1021,6 +1264,7 @@ var __extends = (this && this.__extends) || (function () {
                     var obj = getObj(e, attrValue), limit = element, h = dispatcher;
                     while (target && (limit !== target)) {
                         eventProperty(target, obj);
+                        obj['event'] = e;
                         if (h(target, obj, attrValue, e) === 'break')
                             break;
                         target = target.parentElement;
@@ -1096,7 +1340,7 @@ var __extends = (this && this.__extends) || (function () {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1255,346 +1499,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var DOM;
-    (function (DOM) {
-        var doc = document;
-        function contains(parent, target) {
-            var p;
-            while (p = target.parentNode) {
-                if (parent === p)
-                    return true;
-            }
-            return false;
-        }
-        DOM.contains = contains;
-        function closest(target, handler, limit) {
-            if (limit === void 0) { limit = null; }
-            var index = 0;
-            do {
-                if (handler(target, index++))
-                    return target;
-            } while ((target = target.parentElement) && target !== limit);
-            return target;
-        }
-        DOM.closest = closest;
-        function offset(e, parent, extend) {
-            if (parent === void 0) { parent = document.body; }
-            if (extend === void 0) { extend = false; }
-            var l = 0, t = 0, target = e;
-            do {
-                t += target.offsetTop - target.scrollTop;
-                l += target.offsetLeft - target.scrollLeft;
-            } while ((target = target.offsetParent) && target !== parent);
-            var result = { left: l, top: t };
-            if (extend === true) {
-                var w = e.offsetWidth, h = e.offsetHeight;
-                result['width'] = w;
-                result['height'] = h;
-                result['right'] = w + l;
-                result['bottom'] = t + h;
-            }
-            return result;
-        }
-        DOM.offset = offset;
-        function isAssignableFrom(target, parent) {
-            do {
-                if (target === parent)
-                    return true;
-            } while (target = target.parentElement);
-            return false;
-        }
-        DOM.isAssignableFrom = isAssignableFrom;
-        function selector(selector, parent) {
-            if (parent === void 0) { parent = document; }
-            return toArray(parent.querySelectorAll(selector));
-        }
-        DOM.selector = selector;
-        // NodeList등을 array로!!
-        function toArray(elements, result) {
-            if (result === void 0) { result = []; }
-            var len = elements['length'];
-            if (typeof len === 'number') {
-                for (var i = 0; i < len; i++) {
-                    result.push(elements[i]);
-                }
-            }
-            else
-                result.push(elements);
-            return result;
-        }
-        DOM.toArray = toArray;
-        // obj는 인터폴레이터용
-        function stringToDOM(str, obj) {
-            var v, div = document.createElement('div');
-            if (obj) {
-                str = str.replace(/{{(.+?)}}/g, function (_, p) {
-                    if ((v = obj[p]) != null) {
-                        if (typeof v === 'function')
-                            return v.call(obj);
-                        return v;
-                    }
-                    return '';
-                });
-            }
-            div.innerHTML = str;
-            return toArray(div.children);
-        }
-        DOM.stringToDOM = stringToDOM;
-        function hasClass(element, name) {
-            var className = element.className.split(c_r), names = Array.isArray(name) ? name : [name];
-            return names.every(function (v) { return className.indexOf(v) !== -1; });
-        }
-        DOM.hasClass = hasClass;
-        /*
-         *  isAdd가 null이면 toggleClass로 작동한다.
-         */
-        var c_r = /\s+/, uuid = 1;
-        /*
-         *  2018-01-20
-         *  원래는 <div> 하나의 객체를 만들어서 재활용하는 형태로 사용했었다.
-         *  하지만 그렇게 할 경우 ie에서 버그가 생긴다.
-         */
-        DOM.createHTML = (function () {
-            var r = /^<([^\s>]+)/i;
-            function get(parent, html, tag) {
-                var index;
-                switch (tag) {
-                    case 'option':
-                        index = 2;
-                        parent.innerHTML = '<select>' + html + '</select>';
-                        break;
-                    case 'thead':
-                    case 'tbody':
-                    case 'tfoot':
-                    case 'colgroup':
-                    case 'caption':
-                        index = 2;
-                        parent.innerHTML = '<table>' + html + '</table>';
-                        break;
-                    case 'col':
-                        index = 3;
-                        parent.innerHTML = '<table><colgroup>' + html + '</colgroup></table>';
-                        break;
-                    case 'tr':
-                        index = 3;
-                        parent.innerHTML = '<table><tbody>' + html + '</tbody></table>';
-                        break;
-                    case 'td':
-                    case 'th':
-                        index = 4;
-                        parent.innerHTML = '<table><tbody><tr>' + html + '</tr></tbody></table>';
-                        break;
-                    default:
-                        parent.innerHTML = html;
-                        return parent.firstElementChild;
-                }
-                while (index-- > 0)
-                    parent = parent.firstElementChild;
-                return parent;
-            }
-            return function (html, safe) {
-                if (safe === void 0) { safe = false; }
-                var div = document.createElement('div');
-                if (safe) {
-                    div.innerHTML = html;
-                    var c = div.firstElementChild;
-                    div.removeChild(c);
-                    return c;
-                }
-                html = html.trim();
-                return get(div, html, r.exec(html)[1]);
-            };
-        })();
-        function className(element, value, isAdd) {
-            if (element == null)
-                return element;
-            var className = element.className.trim(), array = className ? className.split(c_r) : [], result;
-            if (typeof value === 'function') {
-                result = value.call(element, array, element);
-            }
-            else {
-                var values = Array.isArray(value) ? value : [value];
-                // ① ['a', 'u']  ==> ['!a', 'b']  ====>  ['u', 'b'];
-                if (isAdd == null)
-                    result = __toggleClass(array, values);
-                else if (isAdd === true)
-                    result = __addClass(array, values);
-                else
-                    result = __removeClass(array, values);
-            }
-            element.className = result.join(' ');
-            return element;
-        }
-        DOM.className = className;
-        function __addClass(array, target) {
-            var i = 0, l = target.length;
-            for (; i < l; i++) {
-                array.indexOf(target[i]) === -1 && array.push(target[i]);
-            }
-            return array;
-        }
-        function __removeClass(array, target) {
-            var i = 0, l = array.length, result = [], pos = 0;
-            for (; i < l; i++) {
-                target.indexOf(array[i]) === -1 && (result[pos++] = array[i]);
-            }
-            return result;
-        }
-        function __toggleClass(array, values) {
-            var l = values.length, i = 0, pos = -1, result = [], v, removal;
-            for (; i < l; i++) {
-                if (removal = ((v = values[i])[0] === '!')) {
-                    if ((pos = array.indexOf(v.slice(1))) !== -1)
-                        array.splice(pos, 1);
-                }
-                else {
-                    if ((pos = array.indexOf(v)) === -1)
-                        result.push(v);
-                }
-            }
-            return array.concat(result);
-        }
-        function eachAttrs(ele, handler) {
-            var attributes = ele.attributes, length = ele.attributes.length;
-            while (length-- > 0)
-                if (handler.call(ele, attributes[length].name, attributes[length].value) === false)
-                    return;
-        }
-        DOM.eachAttrs = eachAttrs;
-        DOM.attrMap = (function (r_data, r_up, fn) {
-            var rename = function (s) { return s.replace(r_data, '').replace(r_up, fn); };
-            return function (element) {
-                var attributes = element.attributes, length = attributes.length, attr, result = {};
-                while (length-- > 0) {
-                    attr = attributes[length];
-                    result[rename(attr.name)] = attr.value;
-                }
-                return result;
-            };
-        })(/^data-/, /-([^-])/g, function (_, i) { return i.toUpperCase(); });
-        function _classList(ele, values, isAdd) {
-            if (isAdd === void 0) { isAdd = true; }
-            var classList = ele.classList;
-            if (typeof values === 'string') {
-                isAdd ? classList.add(values) : classList.remove(values);
-            }
-            else {
-                var l = values.length;
-                while (l-- > 0)
-                    isAdd ? classList.add(values[l]) : classList.remove(values[l]);
-                return ele;
-            }
-        }
-        DOM._classList = _classList;
-    })(DOM = exports.DOM || (exports.DOM = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function _func(prop, ele, s, opt, data) {
-        if (typeof ele === 'string') {
-            opt = s;
-            s = ele;
-            ele = document;
-        }
-        var type = typeof opt, list = ele[prop](s), l = list.length;
-        if (type === 'number')
-            return list[opt];
-        var i = l, r = [];
-        while (i-- > 0)
-            r[i] = list[i];
-        if (type === 'function') {
-            i++;
-            for (; i < l; i++)
-                opt.call(ele, r[i], i, data);
-            return data;
-        }
-        return r;
-    }
-    function getElementById(id) {
-        return document.getElementById(id);
-    }
-    exports.getElementById = getElementById;
-    function querySelector(ele, s) {
-        if (typeof ele === 'string') {
-            s = ele;
-            ele = document;
-        }
-        return ele.querySelector(s);
-    }
-    exports.querySelector = querySelector;
-    function querySelectorCut(ele, s) {
-        if (typeof ele === 'string') {
-            s = ele;
-            ele = document;
-        }
-        var d = ele.querySelector(s);
-        if (d)
-            d.parentElement.removeChild(d);
-        return d;
-    }
-    exports.querySelectorCut = querySelectorCut;
-    function querySelectorAll(ele, s, opt, data) {
-        return _func('querySelectorAll', ele, s, opt, data);
-    }
-    exports.querySelectorAll = querySelectorAll;
-    function getElementsByClassName(ele, s, opt, data) {
-        return _func('getElementsByClassName', ele, s, opt, data);
-    }
-    exports.getElementsByClassName = getElementsByClassName;
-    function getElementsByTagName(ele, s, opt, data) {
-        return _func('getElementsByTagName', ele, s, opt, data);
-    }
-    exports.getElementsByTagName = getElementsByTagName;
-    function getElementsByAttr(target, attrName, c, d) {
-        var i = 0, list = target.querySelectorAll('[' + attrName + ']'), l = list.length;
-        if (l) {
-            if (!c) {
-                var r = {};
-                for (; i < l; i++)
-                    r[list[i].getAttribute(attrName)] = list[i];
-                return r;
-            }
-            if (typeof c === 'function') {
-                for (; i < l; i++)
-                    c(d, list[i], list[i].getAttribute(attrName), i);
-                return d;
-            }
-            else {
-                for (; i < l; i++)
-                    c[list[i].getAttribute(attrName)](list[i], target, d);
-            }
-        }
-        return target;
-    }
-    exports.getElementsByAttr = getElementsByAttr;
-    function getElementChilds(ele) {
-        var r = [], childNodes = ele.childNodes, l = childNodes.length, i = 0, pos = 0;
-        for (; i < l; i++)
-            if (childNodes[i].nodeType === 1)
-                r[pos++] = childNodes[i];
-        return r;
-    }
-    exports.getElementChilds = getElementChilds;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1782,10 +1687,106 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function _func(prop, ele, s, opt, data) {
+        if (typeof ele === 'string') {
+            opt = s;
+            s = ele;
+            ele = document;
+        }
+        var type = typeof opt, list = ele[prop](s), l = list.length;
+        if (type === 'number')
+            return list[opt];
+        var i = l, r = [];
+        while (i-- > 0)
+            r[i] = list[i];
+        if (type === 'function') {
+            i++;
+            for (; i < l; i++)
+                opt.call(ele, r[i], i, data);
+            return data;
+        }
+        return r;
+    }
+    function getElementById(id) {
+        return document.getElementById(id);
+    }
+    exports.getElementById = getElementById;
+    function querySelector(ele, s) {
+        if (typeof ele === 'string') {
+            s = ele;
+            ele = document;
+        }
+        return ele.querySelector(s);
+    }
+    exports.querySelector = querySelector;
+    function querySelectorCut(ele, s) {
+        if (typeof ele === 'string') {
+            s = ele;
+            ele = document;
+        }
+        var d = ele.querySelector(s);
+        if (d)
+            d.parentElement.removeChild(d);
+        return d;
+    }
+    exports.querySelectorCut = querySelectorCut;
+    function querySelectorAll(ele, s, opt, data) {
+        return _func('querySelectorAll', ele, s, opt, data);
+    }
+    exports.querySelectorAll = querySelectorAll;
+    function getElementsByClassName(ele, s, opt, data) {
+        return _func('getElementsByClassName', ele, s, opt, data);
+    }
+    exports.getElementsByClassName = getElementsByClassName;
+    function getElementsByTagName(ele, s, opt, data) {
+        return _func('getElementsByTagName', ele, s, opt, data);
+    }
+    exports.getElementsByTagName = getElementsByTagName;
+    function getElementsByAttr(target, attrName, c, d) {
+        var i = 0, list = target.querySelectorAll('[' + attrName + ']'), l = list.length;
+        if (l) {
+            if (!c) {
+                var r = {};
+                for (; i < l; i++)
+                    r[list[i].getAttribute(attrName)] = list[i];
+                return r;
+            }
+            if (typeof c === 'function') {
+                for (; i < l; i++)
+                    c(d, list[i], list[i].getAttribute(attrName), i);
+                return d;
+            }
+            else {
+                for (; i < l; i++)
+                    c[list[i].getAttribute(attrName)](list[i], target, d);
+            }
+        }
+        return target;
+    }
+    exports.getElementsByAttr = getElementsByAttr;
+    function getElementChilds(ele) {
+        var r = [], childNodes = ele.childNodes, l = childNodes.length, i = 0, pos = 0;
+        for (; i < l; i++)
+            if (childNodes[i].nodeType === 1)
+                r[pos++] = childNodes[i];
+        return r;
+    }
+    exports.getElementChilds = getElementChilds;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
@@ -1833,7 +1834,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1, _indexOf_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1, _indexOf_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expValParse = format_1.Formats.expValParse;
@@ -2031,43 +2032,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 /* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
-    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
-    function indexOfChar(str, char, i) {
-        if (i === void 0) { i = 0; }
-        var quit = false, l = str.length;
-        for (; i < l; i++) {
-            if (!quit && str[i] === char)
-                return i;
-            if (str[i] === '"')
-                quit = !quit;
-        }
-        return -1;
-    }
-    exports.indexOfChar = indexOfChar;
-    function lastIndexOfChar(str, char, i) {
-        if (i === void 0) { i = str.length; }
-        var quit = false, l = -1;
-        for (; i > l; i--) {
-            if (!quit && str[i] === char)
-                return i;
-            if (str[i] === '"')
-                quit = !quit;
-        }
-        return -1;
-    }
-    exports.lastIndexOfChar = lastIndexOfChar;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
@@ -2318,6 +2282,43 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
+    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
+    function indexOfChar(str, char, i) {
+        if (i === void 0) { i = 0; }
+        var l = str.length;
+        for (; i < l; i++) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.indexOf('"', i + 1) + 1;
+        }
+        return -1;
+    }
+    exports.indexOfChar = indexOfChar;
+    function lastIndexOfChar(str, char, i) {
+        if (i === void 0) { i = str.length; }
+        var l = -1;
+        for (; i > l; i--) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.lastIndexOf('"', i) - 1;
+        }
+        return -1;
+    }
+    exports.lastIndexOfChar = lastIndexOfChar;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2331,7 +2332,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(0), __webpack_require__(6), __webpack_require__(10), __webpack_require__(1), __webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1, _AbstractUtilClass_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(0), __webpack_require__(4), __webpack_require__(10), __webpack_require__(1), __webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1, _AbstractUtilClass_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var access = access_1.Access.access;
@@ -2650,7 +2651,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(18), __webpack_require__(19), __webpack_require__(12), __webpack_require__(0), __webpack_require__(16), __webpack_require__(1), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1, events_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(18), __webpack_require__(20), __webpack_require__(11), __webpack_require__(0), __webpack_require__(16), __webpack_require__(1), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1, events_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var date = format_1.Formats.date;
@@ -3142,18 +3143,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_inputs = /select|textarea|input/i;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -3606,6 +3595,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.r_inputs = /select|textarea|input/i;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 21 */,
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -3872,7 +3873,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var FormEvent;
@@ -3956,15 +3957,130 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 /* 29 */,
-/* 30 */,
-/* 31 */,
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(17), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var className = dom_1.DOM.className;
+    var vf_className = ['form-error'], validHandler = function (valid, input, g, f) { return className(input, vf_className, !valid); };
+    var ModifyForm = /** @class */ (function (_super) {
+        __extends(ModifyForm, _super);
+        function ModifyForm(ele) {
+            var _this = _super.call(this, ele) || this;
+            var handler = _this._handler = function () { return className(ele, vf_className, !_this.valid(validHandler)); };
+            ele.addEventListener('keyup', handler);
+            ele.addEventListener('change', handler);
+            ele.addEventListener('click', function (e) { return e.target['hasAttribute']('data-cancel') && _this.detach(); });
+            return _this;
+        }
+        ModifyForm.prototype.reset = function (obj) {
+            _super.prototype.reset.call(this, obj);
+            this._handler();
+            return this;
+        };
+        ModifyForm.prototype.prepend = function (target) {
+            target.parentElement.insertBefore(this.element, target);
+            return this;
+        };
+        ModifyForm.prototype.appendTo = function (target) {
+            target.appendChild(this.element);
+            return this;
+        };
+        return ModifyForm;
+    }(Forms_1.Forms));
+    exports.ModifyForm = ModifyForm;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var className = dom_1.DOM.className;
+    var cName = ['confirm-active'];
+    var ConfirmBox = /** @class */ (function () {
+        function ConfirmBox(element) {
+            var _this = this;
+            this.element = element;
+            this.events = new events_1.EventsGroup().off()
+                .register(document, 'click', function (e) {
+                /*
+                 *   여러가지 역할을 하는 로직이다.
+                 *   ① click이벤트에 의해 comfirmbox를 구동할 경우, event가 attach되자마자
+                 *      바로 아래 로직이 불려서 오동작하는 걸 방지한다.
+                 */
+                if (_this.eventTarget.contains(e.target))
+                    return;
+                var target = e.target;
+                if (target.hasAttribute('data-submit')) {
+                    _this.done(true).off();
+                }
+                if (target.hasAttribute('data-cancel') || !element.contains(target)) {
+                    _this.done(false).off();
+                }
+            });
+        }
+        ConfirmBox.prototype.on = function (x, y, eventTarget, handler) {
+            var _this = this;
+            var _a = this, element = _a.element, offsetWidth = _a.element.offsetWidth, innerWidth = window.innerWidth;
+            if (this.handler)
+                this.done(false);
+            this.handler = handler;
+            className(this.eventTarget = eventTarget, cName, true);
+            // flip
+            if (innerWidth < x + offsetWidth) {
+                x -= offsetWidth;
+            }
+            element.setAttribute('style', 'top: ' + y + 'px; left: ' + x + 'px;');
+            element.classList.add('on');
+            // 만약 이벤트 중이라면 현재 이벤트를 건너기 위함
+            setTimeout(function () { return _this.events.on(); });
+            return this;
+        };
+        ConfirmBox.prototype.done = function (flag) {
+            className(this.eventTarget, cName, false);
+            this.handler(flag);
+            this.eventTarget = null;
+            return this;
+        };
+        ConfirmBox.prototype.off = function () {
+            this.element.classList.remove('on');
+            this.events.off();
+            return this;
+        };
+        return ConfirmBox;
+    }());
+    exports.ConfirmBox = ConfirmBox;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 32 */,
 /* 33 */,
 /* 34 */,
-/* 35 */
+/* 35 */,
+/* 36 */,
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(1), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Mapping_1, format_1, selector_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(1), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Mapping_1, format_1, selector_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var datetime = format_1.Formats.datetime;
@@ -4020,10 +4136,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(8), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, array_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(7), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, array_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Offset = /** @class */ (function () {
@@ -4078,7 +4194,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -4091,7 +4207,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(38)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(40)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageScreen = /** @class */ (function (_super) {
@@ -4124,10 +4240,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(24)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(24)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageContainer = /** @class */ (function () {
@@ -4327,7 +4443,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -4340,7 +4456,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(12), __webpack_require__(4), __webpack_require__(13), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(5), __webpack_require__(13), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -4434,56 +4550,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(17), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var className = dom_1.DOM.className;
-    var vf_className = ['form-error'], validHandler = function (valid, input, g, f) { return className(input, vf_className, !valid); };
-    var ViewForm = /** @class */ (function (_super) {
-        __extends(ViewForm, _super);
-        function ViewForm(ele) {
-            var _this = _super.call(this, ele) || this;
-            var handler = _this._handler = function () { return className(ele, vf_className, !_this.valid(validHandler)); };
-            ele.addEventListener('keyup', handler);
-            ele.addEventListener('change', handler);
-            ele.addEventListener('click', function (e) { return e.target['hasAttribute']('data-cancel') && _this.detach(); });
-            return _this;
-        }
-        ViewForm.prototype.reset = function (obj) {
-            _super.prototype.reset.call(this, obj);
-            this._handler();
-            return this;
-        };
-        ViewForm.prototype.prepend = function (target) {
-            target.parentElement.insertBefore(this.element, target);
-            return this;
-        };
-        ViewForm.prototype.appendTo = function (target) {
-            target.appendChild(this.element);
-            return this;
-        };
-        return ViewForm;
-    }(Forms_1.Forms));
-    exports.ViewForm = ViewForm;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 41 */,
 /* 42 */,
 /* 43 */,
 /* 44 */,
@@ -4494,10 +4560,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 /* 49 */,
 /* 50 */,
 /* 51 */,
-/* 52 */
+/* 52 */,
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(20), __webpack_require__(12), __webpack_require__(3), __webpack_require__(1), __webpack_require__(53), __webpack_require__(39), __webpack_require__(8), __webpack_require__(6), __webpack_require__(4), __webpack_require__(0), __webpack_require__(28), __webpack_require__(54), __webpack_require__(10), __webpack_require__(36), __webpack_require__(24), __webpack_require__(55), __webpack_require__(37), __webpack_require__(40), __webpack_require__(13), __webpack_require__(57), __webpack_require__(7), __webpack_require__(35), __webpack_require__(2), __webpack_require__(22), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, calendar_1, core_1, format_1, FileUpload_1, Screen_1, array_1, dom_1, events_1, access_1, FormEvent_1, _recieveFiles_1, replaceHTML_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ViewForm_1, Mapping_1, ComfirmBox_1, selector_1, Bill_1, number_1, _select_1, dispatcher_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(19), __webpack_require__(11), __webpack_require__(3), __webpack_require__(1), __webpack_require__(54), __webpack_require__(41), __webpack_require__(7), __webpack_require__(4), __webpack_require__(5), __webpack_require__(0), __webpack_require__(28), __webpack_require__(55), __webpack_require__(10), __webpack_require__(38), __webpack_require__(24), __webpack_require__(56), __webpack_require__(39), __webpack_require__(30), __webpack_require__(13), __webpack_require__(31), __webpack_require__(8), __webpack_require__(37), __webpack_require__(2), __webpack_require__(22), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, calendar_1, core_1, format_1, FileUpload_1, Screen_1, array_1, dom_1, events_1, access_1, FormEvent_1, _recieveFiles_1, replaceHTML_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ModifyForm_1, Mapping_1, ComfirmBox_1, selector_1, Bill_1, number_1, _select_1, dispatcher_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var createHTML = dom_1.DOM.createHTML;
@@ -4632,12 +4699,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // 작업 삭제 버튼
             remove: function (ele) {
                 ele.addEventListener('click', function (e) {
-                    $confirm.on(e, function (flag) {
-                        if (flag)
-                            Work_1.Work.remove($work.id).then(function () {
-                                location.href = '/work/list';
-                            });
-                    });
+                    if ($confirm.eventTarget !== e.target)
+                        $confirm.on(e.pageX, e.pageY, e.target, function (flag) {
+                            if (flag)
+                                Work_1.Work.remove($work.id).then(function () {
+                                    location.href = '/work/list';
+                                });
+                        });
                 });
             },
             // 숫자만 써지게 한다.
@@ -4774,7 +4842,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // <script data-form="{}"> 순회
             array_1._forEach(list, function (e) {
                 $forms[e.getAttribute('data-form')] =
-                    new ViewForm_1.ViewForm(preProcessor.$attach(createHTML(e.innerText)));
+                    new ModifyForm_1.ModifyForm(preProcessor.$attach(createHTML(e.innerText)));
             });
             return $forms;
         })(document.head.querySelectorAll('script[data-form]')), 
@@ -4919,16 +4987,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // 삭제버튼 클릭시
             remove: function (_a) {
                 var mapper = _a.mapper, mapping = _a.mapping, name = _a.name, e = _a.e, eventTarget = _a.eventTarget;
-                eventTarget.classList.add('confirm-active');
-                $confirm.on(e, function (flag) {
-                    if (flag) {
-                        CURD[name].remove(access($work, mapping), $work).then(function (v) {
-                            $mapping.$render(mapper);
-                            $mapping.$follow(name);
-                        });
-                    }
-                    eventTarget.classList.remove('confirm-active');
-                });
+                if ($confirm.eventTarget !== eventTarget)
+                    $confirm.on(e.pageX, e.pageY, eventTarget, function (flag) {
+                        if (flag) {
+                            CURD[name].remove(access($work, mapping), $work).then(function (v) {
+                                $mapping.$render(mapper);
+                                $mapping.$follow(name);
+                            });
+                        }
+                    });
             },
             // ************************ ▼ Custom Event ▼ ************************ //
             // 아이템추가하기
@@ -4999,8 +5066,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // 인쇄파일 지우기
             removePrint: function (_a) {
                 var mapping = _a.mapping, index = _a.index, target = _a.target, print = _a.print, e = _a.e, eventTarget = _a.eventTarget;
-                eventTarget.classList.add('confirm-active');
-                $confirm.on(e, function (flag) {
+                $confirm.on(e.pageX, e.pageY, eventTarget, function (flag) {
                     if (flag) {
                         var item_1 = access($work, mapping), val_1 = item_1.print[index];
                         Work_1.WorkFile.removeFile('print', val_1.id).then(function (v) {
@@ -5015,7 +5081,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                             }
                         });
                     }
-                    eventTarget.classList.remove('confirm-active');
                 });
             },
         };
@@ -5046,10 +5111,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var FileUpload = /** @class */ (function () {
@@ -5120,7 +5185,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -5152,10 +5217,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(16), __webpack_require__(56), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _noop_1, util_1, array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(16), __webpack_require__(57), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _noop_1, util_1, array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var catchKey = events_1.Events.catchKey;
@@ -5314,7 +5379,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -5346,63 +5411,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
     }
     exports.guid = guid;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ConfirmBox = /** @class */ (function () {
-        function ConfirmBox(element) {
-            var _this = this;
-            this.element = element;
-            this._skip = false;
-            this.events = new events_1.EventsGroup().off()
-                .register(document, 'click', function (e) {
-                if (_this._skip) {
-                    _this._skip = false;
-                    return;
-                }
-                var target = e.target;
-                if (target.hasAttribute('data-submit')) {
-                    _this.handler(true);
-                    _this.off();
-                }
-                if (target.hasAttribute('data-cancel') || !element.contains(target)) {
-                    _this.handler(false);
-                    _this.off();
-                }
-            });
-        }
-        ConfirmBox.prototype.on = function (x, y, h) {
-            var element = this.element;
-            if (!h) {
-                h = y;
-                y = x.pageY;
-                x = x.pageX;
-            }
-            this._skip = true;
-            if (this.handler)
-                this.handler(false);
-            this.handler = h;
-            element.setAttribute('style', 'top: ' + y + 'px; left: ' + x + 'px;');
-            element.classList.add('on');
-            this.events.on();
-            return this;
-        };
-        ConfirmBox.prototype.off = function () {
-            this.element.classList.remove('on');
-            this.events.off();
-            return this;
-        };
-        return ConfirmBox;
-    }());
-    exports.ConfirmBox = ConfirmBox;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

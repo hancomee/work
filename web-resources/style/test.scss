@@ -1,5 +1,7 @@
 
-
+body {
+  font-family: sans-serif;
+}
 
 .magic {
   float: left;
@@ -20,4 +22,27 @@
   > .focus-panel {
     display: block;
   }
+}
+
+
+.target {
+  overflow: scroll;
+  position: absolute;
+  width: 15rem;
+  height: 4rem;
+  top: 1500px;
+  left: 500px;
+  background-color: #f9f9f9;
+  border: 1px solid red;
+}
+
+main {
+  display: block;
+}
+
+.box {
+  position: absolute;
+  width: 4rem;
+  height: 4rem;
+  background-color: red;
 }

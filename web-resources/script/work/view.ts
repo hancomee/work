@@ -15,7 +15,7 @@ import {DragSort} from "./view/DragSort";
 import {__adjustTo} from "../../lib/core/position";
 import {patseImage} from "../../lib/core/support/patseImage";
 import {ImageScreen} from "./view/ImageScreen";
-import {ViewForm} from "./view/ViewForm";
+import {ModifyForm} from "./_support/ModifyForm";
 import {Mapping} from "./_support/Mapping";
 import {ConfirmBox} from "./_support/ComfirmBox";
 import {getElementsByTagName, querySelectorAll} from "../../lib/core/_dom/selector";
@@ -207,11 +207,12 @@ function $init($uuid: string, $path: string, $work: Work) {
             // 작업 삭제 버튼
             remove(ele: HTMLElement) {
                 ele.addEventListener('click', (e) => {
-                    $confirm.on(e, (flag) => {
-                        if (flag) Work.remove($work.id).then(() => {
-                            location.href = '/work/list';
+                    if ($confirm.eventTarget !== e.target)
+                        $confirm.on(e.pageX, e.pageY, <HTMLElement>e.target, (flag) => {
+                            if (flag) Work.remove($work.id).then(() => {
+                                location.href = '/work/list';
+                            })
                         })
-                    })
                 });
             },
 
@@ -382,11 +383,11 @@ function $init($uuid: string, $path: string, $work: Work) {
          *  각 폼은 자체적으로 검증시스템을 갖추고 있다.
          */
         $viewForms = (function (list) {
-            let $forms: { [index: string]: ViewForm } = {};
+            let $forms: { [index: string]: ModifyForm } = {};
             // <script data-form="{}"> 순회
             _forEach(list, (e: HTMLScriptElement) => {
                 $forms[e.getAttribute('data-form')] =
-                    new ViewForm(preProcessor.$attach(createHTML(e.innerText)));
+                    new ModifyForm(preProcessor.$attach(createHTML(e.innerText)));
             });
             return $forms;
         })(document.head.querySelectorAll('script[data-form]')),
@@ -553,16 +554,15 @@ function $init($uuid: string, $path: string, $work: Work) {
 
         // 삭제버튼 클릭시
         remove({mapper, mapping, name, e, eventTarget}: EventObject) {
-            eventTarget.classList.add('confirm-active');
-            $confirm.on(e, (flag) => {
-                if (flag) {
-                    CURD[name].remove(access($work, mapping), $work).then(v => {
-                        $mapping.$render(mapper);
-                        $mapping.$follow(name);
-                    });
-                }
-                eventTarget.classList.remove('confirm-active');
-            });
+            if ($confirm.eventTarget !== eventTarget)
+                $confirm.on(e.pageX, e.pageY, eventTarget, (flag) => {
+                    if (flag) {
+                        CURD[name].remove(access($work, mapping), $work).then(v => {
+                            $mapping.$render(mapper);
+                            $mapping.$follow(name);
+                        });
+                    }
+                });
         },
 
         // ************************ ▼ Custom Event ▼ ************************ //
@@ -634,9 +634,8 @@ function $init($uuid: string, $path: string, $work: Work) {
         },
         // 인쇄파일 지우기
         removePrint({mapping, index, target, print, e, eventTarget}) {
-            eventTarget.classList.add('confirm-active');
 
-            $confirm.on(e, (flag) => {
+            $confirm.on(e.pageX, e.pageY, eventTarget, (flag) => {
 
                 if (flag) {
                     let item: WorkItem = access($work, mapping),
@@ -654,7 +653,6 @@ function $init($uuid: string, $path: string, $work: Work) {
                         }
                     });
                 }
-                eventTarget.classList.remove('confirm-active');
             });
 
         },

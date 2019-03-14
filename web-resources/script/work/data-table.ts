@@ -25,6 +25,8 @@ import className = DOM.className;
 import {BankAccount} from "./data-table/bankAccount";
 import {Pager} from "../../lib/core/component/Pager";
 import {selectAll} from "../../lib/core/_dom/_select";
+import {ModifyForm} from "./_support/ModifyForm";
+import {ConfirmBox} from "./_support/ComfirmBox";
 
 type H = HTMLElement
 type OnLoadHandler = (values: ServerData<any>, query: DataSearch, key: string) => void
@@ -54,6 +56,7 @@ let
     bodyTemple = _compile(getElementById('table-body-template').innerText),
     formTemple = _compile(getElementById('form-template').innerText),
 
+    $confirm = new ConfirmBox(document.getElementById('confirm-box')),
 
     // searchList
     searchList = _compile('<li class="{{_.check ? \'active\' : \'\'}}" ::>' +
@@ -164,21 +167,8 @@ class DataItem {
             }
         });
 
-        this.form = new Forms(createHTML(formTemple(headers)))
+        this.form = new ModifyForm(createHTML(formTemple(headers)))
             .$element((element, forms) => {
-                let
-                    {classList} = element,
-                    dispatch = () => forms.valid();
-
-                element.addEventListener('change', dispatch)
-                element.addEventListener('keyup', dispatch);
-                element.addEventListener('reset', dispatch);
-
-                forms.validHandler = (forms, e, valid) => {
-                    if (valid) classList.remove('form-error');
-                    else classList.add('form-error');
-                }
-
                 getElementsByAttr(element, 'data-type',
                     (r, e: HTMLInputElement, v) =>
                         inputTypes[v] && !e.readOnly && inputTypes[v](e, item, forms));
@@ -373,8 +363,16 @@ class DataManager {
         }
     }
 
-    remove({index}: any) {
-        $ajax.remove(this.key, this.contents[index]['id']).then(() => this.$load())
+    remove({index, event}: any) {
+        let tr = event.target.parentElement.parentElement;
+        if ($confirm.eventTarget !== tr) {
+            event.stopPropagation()
+            $confirm.on(event.pageX, tr, event.target, (flag) => {
+                if (flag)
+                    $ajax.remove(this.key, this.contents[index]['id']).then(() => this.$load())
+            })
+        }
+
     }
 
     modify({target, index}: any) {
@@ -383,10 +381,6 @@ class DataManager {
         element.classList.add('modify-form');
         form.reset(this.contents[index]).valid()
         form.prepend(target);
-    }
-
-    cancel() {
-        this.obj.form.detach();
     }
 }
 

@@ -4700,9 +4700,9 @@ body {
     position: relative; }
 
 #confirm-box {
-  display: none;
   position: absolute;
-  z-index: 1040;
+  z-index: -1;
+  visibility: hidden;
   margin-top: 1rem;
   padding: 1rem;
   border: 1px solid #c3c3c3;
@@ -4710,7 +4710,8 @@ body {
   border-radius: 5px;
   box-shadow: 3px 3px 9px #e8e8e8; }
   #confirm-box.on {
-    display: block; }
+    visibility: visible;
+    z-index: 1040; }
 
 .confirm-box-content {
   margin-bottom: .5rem; }
