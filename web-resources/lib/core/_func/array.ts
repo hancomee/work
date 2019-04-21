@@ -86,6 +86,13 @@ export function _forEachReverse<T>(obj: ArrayLike<T>, h: (t: T, i: number) => an
     return obj;
 }
 
+
+export function _loop<T>(i: number, h: (t: T, i: number) => void, t?: T) {
+    for (let p = 0; p < i; p++)
+        h(t, p);
+    return t;
+}
+
 export function _reduce<T, R>(obj: ArrayLike<T>, h: (r: R, t: T, i: number) => R, r: R): R {
     let i = 0, l = obj.length;
     while (i < l) {

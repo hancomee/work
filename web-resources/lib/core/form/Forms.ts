@@ -120,7 +120,7 @@ let
         number(input: HTMLInputElement, val) {
             if (typeof val === "number") val = val.toString();
             else if (val == null || !r_number.test(val))
-                val = '0';
+                val = '';
             input.value = val;
         },
         // null값이 들어올 수 있다.

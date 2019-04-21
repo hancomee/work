@@ -47,26 +47,25 @@ export class SelectCalendar {
     }
 
 
-
-    create(date: Date)
-    create(calendar: Calendar)
-    create(year: number, month: number, date?: number)
+    create(date: Date): this
+    create(calendar: Calendar): this
+    create(year: number, month: number, date?: number): this
     create(y, m?, d?) {
 
-        if(typeof  y !== 'number') {
+        if (typeof  y !== 'number') {
             m = y.getMonth()
             d = y.getDate();
             y = y.getFullYear();
         }
 
-        if(typeof d === 'number') {
+        if (typeof d === 'number') {
             this.year = y;
             this.month = m;
             this.date = d;
         }
 
         // 이미 선택된
-        if(this.year === y && this.month === m) {
+        if (this.year === y && this.month === m) {
             d = this.date;
         }
 

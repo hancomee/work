@@ -2,7 +2,7 @@ import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./_core/Work";
 import {Calendar} from "../../lib/core/calendar";
 import {$extend} from "../../lib/core/core";
 import {Formats} from "../../lib/core/format";
-import {FileUpload} from "./_support/FileUpload";
+import {FileUpload} from "../_support/FileUpload";
 import {Screen} from "./view/Screen";
 import {_filter, _forEach, _makeArray, _map, _move, _reduce} from "../../lib/core/_func/array";
 import {DOM} from "../../lib/core/dom";
@@ -15,9 +15,9 @@ import {DragSort} from "./view/DragSort";
 import {__adjustTo} from "../../lib/core/position";
 import {patseImage} from "../../lib/core/support/patseImage";
 import {ImageScreen} from "./view/ImageScreen";
-import {ModifyForm} from "./_support/ModifyForm";
-import {Mapping} from "./_support/Mapping";
-import {ConfirmBox} from "./_support/ComfirmBox";
+import {ModifyForm} from "../_support/ModifyForm";
+import {Mapping} from "../../lib/core/support/Mapping";
+import {ConfirmBox} from "../_support/ComfirmBox";
 import {getElementsByTagName, querySelectorAll} from "../../lib/core/_dom/selector";
 import {$bill} from "./view/Bill";
 import {r_number} from "../../lib/core/_regexp/number";
@@ -30,7 +30,7 @@ import number = Formats.number;
 import simpleTrigger = Events.simpleTrigger;
 import filesize = Formats.filesize;
 import acceptKeys = Events.acceptKeys;
-import {mapperDispatcher} from "./_support/mapper-event/dispatcher";
+import {mapperDispatcher} from "../_support/dispatcher";
 
 class EventObject {
 
@@ -110,12 +110,12 @@ function $init($uuid: string, $path: string, $work: Work) {
                 if (print.length) {
                     btn.classList.add('active');
                     btn.setAttribute('data-toggle', 'dropdown');
-                    dropdown.innerHTML = print.map((p, i) =>
-                        $$templates['print']({
+                    dropdown.innerHTML = print.map((p, i) => {
+                        return $$templates['print']({
                             index: i, data: p,
                             path: '/workdata/' + $path + p.getSaveName() + '?attachment=' + p.getOrigName()
                         })
-                    ).join('');
+                    }).join('');
                 } else {
                     btn.classList.remove('active');
                     btn.removeAttribute('data-toggle');

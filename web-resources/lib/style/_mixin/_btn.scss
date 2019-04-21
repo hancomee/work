@@ -1,0 +1,27 @@
+
+
+@mixin btn-action($color: inhreit, $hover: $color, $active: $hover, $disabled: $color, $visited: $color) {
+
+  cursor: pointer;
+  color: $color;
+
+  &:hover, &:focus {
+    color: $hover;
+  }
+
+  &:visited {
+    text-decoration: none;
+    color: $color;
+  }
+
+  &:active, &.active {
+    color: $active;
+  }
+
+  &[disabled], &.disabled {
+    color: $disabled;
+    cursor: none;
+  }
+
+  @content
+}

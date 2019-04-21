@@ -10,11 +10,12 @@ let
     __createFunction = (str: string) => {
 
         let [_prop, dir, opt] = expValParse(str),
-            prop = (_prop[0] === '_' || _prop[0] === '$') ? _prop : '_.' + _prop,
+            prop = _prop[0] !== '_' && _prop[0] !== '$' && _prop.indexOf(' ') === -1 && _prop.indexOf('.') === -1
+                ? '_.' + _prop : _prop,
             func = ___createFunction(prop);
 
-        return (data, opData, directive) => {
-            let v = func(data, opData);
+        return function (data, opData, directive) {
+            let v = func.call(this, data, opData);
 
             if (directive[dir])
                 v = directive[dir](v, opt);
@@ -100,28 +101,28 @@ function __replaceHTML(html: string, pos: number, limit: number, directive) {
         func[fi++] = html.substring(index, limit);
     }
 
-    return (obj, opt?, dir?) => {
+    return function (obj, opt?, dir?) {
 
         if (dir == null) dir = directive;
 
         let i = 0, f = func, l = fi, r = [];
         for (; i < l; i++) {
-            r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, opt, dir);
+            r[i] = typeof f[i] === 'string' ? f[i] : f[i].call(this, obj, opt, dir);
         }
         return r.join('');
     }
 }
 
-function __compile(html: string, directive, idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
+function __compile(html: string, directive,
+                   idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
 
     let pos: number, i = pos = idx.val, e: number,
         r = [], rIdx = 0, tag: string,
-        handler = (data, opt?) => {
+        handler = function (data, opt?) {
             let result = [];
             for (let i = 0; i < rIdx; i++)
-                result[i] = r[i](data, opt, directive);
-            let d = result.join('');
-            return d;
+                result[i] = r[i].call(this, data, opt, directive);
+            return result.join('');
         };
 
     // ① 태그인 경우
@@ -133,26 +134,27 @@ function __compile(html: string, directive, idx = {val: 0}, lines: string[] = []
             // ① 함수로 변경  :="expression"
             case '=' :
                 let fn = ___createFunction(exp);
-                handler = (data, opt) => {
-                    let d = fn(data, opt);
-                    if (d != null) return _handler(d, opt);
+                handler = function (data, opt) {
+                    let d = fn.call(this, data, opt);
+                    if (d != null) return _handler.call(this, d, opt);
                     return '';
                 }
                 break;
 
             // ② 루프     ::prop
             case '::' :
-                handler = (data, opt = {index: 0}) => {
+                handler = function (data, opt) {
                     let val = access(data, exp);
                     if (val != null) {
                         if (Array.isArray(val)) {
-                            return val.map((v, i) => _handler(v, (opt.index = i, opt))).join('');
+                            return val.map((v, i) => _handler.call((this.index = i, this), v, opt)).join('');
                         }
                         else {
                             let r = [], i = 0, p;
                             for (p in val) {
-                                opt.index = p;
-                                r[i++] = _handler(val[p], opt);
+                                this.index = p;
+                                r[i++] = _handler.call(this, val[p], opt);
+
                             }
                             return r.join('');
                         }
@@ -163,9 +165,9 @@ function __compile(html: string, directive, idx = {val: 0}, lines: string[] = []
 
             // ③ 단순 변수  :prop
             case ':' :
-                handler = (data, opt) => {
+                handler = function (data, opt) {
                     let val = access(data, exp);
-                    return val != null ? _handler(val, opt) : '';
+                    return val != null ? _handler.call(this, val, opt) : '';
                 }
         }
 
@@ -243,7 +245,10 @@ export function _replaceHTML(html: string, dir = directive) {
 
 
 export function _compile(html, directive?) {
-    return __compile(html, directive);
+    let fn = __compile(html, directive);
+    return function (data, opt?) {
+        return fn.call({}, data, opt);
+    }
 }
 
 

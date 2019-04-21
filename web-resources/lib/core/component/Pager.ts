@@ -55,6 +55,11 @@ export class Pager {
         });
     }
 
+    on(handler: (page: number, context: this) => void) {
+        this._handler = handler;
+        return this;
+    }
+
 
     setHandler(handler: (page: number, table: Pager) => void) {
         this._handler = handler;

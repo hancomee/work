@@ -5,9 +5,8 @@ import {
     getElementsByTagName, querySelectorAll
 } from "../../lib/core/_dom/selector";
 import {_compile} from "../../lib/core/_html/replaceHTML";
-import {DataTable} from "./data-table/_DataTable";
 import {DOM} from "../../lib/core/dom";
-import {$delete, $get, $post, $put} from "./_core/_ajax";
+import {$delete, $get, $post, $put} from "../../lib/core/_util/_ajax";
 import {Receivable} from "./data-table/receivable";
 import {Search} from "../../lib/core/location";
 import {Forms} from "../../lib/core/form/Forms";
@@ -25,8 +24,9 @@ import className = DOM.className;
 import {BankAccount} from "./data-table/bankAccount";
 import {Pager} from "../../lib/core/component/Pager";
 import {selectAll} from "../../lib/core/_dom/_select";
-import {ModifyForm} from "./_support/ModifyForm";
-import {ConfirmBox} from "./_support/ComfirmBox";
+import {ModifyForm} from "../_support/ModifyForm";
+import {ConfirmBox} from "../_support/ComfirmBox";
+import {$extend} from "../../lib/core/core";
 
 type H = HTMLElement
 type OnLoadHandler = (values: ServerData<any>, query: DataSearch, key: string) => void
@@ -46,6 +46,8 @@ let
             return $delete('/datatable/remove/' + table + '/' + id);
         }
     },
+
+    $$converter = (v) => v,
 
     ctrlContainer = getElementsByClassName('data-ctrl', 0),
     tabsContainer = getElementsByClassName('container-tabs', 0),
@@ -81,7 +83,7 @@ let
 
         number: numbers,
         numeric: 'number',
-        list(input: HTMLInputElement, item: DataTable, form: Forms) {
+        list(input: HTMLInputElement, item: iDataTable, form: Forms) {
             let {parentElement, name} = input, {list} = item.headers[name];
             input.setAttribute('data-toggle', 'dropdown');
             parentElement.addEventListener('dropdown.on', (e) => {
@@ -101,7 +103,7 @@ let
         /*
          *  달력을 띄우기 위해 dropdown 설정을 한다.
          */
-        date(input: HTMLInputElement, item: DataTable, form: Forms) {
+        date(input: HTMLInputElement, item: iDataTable, form: Forms) {
 
             let {parentElement} = input,
                 handler = (date) => input.value = date;
@@ -119,7 +121,7 @@ interface DataSearch extends Search, DataQuery {
 
 type SearchItem = { key: string, title: string };
 
-class DataItem {
+class DataTable {
 
     private _searchList: SearchItem[]
 
@@ -131,30 +133,44 @@ class DataItem {
     names: string[] = []
     searchKey: string
 
+    $toJSON = {}
+    $toVALUE = {}
+    $converter = {}
 
-    constructor(public item: DataTable) {
+    constructor(public item: iDataTable) {
 
 
         let {headers, table} = item,
             query = this.query = <DataSearch>new Search().extend(item.query),
+
             tableElement = this.table = createHTML(headerTemple(item), true),
             thead = getElementsByTagName(tableElement, 'thead', 0),
-            names = this.names = Object.getOwnPropertyNames(headers),
+
             searchList = this._searchList = [];
 
         this.orders = querySelectorAll(tableElement, '[data-order-value]');
         this.tbody = getElementsByTagName(tableElement, 'tbody', 0);
 
+        // headers 서치
+        this.names = headers.reduce((r, v, i) => {
+            let {name} = v;
 
-        /*
-         *  text타입은 모두 search 대상이 된다.
-         */
-        names.forEach((v, i) => {
-            if (headers[v].type === 'text' || headers[v].type === 'numeric') {
-                if (searchList.push({key: v, title: headers[v].title}) === 1)
-                    this.searchKey = v;
+            r[i] = name;
+
+            this.$converter[name] = v.converter || $$converter;
+            this.$toJSON[name] = v.toJSON
+            this.$toVALUE[name] = v.toValue;
+
+            /*
+             *  text타입은 모두 search 대상이 된다.
+             */
+            if (v.type === 'text' || v.type === 'numeric') {
+                if (searchList.push({key: name, title: v.title}) === 1)
+                    this.searchKey = name;
             }
-        });
+
+            return r;
+        }, [])
 
         // order 순서변경
         thead.addEventListener('click', (e) => {
@@ -191,11 +207,12 @@ class DataItem {
 
 
     searchList(key: string, list: H, btn: H) {
-        let {_searchList, searchKey} = this;
+        let {_searchList, searchKey, item: {headers}, names} = this;
 
         if (!key) key = searchKey;
 
-        btn.textContent = this.item.headers[this.searchKey = key].title;
+        this.searchKey = key;
+        btn.textContent = headers[names.indexOf(key)].title;
         list.innerHTML = searchList(_searchList.map(v => {
             v['check'] = key === v.key
             return v;
@@ -205,29 +222,42 @@ class DataItem {
     onLoad(values: ServerData<any>) {
         this.setOrder(this.query.order);
     }
+
+    toConverter(v) {
+        let {$converter} = this;
+        return this.names.map( name => $converter[name](v[name], v) );
+    }
+
+    toValue(v) {
+        return $extend(v, v, this.$toVALUE);
+    }
+
+    toJSON(v) {
+        return $extend({}, v, this.$toJSON);
+    }
 }
 
 class DataManager {
 
-    private values: { [index: string]: DataTable } = {}
+    private values: { [index: string]: iDataTable } = {}
 
-    private items: { [index: string]: DataItem } = {}
+    private items: { [index: string]: DataTable } = {}
     private names: string[] = []
     private _onLoad: OnLoadHandler[] = [];
 
     key: string
     contents: any[]
-    obj: DataItem
+    dataTable: DataTable
 
 
-    constructor(items: DataTable[]) {
+    constructor(items: iDataTable[]) {
         let
 
             values = this.values,
             names = this.names,
             $$onLoad = this._onLoad, i = 0,
             pager = new Pager(getElementsByClassName('data-ctrl-pager', 0), 5, 5)
-                .setHandler((page) => this.obj.run({page: page})),
+                .setHandler((page) => this.dataTable.run({page: page})),
             tableName: string;
 
         // pager 갱신
@@ -252,7 +282,7 @@ class DataManager {
         })(querySelectorAll(tabsContainer, '[data-table]'))
 
         // dataEvent
-        dataEvent(getElementsByClassName('container-table', 0), 'click', 'data-form', this);
+        dataEvent(getElementsByClassName('container-table', 0), 'click', 'data-form', <any>this);
 
         // hashchange
         window.addEventListener('hashchange', () => this.run(location.hash));
@@ -262,7 +292,7 @@ class DataManager {
                 ':1 tag="span"[0]', ':1 class="dropdown-list"[0]', ':0 tag="input"[0]'],
             (container: H, dropdown: H, btn: H, list: H, input: HTMLInputElement) => {
 
-                let render = (key) => this.obj.searchList(key, list, btn);
+                let render = (key) => this.dataTable.searchList(key, list, btn);
 
                 list.addEventListener('click', (e) => {
                     let key = e.target['getAttribute']('data-key');
@@ -273,11 +303,11 @@ class DataManager {
                     if (e.keyCode === 13) {
                         if (input.value) {
                             let contains = {};
-                            contains[this.obj.searchKey] = input.value;
-                            this.obj.run({contains: contains, page: 1});
+                            contains[this.dataTable.searchKey] = input.value;
+                            this.dataTable.run({contains: contains, page: 1});
                         }
                         else {
-                            this.obj.run({contains: null, page: 1});
+                            this.dataTable.run({contains: null, page: 1});
                         }
                     }
                 });
@@ -297,7 +327,7 @@ class DataManager {
 
     getItem(tableName: string) {
         let obj = this.items[tableName];
-        if (!obj) obj = this.items[tableName] = new DataItem(this.values[tableName]);
+        if (!obj) obj = this.items[tableName] = new DataTable(this.values[tableName]);
         return obj;
     }
 
@@ -313,30 +343,30 @@ class DataManager {
 
         if (this.key !== key) {
             let obj = this.getItem(key);
-            this.obj = obj;
+            this.dataTable = obj;
             this.key = key;
         }
 
-        Search.toObject(hash.slice(i + 1), this.obj.query);
+        Search.toObject(hash.slice(i + 1), this.dataTable.query);
 
         return this.$load();
     }
 
-    private $load(query = this.obj.query) {
+    private $load(query = this.dataTable.query) {
 
-        let {key, obj, obj: {table, tbody, item}} = this;
+        let {key, dataTable, dataTable: {table, tbody, item, item: {headers}}} = this;
 
         $ajax.list(key, query).then(values => {
-            let $contents = this.contents = values.contents.map(v => item.toValue(v)),
-                no = {total: values.totalElements - ((values.page - 1) * values.size)}
+            let $contents = this.contents = values.contents.map(v => dataTable.toValue(v)),
+                no = {headers: headers, total: values.totalElements - ((values.page - 1) * values.size)}
 
             container.textContent = '';
-            tbody.innerHTML = bodyTemple($contents.map(v => item.converter(v)), no);
+            tbody.innerHTML = bodyTemple($contents.map(v => dataTable.toConverter(v)), no);
             container.appendChild(table);
 
             // onload 핸들러
             this._onLoad.forEach(handler => handler(values, query, key));
-            obj.onLoad(values);
+            dataTable.onLoad(values);
         })
 
         return this;
@@ -345,7 +375,7 @@ class DataManager {
 
     // dataEvent Method
     create() {
-        let {form, form: {element}, tbody} = this.obj;
+        let {form, form: {element}, tbody} = this.dataTable;
         element.setAttribute('data-value', 'index:-1');
         element.classList.remove('modify-form');
         form.reset().valid();
@@ -353,13 +383,13 @@ class DataManager {
     }
 
     confirm({index}: any) {
+        let {dataTable, dataTable: {form}} = this,
+            values = form.values();
         if (index !== -1) {
-
-            $ajax.save(this.key, this.obj.form.values()).then(() => this.$load());
+            $ajax.save(this.key, dataTable.toJSON(values)).then(() => this.$load());
         } else {
-            let values = this.obj.form.values();
             delete values['id'];
-            $ajax.save(this.key, values).then(() => this.$load());
+            $ajax.save(this.key, dataTable.toJSON(values)).then(() => this.$load());
         }
     }
 
@@ -367,16 +397,17 @@ class DataManager {
         let tr = event.target.parentElement.parentElement;
         if ($confirm.eventTarget !== tr) {
             event.stopPropagation()
-            $confirm.on(event.pageX, tr, event.target, (flag) => {
+            $confirm.on(event.pageX, event.pageY, tr, (flag) => {
                 if (flag)
-                    $ajax.remove(this.key, this.contents[index]['id']).then(() => this.$load())
+                    $ajax.remove(this.key, this.contents[index]['id'])
+                        .then(() => this.$load())
             })
         }
 
     }
 
     modify({target, index}: any) {
-        let {form, form: {element}} = this.obj;
+        let {form, form: {element}} = this.dataTable;
         element.setAttribute('data-value', 'index:' + index);
         element.classList.add('modify-form');
         form.reset(this.contents[index]).valid()

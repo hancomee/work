@@ -1,6 +1,6 @@
 import {Work} from "./_core/Work";
 import {Search} from "../../lib/core/location";
-import {Mapping} from "./_support/Mapping";
+import {Mapping} from "../../lib/core/support/Mapping";
 import {_everyTrue, _forEach, _range} from "../../lib/core/_func/array";
 import {DOM} from "../../lib/core/dom";
 import {
@@ -105,6 +105,7 @@ let
     limit = 2,
     $load = () => {
         let query = $manager.reset().toString();
+        console.log($manager);
         Work.list(query).then(v => {
 
             // 데이터가 없고, 1page가 아닐 경우 최대 2번까지 페이지를 줄이면서 재로딩한다.

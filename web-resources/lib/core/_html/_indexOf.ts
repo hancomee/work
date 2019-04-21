@@ -4,7 +4,7 @@ export function indexOfChar(str: string, char: string, i = 0) {
     let l = str.length;
     for (; i < l; i++) {
         if (str[i] === char) return i;
-        if (str[i] === '"') i = str.indexOf('"', i + 1) + 1;
+        if (str[i] === '"') i = str.indexOf('"', i + 1);
     }
     return -1;
 }
@@ -13,7 +13,7 @@ export function lastIndexOfChar(str: string, char: string, i = str.length) {
     let l = -1;
     for (; i > l; i--) {
         if (str[i] === char) return i;
-        if (str[i] === '"') i = str.lastIndexOf('"', i) - 1;
+        if (str[i] === '"') i = str.lastIndexOf('"', i);
     }
     return -1;
 }

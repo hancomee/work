@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="kor">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>데이터 테이블</title>
@@ -10,8 +10,8 @@
         <tr class="data-form">
             <td><input type="hidden" data-type="number" name="id"></td>
             <td class="dropdown" data-dropdown-event ::>
-                <input data-type="{{type}}" name="{{$.index}}" {{required ? 'required' : ''}}
-                       {{readOnly ? 'readonly' : ''}}>
+                <input data-type="{{type}}" name="{{name}}" {{_.required ? 'required' : ''}}
+                {{_.readOnly ? 'readonly' : ''}}>
             </td>
             <td>
                 <span data-form="confirm">확인</span>
@@ -26,7 +26,7 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th data-order-value="{{$.index}}" style="width: {{size}};" ::headers>
+                <th data-order-value="{{name}}" style="width: {{size}};" ::headers>
                     {{title}}
                     <span class="data-order-desc">↑</span>
                     <span class="data-order-asc">↓</span>
@@ -39,9 +39,9 @@
     </script>
 
     <script type="text/html" id="table-body-template">
-        <tr data-element="target" data-value="index:{{$.index}}" ::>
+        <tr data-element="target" data-value="index:{{this.index}}" ::>
             <td>{{$.total--}}</td>
-            <td ::>{{_}}</td>
+            <td style="text-align: {{$.headers[this.index].align || 'left'}}" ::>{{_}}</td>
             <td>
                 <span data-form="modify">수정</span>
                 <span data-form="remove">삭제</span>
@@ -91,20 +91,14 @@
                 <input>
                 <span class="data-ctrl-search-after">검색</span>
             </div>
-            <span data-form="create">추가</span>
+            <span data-form="create" class="btn btn-primary">추가</span>
         </div>
         <div id="data-table"></div>
     </div>
 
 </main>
 
-<div id="confirm-box" data-dismiss="false">
-    <div class="confirm-box-content">정말 삭제하시겠습니까?</div>
-    <div class="confirm-box-btns text-center">
-        <span class="confirm-box-btn confirm-box-btn-submit" data-submit>삭제</span>
-        <span class="confirm-box-btn confirm-box-btn-cancel" data-cancel>취소</span>
-    </div>
-</div>
+<#include "component/comfirm-box.html">
 <script src="/dist/work/data-table.js"></script>
 </body>
 </html>

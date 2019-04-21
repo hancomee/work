@@ -109,11 +109,52 @@ interface DataQuery {
     page?: number
     size?: number
     order?: string
-    startWith?: {[key: string]: string}
-    contains?: {[key: string]: string}
-    endWith?: {[key: string]: string}
-    duration?: {[key: string]: [string, string]}
-    greater?: {[key: string]: number}
-    lesser?: {[key: string]: number}
-    equals?: {[key: string]: string|number}
+    startWith?: { [key: string]: string }
+    contains?: { [key: string]: string }
+    endWith?: { [key: string]: string }
+    duration?: { [key: string]: [string, string] }
+    greater?: { [key: string]: number }
+    lesser?: { [key: string]: number }
+    equals?: { [key: string]: string | number }
+}
+
+
+interface ServerData<T> {
+    page: number
+    size: number
+    totalElements: number
+    totalPages: number
+    contents: T[]
+}
+
+type UploadData = File | Blob
+type UploadObject = { name: string, data: UploadData }
+
+type MappingDirective = (ele: HTMLElement, data, exp: string, mapping: string) => void
+type MappingTemplate = (data) => HTMLElement
+type MappingDirectives = { [index: string]: MappingDirective };
+type MappingTemplates = { [index: string]: MappingTemplate };
+
+interface iMapping {
+    directive: MappingDirectives
+    template: MappingTemplates
+
+    readData(mapping: string): any
+
+    createTemplate(name: string, data): HTMLElement
+
+    $render(ele: HTMLElement, data?: any): HTMLElement
+
+    $follow(name: string): this
+}
+
+
+interface iMapperObject {
+    name: string
+    mapping: string
+    mapper: HTMLElement
+}
+
+interface TagNameMap extends HTMLElementTagNameMap {
+    "main": HTMLElement;
 }

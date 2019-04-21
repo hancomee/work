@@ -1,5 +1,7 @@
 
 @import "base";
+@import "../../lib/style/component/dropdown-box";
+@import "../../lib/style/component/calendar";
 
 [data-date] {
   cursor: pointer;
@@ -113,8 +115,10 @@
 
 #st, #et {
   margin: 0 .5rem;
+  width: 8rem;
   height: 2rem;
   border: 0;
   border-radius: 1rem;
   text-align: center;
+  font-size: 16px;
 }

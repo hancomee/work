@@ -4,6 +4,11 @@
 
 import {isPlainObject, isEmptyObject, extend, $extend} from "./core";
 import {Access} from "./access";
+import {Formats} from "./format";
+import {Forms} from "./form/Forms";
+import reset = Forms.reset;
+import {Branch} from "./component/Branch";
+import toObject = Branch.toObject;
 
 let hasOwn = {}.hasOwnProperty,
     hasOwnProperty = (obj, value: string) => hasOwn.call(obj, value),
@@ -24,8 +29,8 @@ export class Search implements iLocation.iSearch {
         return this;
     }
 
-    hash() {
-        location.hash = this.toString();
+    hash(obj?) {
+        location.hash = this.extend(obj).toString();
         return this;
     }
 
@@ -42,9 +47,62 @@ export class Search implements iLocation.iSearch {
     }
 }
 
+
+export abstract class HashManager<T extends Search> {
+
+    abstract factory: new() => T
+    search: T
+    protected handlers = []
+
+    abstract onChange(): Promise<any>
+
+    addHandler(handler: (search: T, context: this) => void) {
+        this.handlers.push(handler);
+        return this;
+    }
+
+    reset(queryString: {}): this
+    reset(queryString: string): this
+    reset(query) {
+        if (typeof query !== 'string')
+            query = Search.toSearch(query);
+        location.hash = query;
+        return this;
+    }
+
+    extend(queryString: {}): this
+    extend(queryString: string): this
+    extend(query) {
+        if (typeof query === 'string')
+            Search.toObject(query, this.search);
+        else
+            this.search.extend(query);
+
+        location.hash = this.search.toString();
+        return this;
+    }
+
+
+    private reset0(queryString: string) {
+        this.search = new this.factory().reset(queryString);
+        this.onChange().then( v => {
+            this.handlers.forEach( handler => handler(this.search, this));
+        })
+        return this;
+    }
+
+    onHash() {
+        window.addEventListener('hashchange', () => this.reset0(location.hash.slice(1)));
+        this.reset0(location.hash.slice(1));
+        return this;
+    }
+}
+
+
 export namespace Search {
 
     import primitive = Access.primitive;
+    import datetime = Formats.datetime;
     let r_n = /&/
 
 
@@ -84,6 +142,9 @@ export namespace Search {
             // ie는 encodeURIComponent를 안해주면 ajax 에러가 난다.
             else if (Array.isArray(value)) {
                 array = array.concat(value.map(v => key + '=' + encodeURIComponent(v)));
+            }
+            else if (value instanceof Date) {
+                array.push(key + '=' + datetime(value));
             }
             else
                 array.push(prefix + key + '=' + encodeURIComponent(value));

@@ -381,7 +381,8 @@ export namespace Events {
         return {}
     }
 
-    export function dataEvent(element: HTMLElement, type: string, attr: string, directive)
+    export function dataEvent(element: HTMLElement, type: string, attr: string, directive: DIRECTIVE<any>)
+    export function dataEvent<T>(element: HTMLElement, type: string, attr: string, directive: DIRECTIVE<T>)
     export function dataEvent<T>(element: HTMLElement, type: string, attr: string,
                                  getObj: (e: Event, attrValue: string) => T, directive: DIRECTIVE<T>)
     export function dataEvent<T>(element: HTMLElement,
@@ -415,7 +416,6 @@ export namespace Events {
             if (dir) {
                 let obj = getObj(e, attrValue), limit = element, h = dispatcher;
                 while (target && (limit !== target)) {
-
                     eventProperty(target, obj);
                     obj['event'] = e;
                     if (h(target, obj, attrValue, e) === 'break') break;
@@ -490,9 +490,10 @@ export namespace Events {
         };
     })();
 
-    export function simpleTrigger(target: HTMLElement, type: string, bubbles = true, cancelable = true) {
+    export function simpleTrigger(target: HTMLElement, type: string, bubbles = true, cancelable = true, data?) {
         let e = document.createEvent('Event');
         e.initEvent(type, true, true);
+        e['data'] = data;
         return target.dispatchEvent(e);
     }
 

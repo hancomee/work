@@ -166,13 +166,16 @@ public interface _WorkSQL {
             "WHERE item.id = :id{i}")
     int deleteWorkItem(Statement stmt, @Value("id") Object itemId);
 
-    @Save("DELETE item, f1, f2, print, draft FROM hancomee_workitem item " +
+    @Save("DELETE FROM hancomee_workitem WHERE work_id = :id{i}")
+    int deleteAllWorkItem(Statement stmt, @Value("id") Object workId);
+
+    @Save("DELETE print, draft, f1, f2 FROM hancomee_workitem item " +
             "LEFT OUTER JOIN hancomee_workfile_print print ON item.id = print.item_id " +
             "LEFT OUTER JOIN hancomee_workfile f2 ON f2.id = print.id " +
             "LEFT OUTER JOIN hancomee_workfile_draft draft ON item.id = draft.item_id " +
             "LEFT OUTER JOIN hancomee_workfile f1 ON f1.id = draft.id " +
             "WHERE item.work_id = :id{i}")
-    int deleteAllWorkItem(Statement stmt, @Value("id") Object workId);
+    int deleteAllWorkItemFiles(Statement stmt, @Value("id") Object workId);
 
     @Selector("SELECT work_id FROM " + WORK_ITEM + " WHERE id = :id")
     String getWorkId(Statement stmt, @Value("id") int itemId);

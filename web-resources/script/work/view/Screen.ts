@@ -2,7 +2,7 @@
 import {WorkFile, WorkItem} from "../_core/Work";
 import {Calendar} from "../../../lib/core/calendar";
 import {EventsGroup} from "../../../lib/core/events";
-import {Mapping} from "../_support/Mapping";
+import {Mapping} from "../../../lib/core/support/Mapping";
 import {DOM} from "../../../lib/core/dom";
 import className = DOM.className;
 

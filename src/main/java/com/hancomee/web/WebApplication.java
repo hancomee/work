@@ -1,6 +1,8 @@
 package com.hancomee.web;
 
+import com.boosteel.nativedb.NativeDB;
 import com.hancomee.web.servlet.filter.ResourceDisposition;
+import org.apache.catalina.connector.Connector;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -36,9 +38,16 @@ public class WebApplication extends SpringBootServletInitializer implements WebM
         return bean;
     }
 
+    @Bean
+    public NativeDB db() {
+        return new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/workdata/**").addResourceLocations("file:D:/work/");
+        registry.addResourceHandler("/images/**").addResourceLocations("file:D:/images/");
     }
+
 }
 

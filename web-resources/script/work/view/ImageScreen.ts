@@ -1,11 +1,15 @@
-import {ImageContainer} from "../../../lib/core/support/Imager";
+import {ImageController} from "../../../lib/core/support/ImageController";
 
-export class ImageScreen extends ImageContainer {
+export class ImageScreen extends ImageController {
 
     onClose: () => void
 
     constructor(ele) {
-        super(ele);
+        super();
+
+        this.element = ele;
+        this.cliendRect = ele.getBoundingClientRect();
+
         this.events.register(ele, 'click', (e) => {
             if (e.target === ele) {
                 this.off();
@@ -14,15 +18,22 @@ export class ImageScreen extends ImageContainer {
         })
     }
 
+    putImage(image: HTMLImageElement) {
+        this.element.textContent = '';
+        this.element.appendChild(image);
+        super.setImage(image);
+        return this;
+    }
+
     on() {
         this.element.classList.add('on');
-        super.on();
+        this.events.on();
         return this;
     }
 
     off() {
         this.element.classList.remove('on');
-        super.off();
+        this.events.off();
         return this;
     }
 }

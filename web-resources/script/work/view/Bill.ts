@@ -1,4 +1,4 @@
-import {Mapping} from "../_support/Mapping";
+import {Mapping} from "../../../lib/core/support/Mapping";
 import {Formats} from "../../../lib/core/format";
 import datetime = Formats.datetime;
 import {Customer, Work} from "../_core/Work";

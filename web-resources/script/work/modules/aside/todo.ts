@@ -2,8 +2,8 @@ import {Forms} from "../../../../lib/core/form/Forms";
 import {DOM} from "../../../../lib/core/dom";
 import {querySelector, querySelectorCut} from "../../../../lib/core/_dom/selector";
 import {$extend} from "../../../../lib/core/core";
-import {Mapping} from "../../_support/Mapping";
-import {Modifier} from "../../_support/mapping/Modifier";
+import {Mapping} from "../../../../lib/core/support/Mapping";
+import {Modifier} from "../../../_support/Modifier";
 import {Todo} from "../../_core/Todo";
 
 class Memo {

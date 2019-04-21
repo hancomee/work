@@ -81,83 +81,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return endTime - startTime;
         });
     }
-    var __findClose = function (html, pos) {
-        var t;
-        while ((t = html[pos++]) !== '>') {
-            if (t === '"')
-                pos = html.indexOf('"', pos) + 1;
-        }
-        return pos;
-    }, str = ['<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::>',
-        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}">',
-        '<input :="asdf adf"/>',
-        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::df>',
-        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :="_ + 5">',
-        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :adf>',
-        '<li class="{{_ == $ ? \'active\' : \'\'}}" data-dismiss="{{_}}" :>'];
-    function str2(str) {
-        var l = str.length, pos = str.lastIndexOf(' :');
-        if (pos !== -1) {
-            // ① :="..."
-            if (str[pos + 2] === '=') {
-                console.log('=');
-                if (str[pos + 3] === '"') {
-                    var d = str.lastIndexOf('"');
-                    return [str.substring(0, pos) + str.substring(d + 1, l), '=',
-                        str.substring(pos + 4, d)];
-                }
-            }
-            // ② ::prop
-            else if (str[pos + 2] === ':') {
-                console.log('::');
-                var i = pos + 3;
-                while (str[i] !== '/' && str[i++] !== '>')
-                    ;
-                return [str.substring(0, pos) + str.substring(i - 1, l), '::',
-                    str.substring(pos + 3, i - 1)];
-            }
-            // ③ :prop>   :prop/>   공백이 없어야 함
-            else if (str.indexOf(' ', pos + 2) === -1) {
-                var i = pos + 2;
-                while (str[i] !== '/' && str[i++] !== '>')
-                    ;
-                return [str.substring(0, pos) + str.substring(i - 1, l), ':',
-                    str.substring(pos + 2, i - 1)];
-            }
-        }
-        return [str, 'none'];
-    }
-    var B = /** @class */ (function () {
-        function B() {
-        }
-        return B;
-    }());
-    document.addEventListener('click', function (e) {
-        var target = e.target;
-        bounding(target);
-    });
-    /*
-     *
-     */
-    function _offset(ele, limit, overflow) {
-        if (limit === void 0) { limit = document.body; }
-        if (overflow === void 0) { overflow = false; }
-        var top = 0, left = 0;
-        while (ele !== limit && ele != null) {
-            console.log(ele, ele.offsetTop, ele.offsetLeft, ele.offsetWidth, ele.offsetHeight);
-            top += ele.offsetTop;
-            left += ele.offsetLeft;
-            ele = ele.parentElement;
-        }
-        console.log(top, left);
-    }
-    function bounding(ele) {
-        if (ele == null)
-            return;
-        var width = ele.offsetWidth, height = ele.offsetHeight, top = ele.offsetTop, left = ele.offsetLeft;
-        bounding(ele.parentElement);
-        console.log(ele.tagName, 'width:', width, 'height:', height, 'top:', top, 'left', left);
-    }
+    var src = "D:/files/video/bj/귀여울거 같은 년.mp4", i = src.lastIndexOf("."), image = new Image(), video = document.createElement('video'), source = document.createElement('source');
+    video.appendChild(source);
+    image.onload = function () {
+        video.poster = image.src;
+        source.src = src;
+    };
+    image.src = src.substring(0, i) + '.jpg';
+    document.body.appendChild(video);
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

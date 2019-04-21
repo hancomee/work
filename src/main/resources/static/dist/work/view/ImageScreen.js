@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 39);
+/******/ 	return __webpack_require__(__webpack_require__.s = 41);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -84,7 +84,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.read = read;
         Access.primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
+            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
             return function (val) {
                 if (typeof val === 'string' && val.length > 0) {
                     if (r_string.test(val))
@@ -125,6 +125,55 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var NameMap = /** @class */ (function () {
+        function NameMap() {
+            this.map = {};
+            this.datas = []; // 중복방지를 위한 리스트
+        }
+        NameMap.prototype.get = function (name) {
+            if (typeof name !== 'string')
+                return this.datas;
+            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
+            if (!list)
+                return [];
+            return list.filter(function (v) { return arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
+        };
+        NameMap.prototype.add = function (name, data) {
+            if (this.datas.indexOf(data) === -1) {
+                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
+                (map[key] || (map[key] = [])).push({ names: args, data: data });
+                this.datas.push(data);
+            }
+            return this;
+        };
+        NameMap.prototype.remove = function (name) {
+            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
+            if (list) {
+                map[key] = list.filter(function (v) {
+                    if (arrays_1.Arrays.startWith(args, v.names)) {
+                        datas.splice(datas.indexOf(v.data), 1);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            return this;
+        };
+        return NameMap;
+    }());
+    exports.NameMap = NameMap;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
 /***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -138,7 +187,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 24:
+/***/ 23:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -156,6 +205,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         if (height < H)
             return { w: w + (_rate(H, h) * w), h: H };
         return { w: W, h: height };
+    }, exports.__tilt = function (rotate, r) {
+        if (r === void 0) { r = Math.abs(rotate % 360); }
+        return r === 90 || r === 270;
+    }, exports.__ratio = function (num1, num1c, num2) {
+        return num2 + (num2 * ((num1c - num1) / num1));
     }, exports.__adjustTo = function (parent, image, forceSize) {
         if (forceSize === void 0) { forceSize = true; }
         var _a;
@@ -179,6 +233,37 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             size = { w: w, h: h };
         pos = exports.__center(W, H, size.w, size.h);
         return { w: size.w, h: size.h, x: pos.x, y: pos.y };
+    }, exports.__alignmentTo = function (obj, container) {
+        var _a;
+        var style = obj.element.style, left = (_a = exports.__alignment(obj.width(), obj.height(), obj.rotate(), container.offsetWidth, container.offsetHeight), _a[0]), top = _a[1], width = _a[2], height = _a[3];
+        style.transform = 'rotate(' + obj.rotate() + 'deg)';
+        style.width = width + 'px';
+        style.height = height + 'px';
+        style.left = left + 'px';
+        style.top = top + 'px';
+        return obj;
+    }, exports.__alignment = function (w, h, rotate, W, H) {
+        if (exports.__tilt(rotate)) {
+            var maxHeight_1 = exports.__ratio(w, H, h);
+            if (maxHeight_1 > W) {
+                w = exports.__ratio(h, W, w);
+                return [(W - w) / 2, (H - W) / 2, w, W];
+            }
+            else {
+                w = H;
+                return [(W - w) / 2, (H - maxHeight_1) / 2, w, maxHeight_1];
+            }
+        }
+        var maxHeight = exports.__ratio(w, W, h);
+        // 세로를 딱 맞춰야 할 경우
+        if (maxHeight > H) {
+            w = exports.__ratio(h, H, w);
+            return [(W - w) / 2, 0, w, H];
+        }
+        else {
+            h = maxHeight;
+            return [0, (H - h) / 2, W, h];
+        }
     }, 
     // from에서 to로 변할때 val의 변환값
     exports.__resize = function (from, to, val) {
@@ -262,545 +347,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Created by hellofunc on 2017-03-22.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
-    objStr = class2type.toString(), // [object Object]
-    __onload, __ready = [];
-    function $ready(a) {
-        if (a) {
-            if (__onload)
-                a();
-            else
-                __ready.indexOf(a) === -1 && __ready.push(a);
-        }
-    }
-    exports.$ready = $ready;
-    function $$ready() {
-        __ready.forEach(function (h) { return h(); });
-    }
-    (function (onload) {
-        __onload = onload;
-        if (onload)
-            window.setTimeout($$ready);
-        else {
-            var completed_1 = function () {
-                document.removeEventListener("DOMContentLoaded", completed_1);
-                window.removeEventListener("load", completed_1);
-                __onload = true;
-                window.setTimeout($$ready);
-            };
-            window.addEventListener("load", completed_1);
-        }
-    })(document.readyState === 'complete');
-    exports.ownNames = Object.getOwnPropertyNames;
-    function _toString(v) {
-        return toString.call(v);
-    }
-    exports._toString = _toString;
-    function __noop(a) {
-        return a;
-    }
-    exports.__noop = __noop;
-    function __returnFalse() {
-        return false;
-    }
-    exports.__returnFalse = __returnFalse;
-    function __returnTrue() {
-        return true;
-    }
-    exports.__returnTrue = __returnTrue;
-    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
-    function isObjectType(obj) {
-        return toString.call(obj) === objStr;
-    }
-    exports.isObjectType = isObjectType;
-    function isPlainObject(obj) {
-        var proto, Ctor;
-        // Detect obvious negatives
-        // Use toString instead of jQuery.type to catch host objects
-        if (!obj || toString.call(obj) !== "[object Object]") {
-            return false;
-        }
-        proto = getProto(obj);
-        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
-        if (!proto) {
-            return true;
-        }
-        // Objects with prototype are plain iff they were constructed by a global Object function
-        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
-        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
-    }
-    exports.isPlainObject = isPlainObject;
-    function isEmptyObject(obj) {
-        var name;
-        for (name in obj) {
-            return false;
-        }
-        return true;
-    }
-    exports.isEmptyObject = isEmptyObject;
-    function isArrayLike(item) {
-        return Array.isArray(item) ||
-            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
-    }
-    exports.isArrayLike = isArrayLike;
-    var r_fn = /^function\s*([^\s(]+)/;
-    function getFunctionName(func) {
-        return func.name ? func.name : func.toString().match(r_fn)[1];
-    }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
-    /*
-     *  일종의 객체 Decode/Encode
-     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
-     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
-     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
-     */
-    var dummy = {}, converts = {
-        number: function (a) { return a ? parseInt(a) : 0; },
-    };
-    function extend() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var handler = _extend, i = 0, len, temp;
-        if (typeof args[0] === 'boolean') {
-            if (args[0])
-                handler = _deepExtend;
-            i = 1;
-        }
-        temp = args[i++];
-        len = args.length;
-        for (; i < len; i++) {
-            temp = handler(temp, args[i]);
-        }
-        return temp;
-    }
-    exports.extend = extend;
-    function _extend(dest, source) {
-        if (source == null)
-            return dest;
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length;
-            for (; i < l; i++) {
-                dest[i] = source[i];
-            }
-        }
-        else {
-            var p = void 0;
-            for (p in source) {
-                dest[p] = source[p];
-            }
-        }
-        return dest;
-    }
-    exports._extend = _extend;
-    function _deepExtend(dest, source) {
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length, d = void 0, s = void 0;
-            for (; i < l; i++) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        else {
-            var i = void 0, s = void 0, d = void 0;
-            for (i in source) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        return dest;
-    }
-    exports._deepExtend = _deepExtend;
-    function $extend(target, source, converts) {
-        if (converts === void 0) { converts = dummy; }
-        // undefined값이 올때만 패스한다.
-        // null이 들어오면 모든 프로퍼티가 null이 된다.
-        if (source === void 0)
-            return target;
-        var p, v, f;
-        // source가 단순 값일 경우!
-        if (source === null) {
-            for (p in target) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
-                    target[p] = source;
-            }
-        }
-        // source가 객체 혹은 valueMap일 경우
-        else {
-            for (p in source) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
-                    if (typeof f === 'function') {
-                        v = f.call(target, source[p], target);
-                        if (v !== void 0)
-                            target[p] = v;
-                    }
-                    else
-                        target[p] = v;
-            }
-        }
-        return target;
-    }
-    exports.$extend = $extend;
-    function __makeArray(dest) {
-        if (dest == null)
-            return [];
-        var l = dest.length, result = [];
-        while (l-- > 0)
-            result[l] = dest[l];
-        return result;
-    }
-    exports.__makeArray = __makeArray;
-    function __map(obj, handler) {
-        if (obj == null)
-            return obj;
-        var r, v, p;
-        if (typeof obj.length === 'number') {
-            r = [];
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if ((v = handler.call(obj, obj[i], i, obj)) !== void 0)
-                    r.push(v);
-            }
-        }
-        else if (isPlainObject(obj)) {
-            r = {};
-            for (p in obj) {
-                if ((v = handler.call(obj, obj[p], p, obj)) !== void 0)
-                    r[p] = v;
-            }
-        }
-        return r || obj;
-    }
-    exports.__map = __map;
-    function __each(obj, handler) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if (handler.call(obj, obj[i], i, obj) === false)
-                    break;
-            }
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj) {
-                if (handler.call(obj, obj[p], p, obj) === false)
-                    break;
-            }
-        }
-        return obj;
-    }
-    exports.__each = __each;
-    function __reduce(obj, handler, d) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++)
-                d = handler.call(obj, d, obj[i], i, obj);
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj)
-                d = handler.call(obj, d, obj[p], p, obj);
-        }
-        return d;
-    }
-    exports.__reduce = __reduce;
-    /*
-     *   [1,2,3,4,5];
-     *   ::  (1,2)  (2,3)  (3,4)  (4,5)
-     */
-    function __zipper(array, handler, r) {
-        var length = array.length;
-        if (length < 2)
-            return;
-        var i = 0, l = length - 1;
-        while (i < l) {
-            r = handler(array[i++], array[i], r);
-        }
-        return r;
-    }
-    exports.__zipper = __zipper;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 39:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(40)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Imager_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ImageScreen = /** @class */ (function (_super) {
-        __extends(ImageScreen, _super);
-        function ImageScreen(ele) {
-            var _this = _super.call(this, ele) || this;
-            _this.events.register(ele, 'click', function (e) {
-                if (e.target === ele) {
-                    _this.off();
-                    _this.onClose && _this.onClose();
-                }
-            });
-            return _this;
-        }
-        ImageScreen.prototype.on = function () {
-            this.element.classList.add('on');
-            _super.prototype.on.call(this);
-            return this;
-        };
-        ImageScreen.prototype.off = function () {
-            this.element.classList.remove('on');
-            _super.prototype.off.call(this);
-            return this;
-        };
-        return ImageScreen;
-    }(Imager_1.ImageContainer));
-    exports.ImageScreen = ImageScreen;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 40:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(24)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var ImageContainer = /** @class */ (function () {
-        function ImageContainer(element) {
-            var _this = this;
-            this.element = element;
-            this.cliendRect = element.getBoundingClientRect();
-            var handler, mouseWheelHandler = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                _this.wheelZoom(e);
-            };
-            this.events = new events_1.EventsGroup().off()
-                .register(element, 'mousedown', function (e) {
-                if (_this.imager) {
-                    handler = _this.move(e);
-                    e.stopPropagation();
-                }
-            })
-                .register(document, 'mouseup', function () { return handler = null; })
-                .register(document, 'mousemove', function (e) { return handler && handler(e); })
-                // 마우스 휠로 확대 축소
-                .register(document, 'mousewheel', mouseWheelHandler)
-                .register(document, 'DOMMouseScroll', mouseWheelHandler)
-                // 더블클릭으로 그림 회전
-                .register(element, 'dblclick', function (e) {
-                if (_this.imager) {
-                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
-                    e.stopPropagation();
-                }
-            })
-                // 이미지 움직일때 드래그 이벤트 봉쇄
-                .register(element, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
-        }
-        ImageContainer.prototype.on = function () {
-            this.events.on();
-            return this;
-        };
-        ImageContainer.prototype.off = function () {
-            this.events.off();
-            return this;
-        };
-        ImageContainer.prototype.putImage = function (image) {
-            var _a = this, element = _a.element, _b = _a.element, offsetWidth = _b.offsetWidth, offsetHeight = _b.offsetHeight;
-            this.imager = new Imager(image)
-                .setSize(position_1.__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
-            element.textContent = '';
-            element.appendChild(image);
-            return this;
-        };
-        // 이미지 줌
-        ImageContainer.prototype.wheelZoom = function (e) {
-            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e.wheelDelta < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
-            if (width + widthAdd < 300)
-                img.setWidth(300);
-            else
-                img.addWidth(widthAdd);
-            img.left = (left - ((img.width - width) * ratioX));
-            img.top = (top - ((img.height - height) * ratioY));
-        };
-        // 이미지 이동
-        ImageContainer.prototype.move = function (e, img) {
-            if (img === void 0) { img = this.imager; }
-            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
-            return function (e) {
-                img.left = left + e.pageX - pageX;
-                img.top = top + e.pageY - pageY;
-            };
-        };
-        return ImageContainer;
-    }());
-    exports.ImageContainer = ImageContainer;
-    var Imager = /** @class */ (function () {
-        // style을 설정한다.
-        function Imager(element) {
-            this.element = element;
-            this.CSSStyle = element.style;
-            this.left = 0;
-            this.top = 0;
-            this.width = element.naturalWidth;
-            this.height = element.naturalHeight;
-            this.position = 'relative';
-        }
-        Object.defineProperty(Imager.prototype, "zIndex", {
-            get: function () {
-                return parseInt(this.CSSStyle.zIndex);
-            },
-            set: function (v) {
-                this.CSSStyle.zIndex = v.toString();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "left", {
-            get: function () {
-                return parseInt(this.CSSStyle.left);
-            },
-            set: function (v) {
-                this.CSSStyle.left = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "top", {
-            get: function () {
-                return parseInt(this.CSSStyle.top);
-            },
-            set: function (v) {
-                this.CSSStyle.top = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "width", {
-            get: function () {
-                return parseInt(this.CSSStyle.width);
-            },
-            set: function (v) {
-                this.CSSStyle.width = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "height", {
-            get: function () {
-                return parseInt(this.CSSStyle.height);
-            },
-            set: function (v) {
-                this.CSSStyle.height = v + 'px';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "rotate", {
-            get: function () {
-                return position_1.__transform(this.CSSStyle.transform);
-            },
-            set: function (v) {
-                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "position", {
-            get: function () {
-                return this.CSSStyle.position;
-            },
-            set: function (v) {
-                this.CSSStyle.position = v;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Imager.prototype.setSize = function (_a) {
-            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
-            this.left = x;
-            this.top = y;
-            this.width = w;
-            this.height = h;
-            return this;
-        };
-        // 정중앙 정렬
-        Imager.prototype.center = function (W, H) {
-            var _a = this, width = _a.width, height = _a.height;
-            this.left = Math.ceil((W - width) / 2);
-            this.top = Math.ceil((H - height) / 2);
-            return this;
-        };
-        Imager.prototype.$setSize = function (drive, change, driven) {
-            return { driven: driven + (driven * (change / drive)), drive: drive + change };
-        };
-        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
-        Imager.prototype.setWidth = function (v) {
-            return this.addWidth(v - this.width);
-        };
-        Imager.prototype.setHeight = function (v) {
-            return this.addHeight(v - this.height);
-        };
-        // (+-)v 값만큼 크기 조정.
-        Imager.prototype.addWidth = function (v) {
-            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
-            this.width = drive;
-            this.height = driven;
-            return this;
-        };
-        Imager.prototype.addHeight = function (v) {
-            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
-            this.width = driven;
-            this.height = drive;
-            return this;
-        };
-        return Imager;
-    }());
-    exports.Imager = Imager;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 5:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -816,7 +363,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(6), __webpack_require__(3), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(7), __webpack_require__(6), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1217,11 +764,12 @@ var __extends = (this && this.__extends) || (function () {
                 };
             };
         })();
-        function simpleTrigger(target, type, bubbles, cancelable) {
+        function simpleTrigger(target, type, bubbles, cancelable, data) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
             var e = document.createEvent('Event');
             e.initEvent(type, true, true);
+            e['data'] = data;
             return target.dispatchEvent(e);
         }
         Events.simpleTrigger = simpleTrigger;
@@ -1233,7 +781,557 @@ var __extends = (this && this.__extends) || (function () {
 
 /***/ }),
 
+/***/ 41:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(42)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ImageScreen = /** @class */ (function (_super) {
+        __extends(ImageScreen, _super);
+        function ImageScreen(ele) {
+            var _this = _super.call(this) || this;
+            _this.element = ele;
+            _this.cliendRect = ele.getBoundingClientRect();
+            _this.events.register(ele, 'click', function (e) {
+                if (e.target === ele) {
+                    _this.off();
+                    _this.onClose && _this.onClose();
+                }
+            });
+            return _this;
+        }
+        ImageScreen.prototype.putImage = function (image) {
+            this.element.textContent = '';
+            this.element.appendChild(image);
+            _super.prototype.setImage.call(this, image);
+            return this;
+        };
+        ImageScreen.prototype.on = function () {
+            this.element.classList.add('on');
+            this.events.on();
+            return this;
+        };
+        ImageScreen.prototype.off = function () {
+            this.element.classList.remove('on');
+            this.events.off();
+            return this;
+        };
+        return ImageScreen;
+    }(ImageController_1.ImageController));
+    exports.ImageScreen = ImageScreen;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 42:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ImageController = /** @class */ (function () {
+        function ImageController() {
+            var _this = this;
+            var handler, mouseWheelHandler = function (e) {
+                if (e.target === _this.imager.element) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    _this.wheelZoom(e);
+                }
+            };
+            this.events = new events_1.EventsGroup().off()
+                .register(document, 'mousedown', function (e) {
+                if (_this.element.contains(e.target) && _this.imager) {
+                    handler = _this.move(e);
+                    e.stopPropagation();
+                }
+            })
+                .register(document, 'mouseup', function () { return handler = null; })
+                .register(document, 'mousemove', function (e) { return handler && handler(e); })
+                // 마우스 휠로 확대 축소
+                .register(document, 'mousewheel', mouseWheelHandler)
+                .register(document, 'DOMMouseScroll', mouseWheelHandler)
+                // 더블클릭으로 그림 회전
+                .register(document, 'dblclick', function (e) {
+                if (_this.element.contains(e.target) && _this.imager) {
+                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
+                    e.stopPropagation();
+                }
+            })
+                // 이미지 움직일때 드래그 이벤트 봉쇄
+                .register(document, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
+        }
+        ImageController.prototype.on = function (element) {
+            this.element = element;
+            this.cliendRect = element.getBoundingClientRect();
+            this.events.on();
+            return this;
+        };
+        ImageController.prototype.off = function () {
+            this.element = this.cliendRect = this.imager = null;
+            this.events.off();
+            return this;
+        };
+        ImageController.prototype.setImage = function (image) {
+            //let {element, element: {offsetWidth, offsetHeight}} = this;
+            this.imager = new Imager(image);
+            // .setSize(__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
+            return this;
+        };
+        ImageController.prototype.render = function (rotate) {
+            if (rotate === void 0) { rotate = 0; }
+        };
+        // 이미지 줌
+        ImageController.prototype.wheelZoom = function (e) {
+            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e.wheelDelta < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
+            if (width + widthAdd < 300)
+                img.setWidth(300);
+            else
+                img.addWidth(widthAdd);
+            img.left = (left - ((img.width - width) * ratioX));
+            img.top = (top - ((img.height - height) * ratioY));
+        };
+        // 이미지 이동
+        ImageController.prototype.move = function (e, img) {
+            if (img === void 0) { img = this.imager; }
+            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
+            return function (e) {
+                img.left = left + e.pageX - pageX;
+                img.top = top + e.pageY - pageY;
+            };
+        };
+        return ImageController;
+    }());
+    exports.ImageController = ImageController;
+    var Imager = /** @class */ (function () {
+        // style을 설정한다.
+        function Imager(element) {
+            this.element = element;
+            this.CSSStyle = element.style;
+            this.left = 0;
+            this.top = 0;
+            this.width = element.naturalWidth;
+            this.height = element.naturalHeight;
+            this.position = 'relative';
+        }
+        Object.defineProperty(Imager.prototype, "zIndex", {
+            get: function () {
+                return parseInt(this.CSSStyle.zIndex);
+            },
+            set: function (v) {
+                this.CSSStyle.zIndex = v.toString();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "left", {
+            get: function () {
+                return parseInt(this.CSSStyle.left);
+            },
+            set: function (v) {
+                this.CSSStyle.left = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "top", {
+            get: function () {
+                return parseInt(this.CSSStyle.top);
+            },
+            set: function (v) {
+                this.CSSStyle.top = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "width", {
+            get: function () {
+                return parseInt(this.CSSStyle.width);
+            },
+            set: function (v) {
+                this.CSSStyle.width = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "height", {
+            get: function () {
+                return parseInt(this.CSSStyle.height);
+            },
+            set: function (v) {
+                this.CSSStyle.height = v + 'px';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "rotate", {
+            get: function () {
+                return position_1.__transform(this.CSSStyle.transform);
+            },
+            set: function (v) {
+                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "position", {
+            get: function () {
+                return this.CSSStyle.position;
+            },
+            set: function (v) {
+                this.CSSStyle.position = v;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Imager.prototype.setSize = function (_a) {
+            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
+            this.left = x;
+            this.top = y;
+            this.width = w;
+            this.height = h;
+            return this;
+        };
+        // 정중앙 정렬
+        Imager.prototype.center = function (W, H) {
+            var _a = this, width = _a.width, height = _a.height;
+            this.left = Math.ceil((W - width) / 2);
+            this.top = Math.ceil((H - height) / 2);
+            return this;
+        };
+        Imager.prototype.$setSize = function (drive, change, driven) {
+            return { driven: driven + (driven * (change / drive)), drive: drive + change };
+        };
+        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
+        Imager.prototype.setWidth = function (v) {
+            return this.addWidth(v - this.width);
+        };
+        Imager.prototype.setHeight = function (v) {
+            return this.addHeight(v - this.height);
+        };
+        // (+-)v 값만큼 크기 조정.
+        Imager.prototype.addWidth = function (v) {
+            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
+            this.width = drive;
+            this.height = driven;
+            return this;
+        };
+        Imager.prototype.addHeight = function (v) {
+            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
+            this.width = driven;
+            this.height = drive;
+            return this;
+        };
+        return Imager;
+    }());
+    exports.Imager = Imager;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
 /***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Created by hellofunc on 2017-03-22.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
+    objStr = class2type.toString(), // [object Object]
+    __onload, __ready = [];
+    function $ready(a) {
+        if (a) {
+            if (__onload)
+                a();
+            else
+                __ready.indexOf(a) === -1 && __ready.push(a);
+        }
+    }
+    exports.$ready = $ready;
+    function $$ready() {
+        __ready.forEach(function (h) { return h(); });
+    }
+    (function (onload) {
+        __onload = onload;
+        if (onload)
+            window.setTimeout($$ready);
+        else {
+            var completed_1 = function () {
+                document.removeEventListener("DOMContentLoaded", completed_1);
+                window.removeEventListener("load", completed_1);
+                __onload = true;
+                window.setTimeout($$ready);
+            };
+            window.addEventListener("load", completed_1);
+        }
+    })(document.readyState === 'complete');
+    exports.ownNames = Object.getOwnPropertyNames;
+    function _toString(v) {
+        return toString.call(v);
+    }
+    exports._toString = _toString;
+    function __noop(a) {
+        return a;
+    }
+    exports.__noop = __noop;
+    function __returnFalse() {
+        return false;
+    }
+    exports.__returnFalse = __returnFalse;
+    function __returnTrue() {
+        return true;
+    }
+    exports.__returnTrue = __returnTrue;
+    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
+    function isObjectType(obj) {
+        return toString.call(obj) === objStr;
+    }
+    exports.isObjectType = isObjectType;
+    function isPlainObject(obj) {
+        var proto, Ctor;
+        // Detect obvious negatives
+        // Use toString instead of jQuery.type to catch host objects
+        if (!obj || toString.call(obj) !== "[object Object]") {
+            return false;
+        }
+        proto = getProto(obj);
+        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
+        if (!proto) {
+            return true;
+        }
+        // Objects with prototype are plain iff they were constructed by a global Object function
+        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
+        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
+    }
+    exports.isPlainObject = isPlainObject;
+    function isEmptyObject(obj) {
+        var name;
+        for (name in obj) {
+            return false;
+        }
+        return true;
+    }
+    exports.isEmptyObject = isEmptyObject;
+    function isArrayLike(item) {
+        return Array.isArray(item) ||
+            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
+    }
+    exports.isArrayLike = isArrayLike;
+    var r_fn = /^function\s*([^\s(]+)/;
+    function getFunctionName(func) {
+        return func.name ? func.name : func.toString().match(r_fn)[1];
+    }
+    exports.getFunctionName = getFunctionName;
+    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    /*
+     *  일종의 객체 Decode/Encode
+     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
+     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
+     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
+     */
+    var dummy = {}, converts = {
+        number: function (a) { return a ? parseInt(a) : 0; },
+    };
+    function extend() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var handler = _extend, i = 0, len, temp;
+        if (typeof args[0] === 'boolean') {
+            if (args[0])
+                handler = _deepExtend;
+            i = 1;
+        }
+        temp = args[i++];
+        len = args.length;
+        for (; i < len; i++) {
+            temp = handler(temp, args[i]);
+        }
+        return temp;
+    }
+    exports.extend = extend;
+    function _extend(dest, source) {
+        if (source == null)
+            return dest;
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length;
+            for (; i < l; i++) {
+                dest[i] = source[i];
+            }
+        }
+        else {
+            var p = void 0;
+            for (p in source) {
+                dest[p] = source[p];
+            }
+        }
+        return dest;
+    }
+    exports._extend = _extend;
+    function _deepExtend(dest, source) {
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length, d = void 0, s = void 0;
+            for (; i < l; i++) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        else {
+            var i = void 0, s = void 0, d = void 0;
+            for (i in source) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        return dest;
+    }
+    exports._deepExtend = _deepExtend;
+    function $extend(target, source, converts) {
+        if (converts === void 0) { converts = dummy; }
+        // undefined값이 올때만 패스한다.
+        // null이 들어오면 모든 프로퍼티가 null이 된다.
+        if (source === void 0)
+            return target;
+        var p, v, f;
+        // source가 단순 값일 경우!
+        if (source === null) {
+            for (p in target) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
+                    target[p] = source;
+            }
+        }
+        // source가 객체 혹은 valueMap일 경우
+        else {
+            for (p in source) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
+                    if (typeof f === 'function') {
+                        v = f.call(target, source[p], target);
+                        if (v !== void 0)
+                            target[p] = v;
+                    }
+                    else
+                        target[p] = v;
+            }
+        }
+        return target;
+    }
+    exports.$extend = $extend;
+    function __makeArray(dest) {
+        if (dest == null)
+            return [];
+        var l = dest.length, result = [];
+        while (l-- > 0)
+            result[l] = dest[l];
+        return result;
+    }
+    exports.__makeArray = __makeArray;
+    function __map(obj, handler) {
+        if (obj == null)
+            return obj;
+        var r, v, p;
+        if (typeof obj.length === 'number') {
+            r = [];
+            for (var i = 0, l = obj.length; i < l; i++) {
+                if ((v = handler.call(obj, obj[i], i, obj)) !== void 0)
+                    r.push(v);
+            }
+        }
+        else if (isPlainObject(obj)) {
+            r = {};
+            for (p in obj) {
+                if ((v = handler.call(obj, obj[p], p, obj)) !== void 0)
+                    r[p] = v;
+            }
+        }
+        return r || obj;
+    }
+    exports.__map = __map;
+    function __each(obj, handler) {
+        if (obj == null)
+            return obj;
+        var p;
+        if (isArrayLike(obj)) {
+            for (var i = 0, l = obj.length; i < l; i++) {
+                if (handler.call(obj, obj[i], i, obj) === false)
+                    break;
+            }
+        }
+        else if (isPlainObject(obj)) {
+            for (p in obj) {
+                if (handler.call(obj, obj[p], p, obj) === false)
+                    break;
+            }
+        }
+        return obj;
+    }
+    exports.__each = __each;
+    function __reduce(obj, handler, d) {
+        if (obj == null)
+            return obj;
+        var p;
+        if (isArrayLike(obj)) {
+            for (var i = 0, l = obj.length; i < l; i++)
+                d = handler.call(obj, d, obj[i], i, obj);
+        }
+        else if (isPlainObject(obj)) {
+            for (p in obj)
+                d = handler.call(obj, d, obj[p], p, obj);
+        }
+        return d;
+    }
+    exports.__reduce = __reduce;
+    /*
+     *   [1,2,3,4,5];
+     *   ::  (1,2)  (2,3)  (3,4)  (4,5)
+     */
+    function __zipper(array, handler, r) {
+        var length = array.length;
+        if (length < 2)
+            return;
+        var i = 0, l = length - 1;
+        while (i < l) {
+            r = handler(array[i++], array[i], r);
+        }
+        return r;
+    }
+    exports.__zipper = __zipper;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1387,55 +1485,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Arrays.equals = equals;
     })(Arrays = exports.Arrays || (exports.Arrays = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var NameMap = /** @class */ (function () {
-        function NameMap() {
-            this.map = {};
-            this.datas = []; // 중복방지를 위한 리스트
-        }
-        NameMap.prototype.get = function (name) {
-            if (typeof name !== 'string')
-                return this.datas;
-            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
-            if (!list)
-                return [];
-            return list.filter(function (v) { return arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
-        };
-        NameMap.prototype.add = function (name, data) {
-            if (this.datas.indexOf(data) === -1) {
-                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
-                (map[key] || (map[key] = [])).push({ names: args, data: data });
-                this.datas.push(data);
-            }
-            return this;
-        };
-        NameMap.prototype.remove = function (name) {
-            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
-            if (list) {
-                map[key] = list.filter(function (v) {
-                    if (arrays_1.Arrays.startWith(args, v.names)) {
-                        datas.splice(datas.indexOf(v.data), 1);
-                        return false;
-                    }
-                    return true;
-                });
-            }
-            return this;
-        };
-        return NameMap;
-    }());
-    exports.NameMap = NameMap;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

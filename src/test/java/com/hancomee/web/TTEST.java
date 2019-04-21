@@ -33,11 +33,10 @@ public class TTEST {
     @Test
     public void copy() throws Exception {
 
-        String k = "SELECT * FROM hancomee_work this\n" +
-                "\t\t\t\tINNER JOIN hancomee_customer customer ON this.customer_id = customer.id\n" +
-                "            INNER JOIN hancomee_workitem item ON this.id = item.work_id\n" +
-                "\t\t\tWHERE this.activetime BETWEEN '2019-03-01 00:00:00.000' AND '2019-03-01 23:59:59.999';";
 
+        Object b = 1l;
+        if (b instanceof Long)
+            out("Asdf");
 
 
     }

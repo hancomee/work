@@ -1,7 +1,7 @@
 import {$extend} from "../../../lib/core/core";
 import {Formats} from "../../../lib/core/format";
 import datetime = Formats.datetime;
-import {$delete, $get, $post} from "./_ajax";
+import {$delete, $get, $post} from "../../../lib/core/_util/_ajax";
 
 
 let

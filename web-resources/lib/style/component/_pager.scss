@@ -1,0 +1,90 @@
+
+@import "../mixins";
+
+.component-pager {
+
+  &-prev {
+    margin-right: .2em;
+  }
+
+  &-next {
+    margin-left: .2em;
+  }
+
+  &-prev, &-next {
+    font-size: 14px;
+    cursor: pointer;
+
+    &.disabled {
+      color: #d2d2d2;
+      cursor: default;
+    }
+  }
+
+  &-table {
+    display: none;
+    position: absolute;
+    padding: 1rem;
+
+    .open > & {
+      display: block;
+    }
+
+    > div {
+      display: flex;
+      align-items: center;
+
+      > .number {
+        margin: 0 auto;
+      }
+
+      > [data-nav] {
+        cursor: pointer;
+      }
+
+      > .disabled {
+        color: #ddd;
+      }
+    }
+
+    > table {
+
+      @include table-border(#ddd, #ddd);
+      border: 1px solid #eee;
+
+      > tbody {
+        > tr {
+          > td {
+
+            > span {
+              $size: 2rem;
+              display: block;
+              width: $size;
+              height: $size;
+              line-height: $size;
+              text-align: center;
+            }
+
+            &.link {
+              > span {
+                cursor: pointer;
+              }
+              &:hover {
+                background-color: #eee;
+              }
+            }
+
+            &.current {
+              background-color: #3172ce;
+              color: white;
+            }
+
+            &.disabled {
+              color: #eee;
+            }
+          }
+        }
+      }
+    }
+  }
+}

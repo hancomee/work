@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 47);
+/******/ 	return __webpack_require__(__webpack_require__.s = 51);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -83,7 +83,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.read = read;
         Access.primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
+            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
             return function (val) {
                 if (typeof val === 'string' && val.length > 0) {
                     if (r_string.test(val))
@@ -382,292 +382,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Created by hellofunc on 2017-03-22.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
-    objStr = class2type.toString(), // [object Object]
-    __onload, __ready = [];
-    function $ready(a) {
-        if (a) {
-            if (__onload)
-                a();
-            else
-                __ready.indexOf(a) === -1 && __ready.push(a);
-        }
-    }
-    exports.$ready = $ready;
-    function $$ready() {
-        __ready.forEach(function (h) { return h(); });
-    }
-    (function (onload) {
-        __onload = onload;
-        if (onload)
-            window.setTimeout($$ready);
-        else {
-            var completed_1 = function () {
-                document.removeEventListener("DOMContentLoaded", completed_1);
-                window.removeEventListener("load", completed_1);
-                __onload = true;
-                window.setTimeout($$ready);
-            };
-            window.addEventListener("load", completed_1);
-        }
-    })(document.readyState === 'complete');
-    exports.ownNames = Object.getOwnPropertyNames;
-    function _toString(v) {
-        return toString.call(v);
-    }
-    exports._toString = _toString;
-    function __noop(a) {
-        return a;
-    }
-    exports.__noop = __noop;
-    function __returnFalse() {
-        return false;
-    }
-    exports.__returnFalse = __returnFalse;
-    function __returnTrue() {
-        return true;
-    }
-    exports.__returnTrue = __returnTrue;
-    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
-    function isObjectType(obj) {
-        return toString.call(obj) === objStr;
-    }
-    exports.isObjectType = isObjectType;
-    function isPlainObject(obj) {
-        var proto, Ctor;
-        // Detect obvious negatives
-        // Use toString instead of jQuery.type to catch host objects
-        if (!obj || toString.call(obj) !== "[object Object]") {
-            return false;
-        }
-        proto = getProto(obj);
-        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
-        if (!proto) {
-            return true;
-        }
-        // Objects with prototype are plain iff they were constructed by a global Object function
-        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
-        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
-    }
-    exports.isPlainObject = isPlainObject;
-    function isEmptyObject(obj) {
-        var name;
-        for (name in obj) {
-            return false;
-        }
-        return true;
-    }
-    exports.isEmptyObject = isEmptyObject;
-    function isArrayLike(item) {
-        return Array.isArray(item) ||
-            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
-    }
-    exports.isArrayLike = isArrayLike;
-    var r_fn = /^function\s*([^\s(]+)/;
-    function getFunctionName(func) {
-        return func.name ? func.name : func.toString().match(r_fn)[1];
-    }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
-    /*
-     *  일종의 객체 Decode/Encode
-     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
-     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
-     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
-     */
-    var dummy = {}, converts = {
-        number: function (a) { return a ? parseInt(a) : 0; },
-    };
-    function extend() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var handler = _extend, i = 0, len, temp;
-        if (typeof args[0] === 'boolean') {
-            if (args[0])
-                handler = _deepExtend;
-            i = 1;
-        }
-        temp = args[i++];
-        len = args.length;
-        for (; i < len; i++) {
-            temp = handler(temp, args[i]);
-        }
-        return temp;
-    }
-    exports.extend = extend;
-    function _extend(dest, source) {
-        if (source == null)
-            return dest;
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length;
-            for (; i < l; i++) {
-                dest[i] = source[i];
-            }
-        }
-        else {
-            var p = void 0;
-            for (p in source) {
-                dest[p] = source[p];
-            }
-        }
-        return dest;
-    }
-    exports._extend = _extend;
-    function _deepExtend(dest, source) {
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length, d = void 0, s = void 0;
-            for (; i < l; i++) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        else {
-            var i = void 0, s = void 0, d = void 0;
-            for (i in source) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        return dest;
-    }
-    exports._deepExtend = _deepExtend;
-    function $extend(target, source, converts) {
-        if (converts === void 0) { converts = dummy; }
-        // undefined값이 올때만 패스한다.
-        // null이 들어오면 모든 프로퍼티가 null이 된다.
-        if (source === void 0)
-            return target;
-        var p, v, f;
-        // source가 단순 값일 경우!
-        if (source === null) {
-            for (p in target) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
-                    target[p] = source;
-            }
-        }
-        // source가 객체 혹은 valueMap일 경우
-        else {
-            for (p in source) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
-                    if (typeof f === 'function') {
-                        v = f.call(target, source[p], target);
-                        if (v !== void 0)
-                            target[p] = v;
-                    }
-                    else
-                        target[p] = v;
-            }
-        }
-        return target;
-    }
-    exports.$extend = $extend;
-    function __makeArray(dest) {
-        if (dest == null)
-            return [];
-        var l = dest.length, result = [];
-        while (l-- > 0)
-            result[l] = dest[l];
-        return result;
-    }
-    exports.__makeArray = __makeArray;
-    function __map(obj, handler) {
-        if (obj == null)
-            return obj;
-        var r, v, p;
-        if (typeof obj.length === 'number') {
-            r = [];
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if ((v = handler.call(obj, obj[i], i, obj)) !== void 0)
-                    r.push(v);
-            }
-        }
-        else if (isPlainObject(obj)) {
-            r = {};
-            for (p in obj) {
-                if ((v = handler.call(obj, obj[p], p, obj)) !== void 0)
-                    r[p] = v;
-            }
-        }
-        return r || obj;
-    }
-    exports.__map = __map;
-    function __each(obj, handler) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if (handler.call(obj, obj[i], i, obj) === false)
-                    break;
-            }
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj) {
-                if (handler.call(obj, obj[p], p, obj) === false)
-                    break;
-            }
-        }
-        return obj;
-    }
-    exports.__each = __each;
-    function __reduce(obj, handler, d) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++)
-                d = handler.call(obj, d, obj[i], i, obj);
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj)
-                d = handler.call(obj, d, obj[p], p, obj);
-        }
-        return d;
-    }
-    exports.__reduce = __reduce;
-    /*
-     *   [1,2,3,4,5];
-     *   ::  (1,2)  (2,3)  (3,4)  (4,5)
-     */
-    function __zipper(array, handler, r) {
-        var length = array.length;
-        if (length < 2)
-            return;
-        var i = 0, l = length - 1;
-        while (i < l) {
-            r = handler(array[i++], array[i], r);
-        }
-        return r;
-    }
-    exports.__zipper = __zipper;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -908,7 +622,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -924,7 +638,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(6), __webpack_require__(3), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(7), __webpack_require__(6), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1325,11 +1039,12 @@ var __extends = (this && this.__extends) || (function () {
                 };
             };
         })();
-        function simpleTrigger(target, type, bubbles, cancelable) {
+        function simpleTrigger(target, type, bubbles, cancelable, data) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
             var e = document.createEvent('Event');
             e.initEvent(type, true, true);
+            e['data'] = data;
             return target.dispatchEvent(e);
         }
         Events.simpleTrigger = simpleTrigger;
@@ -1340,166 +1055,7 @@ var __extends = (this && this.__extends) || (function () {
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Arrays;
-    (function (Arrays) {
-        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
-        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
-            var limit = array.length, i = 0, colNum, row = -1;
-            if (col < 1)
-                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
-            for (; i < limit; i++) {
-                if ((colNum = i % col) === 0)
-                    row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
-                    return;
-            }
-        }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
-            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
-            for (; i < len; i++) {
-                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
-            }
-            return result;
-        }
-        Arrays.slice = slice;
-        /*
-         *  DataTransferItemList 때문에 만든 함수
-         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
-         *  *사용법은 로직 참고
-         */
-        function promiseMap(array, handler) {
-            return new Promise(function (resolve, _) {
-                var check, len = check = array.length, result = [];
-                var _loop_1 = function () {
-                    var index = len;
-                    handler(array[index], function (d) {
-                        result[index] = d;
-                        --check === 0 && resolve(result);
-                    });
-                };
-                while (len-- > 0) {
-                    _loop_1();
-                }
-            });
-        }
-        Arrays.promiseMap = promiseMap;
-        // 숫자배열을 만들어준다.
-        // 시작넘버부터 객수
-        function rangeBySize(start, size) {
-            var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
-            }
-            return array;
-        }
-        Arrays.rangeBySize = rangeBySize;
-        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
-            var reverse = start > lastNum ? true : false, array = [];
-            /*
-             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
-             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
-             */
-            if (reverse) {
-                var temp = start;
-                start = lastNum;
-                lastNum = temp;
-            }
-            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
-                array.push(i + start);
-            }
-            return reverse ? array.reverse() : array;
-        }
-        Arrays.range_atob = range_atob;
-        // drive 배열의 원소만큼 루프를 돌린다.
-        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
-            if (drive == null)
-                return;
-            for (var i = 0; i < drive.length; i++) {
-                callback.call(drive, drive[i], driven, i);
-            }
-        }
-        Arrays._with = _with;
-        function fill(length, v) {
-            if (v === void 0) { v = null; }
-            var i = 0, array = [], handler = v;
-            if (typeof v !== 'function')
-                handler = function () { return v; };
-            for (; i < length; i++) {
-                array[i] = handler.call(array, i);
-            }
-            return array;
-        }
-        Arrays.fill = fill;
-        // 배열을 length의 갯수만큼 나눈다.
-        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
-            var result = [], temp, pos;
-            for (var i = 0, l = target.length; i < l; i++) {
-                pos = i % length;
-                if (!pos)
-                    result.push(temp = []);
-                temp[pos] = target[i];
-            }
-            return result;
-        }
-        Arrays.split = split;
-        // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
-            var i = 0, l = key.length;
-            if (target.length < l)
-                return false;
-            for (; i < l; i++) {
-                if (key[i] !== target[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
-            var i = 0, l = key.length, r = target.length - l;
-            if (r < 0)
-                return false;
-            for (; i < l; i++, r++) {
-                if (key[i] !== target[r])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.endWith = endWith;
-        // 값 비교
-        function equals(a, b) {
-            if (a === b)
-                return true;
-            if (a == null || b == null)
-                return false;
-            if (a.length != b.length)
-                return false;
-            // If you don't care about the order of the elements inside
-            // the array, you should sort both arrays here.
-            for (var i = 0, l = a.length; i < l; i++) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.equals = equals;
-    })(Arrays = exports.Arrays || (exports.Arrays = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1687,6 +1243,451 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Created by hellofunc on 2017-03-22.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
+    objStr = class2type.toString(), // [object Object]
+    __onload, __ready = [];
+    function $ready(a) {
+        if (a) {
+            if (__onload)
+                a();
+            else
+                __ready.indexOf(a) === -1 && __ready.push(a);
+        }
+    }
+    exports.$ready = $ready;
+    function $$ready() {
+        __ready.forEach(function (h) { return h(); });
+    }
+    (function (onload) {
+        __onload = onload;
+        if (onload)
+            window.setTimeout($$ready);
+        else {
+            var completed_1 = function () {
+                document.removeEventListener("DOMContentLoaded", completed_1);
+                window.removeEventListener("load", completed_1);
+                __onload = true;
+                window.setTimeout($$ready);
+            };
+            window.addEventListener("load", completed_1);
+        }
+    })(document.readyState === 'complete');
+    exports.ownNames = Object.getOwnPropertyNames;
+    function _toString(v) {
+        return toString.call(v);
+    }
+    exports._toString = _toString;
+    function __noop(a) {
+        return a;
+    }
+    exports.__noop = __noop;
+    function __returnFalse() {
+        return false;
+    }
+    exports.__returnFalse = __returnFalse;
+    function __returnTrue() {
+        return true;
+    }
+    exports.__returnTrue = __returnTrue;
+    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
+    function isObjectType(obj) {
+        return toString.call(obj) === objStr;
+    }
+    exports.isObjectType = isObjectType;
+    function isPlainObject(obj) {
+        var proto, Ctor;
+        // Detect obvious negatives
+        // Use toString instead of jQuery.type to catch host objects
+        if (!obj || toString.call(obj) !== "[object Object]") {
+            return false;
+        }
+        proto = getProto(obj);
+        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
+        if (!proto) {
+            return true;
+        }
+        // Objects with prototype are plain iff they were constructed by a global Object function
+        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
+        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
+    }
+    exports.isPlainObject = isPlainObject;
+    function isEmptyObject(obj) {
+        var name;
+        for (name in obj) {
+            return false;
+        }
+        return true;
+    }
+    exports.isEmptyObject = isEmptyObject;
+    function isArrayLike(item) {
+        return Array.isArray(item) ||
+            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
+    }
+    exports.isArrayLike = isArrayLike;
+    var r_fn = /^function\s*([^\s(]+)/;
+    function getFunctionName(func) {
+        return func.name ? func.name : func.toString().match(r_fn)[1];
+    }
+    exports.getFunctionName = getFunctionName;
+    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    /*
+     *  일종의 객체 Decode/Encode
+     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
+     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
+     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
+     */
+    var dummy = {}, converts = {
+        number: function (a) { return a ? parseInt(a) : 0; },
+    };
+    function extend() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var handler = _extend, i = 0, len, temp;
+        if (typeof args[0] === 'boolean') {
+            if (args[0])
+                handler = _deepExtend;
+            i = 1;
+        }
+        temp = args[i++];
+        len = args.length;
+        for (; i < len; i++) {
+            temp = handler(temp, args[i]);
+        }
+        return temp;
+    }
+    exports.extend = extend;
+    function _extend(dest, source) {
+        if (source == null)
+            return dest;
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length;
+            for (; i < l; i++) {
+                dest[i] = source[i];
+            }
+        }
+        else {
+            var p = void 0;
+            for (p in source) {
+                dest[p] = source[p];
+            }
+        }
+        return dest;
+    }
+    exports._extend = _extend;
+    function _deepExtend(dest, source) {
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length, d = void 0, s = void 0;
+            for (; i < l; i++) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        else {
+            var i = void 0, s = void 0, d = void 0;
+            for (i in source) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        return dest;
+    }
+    exports._deepExtend = _deepExtend;
+    function $extend(target, source, converts) {
+        if (converts === void 0) { converts = dummy; }
+        // undefined값이 올때만 패스한다.
+        // null이 들어오면 모든 프로퍼티가 null이 된다.
+        if (source === void 0)
+            return target;
+        var p, v, f;
+        // source가 단순 값일 경우!
+        if (source === null) {
+            for (p in target) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
+                    target[p] = source;
+            }
+        }
+        // source가 객체 혹은 valueMap일 경우
+        else {
+            for (p in source) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
+                    if (typeof f === 'function') {
+                        v = f.call(target, source[p], target);
+                        if (v !== void 0)
+                            target[p] = v;
+                    }
+                    else
+                        target[p] = v;
+            }
+        }
+        return target;
+    }
+    exports.$extend = $extend;
+    function __makeArray(dest) {
+        if (dest == null)
+            return [];
+        var l = dest.length, result = [];
+        while (l-- > 0)
+            result[l] = dest[l];
+        return result;
+    }
+    exports.__makeArray = __makeArray;
+    function __map(obj, handler) {
+        if (obj == null)
+            return obj;
+        var r, v, p;
+        if (typeof obj.length === 'number') {
+            r = [];
+            for (var i = 0, l = obj.length; i < l; i++) {
+                if ((v = handler.call(obj, obj[i], i, obj)) !== void 0)
+                    r.push(v);
+            }
+        }
+        else if (isPlainObject(obj)) {
+            r = {};
+            for (p in obj) {
+                if ((v = handler.call(obj, obj[p], p, obj)) !== void 0)
+                    r[p] = v;
+            }
+        }
+        return r || obj;
+    }
+    exports.__map = __map;
+    function __each(obj, handler) {
+        if (obj == null)
+            return obj;
+        var p;
+        if (isArrayLike(obj)) {
+            for (var i = 0, l = obj.length; i < l; i++) {
+                if (handler.call(obj, obj[i], i, obj) === false)
+                    break;
+            }
+        }
+        else if (isPlainObject(obj)) {
+            for (p in obj) {
+                if (handler.call(obj, obj[p], p, obj) === false)
+                    break;
+            }
+        }
+        return obj;
+    }
+    exports.__each = __each;
+    function __reduce(obj, handler, d) {
+        if (obj == null)
+            return obj;
+        var p;
+        if (isArrayLike(obj)) {
+            for (var i = 0, l = obj.length; i < l; i++)
+                d = handler.call(obj, d, obj[i], i, obj);
+        }
+        else if (isPlainObject(obj)) {
+            for (p in obj)
+                d = handler.call(obj, d, obj[p], p, obj);
+        }
+        return d;
+    }
+    exports.__reduce = __reduce;
+    /*
+     *   [1,2,3,4,5];
+     *   ::  (1,2)  (2,3)  (3,4)  (4,5)
+     */
+    function __zipper(array, handler, r) {
+        var length = array.length;
+        if (length < 2)
+            return;
+        var i = 0, l = length - 1;
+        while (i < l) {
+            r = handler(array[i++], array[i], r);
+        }
+        return r;
+    }
+    exports.__zipper = __zipper;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var Arrays;
+    (function (Arrays) {
+        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
+        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
+        function cols(array, col, callback) {
+            var limit = array.length, i = 0, colNum, row = -1;
+            if (col < 1)
+                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
+            for (; i < limit; i++) {
+                if ((colNum = i % col) === 0)
+                    row++;
+                if (callback.call(array, array[i], i, i % col, row) === false)
+                    return;
+            }
+        }
+        Arrays.cols = cols;
+        function slice(array, col, callback) {
+            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
+            for (; i < len; i++) {
+                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
+            }
+            return result;
+        }
+        Arrays.slice = slice;
+        /*
+         *  DataTransferItemList 때문에 만든 함수
+         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
+         *  *사용법은 로직 참고
+         */
+        function promiseMap(array, handler) {
+            return new Promise(function (resolve, _) {
+                var check, len = check = array.length, result = [];
+                var _loop_1 = function () {
+                    var index = len;
+                    handler(array[index], function (d) {
+                        result[index] = d;
+                        --check === 0 && resolve(result);
+                    });
+                };
+                while (len-- > 0) {
+                    _loop_1();
+                }
+            });
+        }
+        Arrays.promiseMap = promiseMap;
+        // 숫자배열을 만들어준다.
+        // 시작넘버부터 객수
+        function rangeBySize(start, size) {
+            var array = [];
+            for (var l = start + size; start < l; start++) {
+                array.push(start);
+            }
+            return array;
+        }
+        Arrays.rangeBySize = rangeBySize;
+        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
+        function range_atob(start, lastNum) {
+            var reverse = start > lastNum ? true : false, array = [];
+            /*
+             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
+             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
+             */
+            if (reverse) {
+                var temp = start;
+                start = lastNum;
+                lastNum = temp;
+            }
+            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
+                array.push(i + start);
+            }
+            return reverse ? array.reverse() : array;
+        }
+        Arrays.range_atob = range_atob;
+        // drive 배열의 원소만큼 루프를 돌린다.
+        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
+        function _with(drive, driven, callback) {
+            if (drive == null)
+                return;
+            for (var i = 0; i < drive.length; i++) {
+                callback.call(drive, drive[i], driven, i);
+            }
+        }
+        Arrays._with = _with;
+        function fill(length, v) {
+            if (v === void 0) { v = null; }
+            var i = 0, array = [], handler = v;
+            if (typeof v !== 'function')
+                handler = function () { return v; };
+            for (; i < length; i++) {
+                array[i] = handler.call(array, i);
+            }
+            return array;
+        }
+        Arrays.fill = fill;
+        // 배열을 length의 갯수만큼 나눈다.
+        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
+        function split(target, length) {
+            var result = [], temp, pos;
+            for (var i = 0, l = target.length; i < l; i++) {
+                pos = i % length;
+                if (!pos)
+                    result.push(temp = []);
+                temp[pos] = target[i];
+            }
+            return result;
+        }
+        Arrays.split = split;
+        // target의 앞부터 다 맞으면 오케이
+        function startWith(key, target) {
+            var i = 0, l = key.length;
+            if (target.length < l)
+                return false;
+            for (; i < l; i++) {
+                if (key[i] !== target[i])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.startWith = startWith;
+        function endWith(key, target) {
+            var i = 0, l = key.length, r = target.length - l;
+            if (r < 0)
+                return false;
+            for (; i < l; i++, r++) {
+                if (key[i] !== target[r])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.endWith = endWith;
+        // 값 비교
+        function equals(a, b) {
+            if (a === b)
+                return true;
+            if (a == null || b == null)
+                return false;
+            if (a.length != b.length)
+                return false;
+            // If you don't care about the order of the elements inside
+            // the array, you should sort both arrays here.
+            for (var i = 0, l = a.length; i < l; i++) {
+                if (a[i] !== b[i])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.equals = equals;
+    })(Arrays = exports.Arrays || (exports.Arrays = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1786,63 +1787,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var NameMap = /** @class */ (function () {
-        function NameMap() {
-            this.map = {};
-            this.datas = []; // 중복방지를 위한 리스트
-        }
-        NameMap.prototype.get = function (name) {
-            if (typeof name !== 'string')
-                return this.datas;
-            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
-            if (!list)
-                return [];
-            return list.filter(function (v) { return arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
-        };
-        NameMap.prototype.add = function (name, data) {
-            if (this.datas.indexOf(data) === -1) {
-                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
-                (map[key] || (map[key] = [])).push({ names: args, data: data });
-                this.datas.push(data);
-            }
-            return this;
-        };
-        NameMap.prototype.remove = function (name) {
-            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
-            if (list) {
-                map[key] = list.filter(function (v) {
-                    if (arrays_1.Arrays.startWith(args, v.names)) {
-                        datas.splice(datas.indexOf(v.data), 1);
-                        return false;
-                    }
-                    return true;
-                });
-            }
-            return this;
-        };
-        return NameMap;
-    }());
-    exports.NameMap = NameMap;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1, _indexOf_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var expValParse = format_1.Formats.expValParse;
     var access = access_1.Access.access;
     var directive = format_1.Formats.getDirective(), ___createFunction = function (exp) { return new Function('_', '$', 'return _ == null ? null : (' + exp + ');'); }, __createFunction = function (str) {
-        var _a = expValParse(str), _prop = _a[0], dir = _a[1], opt = _a[2], prop = (_prop[0] === '_' || _prop[0] === '$') ? _prop : '_.' + _prop, func = ___createFunction(prop);
+        var _a = expValParse(str), _prop = _a[0], dir = _a[1], opt = _a[2], prop = _prop[0] !== '_' && _prop[0] !== '$' && _prop.indexOf(' ') === -1 && _prop.indexOf('.') === -1
+            ? '_.' + _prop : _prop, func = ___createFunction(prop);
         return function (data, opData, directive) {
-            var v = func(data, opData);
+            var v = func.call(this, data, opData);
             if (directive[dir])
                 v = directive[dir](v, opt);
             return v == null ? '' : v;
@@ -1910,7 +1864,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 dir = directive;
             var i = 0, f = func, l = fi, r = [];
             for (; i < l; i++) {
-                r[i] = typeof f[i] === 'string' ? f[i] : f[i](obj, opt, dir);
+                r[i] = typeof f[i] === 'string' ? f[i] : f[i].call(this, obj, opt, dir);
             }
             return r.join('');
         };
@@ -1923,9 +1877,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         var pos, i = pos = idx.val, e, r = [], rIdx = 0, tag, handler = function (data, opt) {
             var result = [];
             for (var i_1 = 0; i_1 < rIdx; i_1++)
-                result[i_1] = r[i_1](data, opt, directive);
-            var d = result.join('');
-            return d;
+                result[i_1] = r[i_1].call(this, data, opt, directive);
+            return result.join('');
         };
         // ① 태그인 경우
         if (index) {
@@ -1935,26 +1888,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 case '=':
                     var fn_1 = ___createFunction(exp_1);
                     handler = function (data, opt) {
-                        var d = fn_1(data, opt);
+                        var d = fn_1.call(this, data, opt);
                         if (d != null)
-                            return _handler_1(d, opt);
+                            return _handler_1.call(this, d, opt);
                         return '';
                     };
                     break;
                 // ② 루프     ::prop
                 case '::':
                     handler = function (data, opt) {
-                        if (opt === void 0) { opt = { index: 0 }; }
+                        var _this = this;
                         var val = access(data, exp_1);
                         if (val != null) {
                             if (Array.isArray(val)) {
-                                return val.map(function (v, i) { return _handler_1(v, (opt.index = i, opt)); }).join('');
+                                return val.map(function (v, i) { return _handler_1.call((_this.index = i, _this), v, opt); }).join('');
                             }
                             else {
                                 var r_1 = [], i_2 = 0, p = void 0;
                                 for (p in val) {
-                                    opt.index = p;
-                                    r_1[i_2++] = _handler_1(val[p], opt);
+                                    this.index = p;
+                                    r_1[i_2++] = _handler_1.call(this, val[p], opt);
                                 }
                                 return r_1.join('');
                             }
@@ -1966,7 +1919,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 case ':':
                     handler = function (data, opt) {
                         var val = access(data, exp_1);
-                        return val != null ? _handler_1(val, opt) : '';
+                        return val != null ? _handler_1.call(this, val, opt) : '';
                     };
             }
             r[rIdx++] = _replaceHTML(line);
@@ -2023,7 +1976,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }
     exports._replaceHTML = _replaceHTML;
     function _compile(html, directive) {
-        return __compile(html, directive);
+        var fn = __compile(html, directive);
+        return function (data, opt) {
+            return fn.call({}, data, opt);
+        };
     }
     exports._compile = _compile;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
@@ -2031,283 +1987,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 11 */,
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
-    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
-    function indexOfChar(str, char, i) {
-        if (i === void 0) { i = 0; }
-        var l = str.length;
-        for (; i < l; i++) {
-            if (str[i] === char)
-                return i;
-            if (str[i] === '"')
-                i = str.indexOf('"', i + 1) + 1;
-        }
-        return -1;
-    }
-    exports.indexOfChar = indexOfChar;
-    function lastIndexOfChar(str, char, i) {
-        if (i === void 0) { i = str.length; }
-        var l = -1;
-        for (; i > l; i--) {
-            if (str[i] === char)
-                return i;
-            if (str[i] === '"')
-                i = str.lastIndexOf('"', i) - 1;
-        }
-        return -1;
-    }
-    exports.lastIndexOfChar = lastIndexOfChar;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(0), __webpack_require__(4), __webpack_require__(10), __webpack_require__(1), __webpack_require__(14)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1, _AbstractUtilClass_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var access = access_1.Access.access;
-    var expValParse = format_1.Formats.expValParse;
-    var number = format_1.Formats.number;
-    var datetime = format_1.Formats.datetime;
-    function isAlikeArray(target) {
-        if (target && typeof target.length === 'number') {
-            return true;
-        }
-        return false;
-    }
-    var defaultDirective = (function () {
-        var directive = {
-            number: function (ele, v) {
-                ele.textContent = number(v);
-            },
-            datetime: function (ele, v, p) {
-                ele.textContent = datetime(v, p);
-            },
-            // 문자열을 통해 엘리먼트 체크
-            exp: function (ele, v, opt) {
-            }
-        };
-        return function () { return Object.create(directive); };
-    })();
-    function $$mapping(prefix, val) {
-        return prefix ? prefix + '.' + val : val;
-    }
-    function render(ele, mapping, data, $val, Mapping) {
-        if (ele.hasAttribute('data-ignore'))
-            return;
-        var $mapping = ele.getAttribute('data-mapping'), attrVal;
-        if ($mapping != null) {
-            $val = access(data, mapping = $mapping);
-        }
-        /*
-         *
-         */
-        if ((attrVal = ele.getAttribute('data-directive')) != null) {
-            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
-            if (v == null)
-                ele.textContent = '';
-            else if (filter != null)
-                directive[filter] && directive[filter].call(Mapping, ele, v, primitive);
-            else
-                ele.textContent = v.toString();
-        }
-        /*
-         *  element.clone(true)
-         */
-        if ((attrVal = ele.getAttribute('data-template')) != null) {
-            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
-            ele.textContent = '';
-            // ① 배열인 경우
-            if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) {
-                    var c = temple_1(v), prop = $$mapping(mapping, p);
-                    render(c, prop, data, v, Mapping);
-                    c.setAttribute('data-mapping', prop);
-                    fragment_1.appendChild(c);
-                });
-            }
-            // ② 단일 객체
-            else {
-                var c = temple_1(ele);
-                render(c, mapping, data, $val, Mapping);
-                c.setAttribute('data-mapping', mapping);
-                fragment_1.appendChild(c);
-            }
-            ele.appendChild(fragment_1);
-        }
-        /*
-         *  html 문자열
-         */
-        else if ((attrVal = ele.getAttribute('data-html')) != null) {
-            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
-            if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
-            }
-            else
-                htmls_1[pos_1++] = html_1($val);
-            ele.innerHTML = htmls_1.join('');
-        }
-        /*
-         *  단순 clone
-         */
-        else if ((attrVal = ele.getAttribute('data-replace')) != null) {
-            var 
-            /*
-             *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
-             */
-            noRender = attrVal[0] === '!', clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val);
-            render(clone, mapping, data, $val, Mapping);
-            noRender || ele.setAttribute('data-ignore', 'true');
-            ele.parentElement.replaceChild(clone, ele);
-        }
-        else {
-            var i = 0, childs = ele.children, l = childs.length;
-            for (; i < l; i++) {
-                if (childs[i].nodeType === 1)
-                    render(childs[i], mapping, data, $val, Mapping);
-            }
-        }
-    }
-    ;
-    var Mapping = /** @class */ (function (_super) {
-        __extends(Mapping, _super);
-        function Mapping() {
-            var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.html = {};
-            _this.directive = defaultDirective();
-            _this.template = {};
-            return _this;
-        }
-        Mapping.prototype.setData = function (data) {
-            this.data = data;
-            return this;
-        };
-        Mapping.prototype.addHTML = function (target) {
-            var html = this.html;
-            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
-                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
-            });
-            return this;
-        };
-        Mapping.prototype.addTemplate = function (a, b) {
-            if (typeof a === 'string')
-                this.template[a] = b;
-            else if (a.nodeType === 1)
-                this.addTemplate(Mapping.createTemplates(a));
-            else {
-                var template = this.template, p = void 0;
-                for (p in a)
-                    template[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.addDirective = function (a, b) {
-            if (typeof a === 'string')
-                this.directive[a] = b;
-            else {
-                var directive = this.directive, p = void 0;
-                for (p in a)
-                    directive[p] = a[p];
-            }
-            return this;
-        };
-        Mapping.prototype.readData = function (mapping) {
-            return access(this.data, mapping);
-        };
-        Mapping.prototype.createTemplate = function (name, data) {
-            var element = this.template[name](data);
-            this.$render(element, data);
-            return element;
-        };
-        Mapping.prototype.$render = function (ele, data) {
-            if (data === void 0) { data = this.data; }
-            render(ele, null, this.data, data, this);
-            return ele;
-        };
-        Mapping.prototype.$follow = function (name) {
-            var _this = this;
-            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
-                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
-                    _this.$render(e);
-                }
-            });
-            return this;
-        };
-        return Mapping;
-    }(_AbstractUtilClass_1.AbstractUtilClass));
-    exports.Mapping = Mapping;
-    (function (Mapping) {
-        var createHTML = dom_1.DOM.createHTML;
-        function createTemplate(obj, target) {
-            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
-            obj[name] = function () { return html.cloneNode(true); };
-            return obj;
-        }
-        function createTemplates(target) {
-            var $templates = {};
-            if (target.hasAttribute('data-template'))
-                return createTemplate($templates, target);
-            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
-                createTemplate($templates, e);
-            });
-            return $templates;
-        }
-        Mapping.createTemplates = createTemplates;
-    })(Mapping = exports.Mapping || (exports.Mapping = {}));
-    exports.Mapping = Mapping;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var AbstractUtilClass = /** @class */ (function () {
-        function AbstractUtilClass() {
-        }
-        AbstractUtilClass.prototype.$$preProcess = function (ele, directive) {
-            var list = ele.querySelectorAll('[data-pre-process]'), l = list.length, i = 0, u, e;
-            for (; i < l; i++) {
-                e = list[i];
-                if ((u = directive[e.getAttribute('data-pre-process')])) {
-                    u.call(directive, e, this, ele);
-                }
-            }
-            return this;
-        };
-        return AbstractUtilClass;
-    }());
-    exports.AbstractUtilClass = AbstractUtilClass;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 15 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -2319,7 +1999,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200)
-                        resolve(JSON.parse(xhr.responseText));
+                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
                     else
                         error(xhr);
                 }
@@ -2384,13 +2064,307 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(1), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var NameMap = /** @class */ (function () {
+        function NameMap() {
+            this.map = {};
+            this.datas = []; // 중복방지를 위한 리스트
+        }
+        NameMap.prototype.get = function (name) {
+            if (typeof name !== 'string')
+                return this.datas;
+            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
+            if (!list)
+                return [];
+            return list.filter(function (v) { return arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
+        };
+        NameMap.prototype.add = function (name, data) {
+            if (this.datas.indexOf(data) === -1) {
+                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
+                (map[key] || (map[key] = [])).push({ names: args, data: data });
+                this.datas.push(data);
+            }
+            return this;
+        };
+        NameMap.prototype.remove = function (name) {
+            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
+            if (list) {
+                map[key] = list.filter(function (v) {
+                    if (arrays_1.Arrays.startWith(args, v.names)) {
+                        datas.splice(datas.indexOf(v.data), 1);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            return this;
+        };
+        return NameMap;
+    }());
+    exports.NameMap = NameMap;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
+    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
+    function indexOfChar(str, char, i) {
+        if (i === void 0) { i = 0; }
+        var l = str.length;
+        for (; i < l; i++) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.indexOf('"', i + 1);
+        }
+        return -1;
+    }
+    exports.indexOfChar = indexOfChar;
+    function lastIndexOfChar(str, char, i) {
+        if (i === void 0) { i = str.length; }
+        var l = -1;
+        for (; i > l; i--) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.lastIndexOf('"', i);
+        }
+        return -1;
+    }
+    exports.lastIndexOfChar = lastIndexOfChar;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 13 */,
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(3), __webpack_require__(9), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var access = access_1.Access.access;
+    var expValParse = format_1.Formats.expValParse;
+    var number = format_1.Formats.number;
+    var datetime = format_1.Formats.datetime;
+    function isAlikeArray(target) {
+        if (target && typeof target.length === 'number') {
+            return true;
+        }
+        return false;
+    }
+    var defaultDirective = (function () {
+        var directive = {
+            number: function (ele, v) {
+                ele.textContent = number(v);
+            },
+            datetime: function (ele, v, p) {
+                ele.textContent = datetime(v, p);
+            },
+            // 문자열을 통해 엘리먼트 체크
+            exp: function (ele, v, opt) {
+            }
+        };
+        return function () { return Object.create(directive); };
+    })();
+    function $$mapping(prefix, val) {
+        return prefix ? prefix + '.' + val : val;
+    }
+    function render(ele, mapping, data, $val, Mapping) {
+        if (ele.hasAttribute('data-ignore'))
+            return;
+        var $mapping = ele.getAttribute('data-mapping'), attrVal;
+        if ($mapping != null) {
+            $val = access(data, mapping = $mapping);
+        }
+        /*
+         *
+         */
+        if ((attrVal = ele.getAttribute('data-directive')) != null) {
+            var directive = Mapping.directive, _a = expValParse(attrVal), name_1 = _a[0], filter = _a[1], primitive = _a[2], v = access($val, name_1);
+            if (v == null)
+                ele.textContent = '';
+            else if (filter != null)
+                directive[filter] && directive[filter].call(Mapping, ele, v, primitive, mapping);
+            else
+                ele.textContent = v.toString();
+        }
+        /*
+         *  element.clone(true)
+         */
+        if ((attrVal = ele.getAttribute('data-template')) != null) {
+            var temple_1 = Mapping.template[attrVal], fragment_1 = document.createDocumentFragment();
+            ele.textContent = '';
+            // ① 배열인 경우
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) {
+                    var c = temple_1(v), prop = $$mapping(mapping, p);
+                    render(c, prop, data, v, Mapping);
+                    c.setAttribute('data-mapping', prop);
+                    fragment_1.appendChild(c);
+                });
+            }
+            // ② 단일 객체
+            else {
+                var c = temple_1(ele);
+                render(c, mapping, data, $val, Mapping);
+                c.setAttribute('data-mapping', mapping);
+                fragment_1.appendChild(c);
+            }
+            ele.appendChild(fragment_1);
+        }
+        /*
+         *  html 문자열
+         */
+        else if ((attrVal = ele.getAttribute('data-html')) != null) {
+            var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
+            if (isAlikeArray($val)) {
+                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
+            }
+            else
+                htmls_1[pos_1++] = html_1($val);
+            ele.innerHTML = htmls_1.join('');
+        }
+        /*
+         *  단순 clone
+         */
+        else if ((attrVal = ele.getAttribute('data-replace')) != null) {
+            var 
+            /*
+             *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
+             */
+            noRender = attrVal[0] === '!', clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val);
+            render(clone, mapping, data, $val, Mapping);
+            noRender || ele.setAttribute('data-ignore', 'true');
+            ele.parentElement.replaceChild(clone, ele);
+        }
+        else {
+            var i = 0, childs = ele.children, l = childs.length;
+            for (; i < l; i++) {
+                if (childs[i].nodeType === 1)
+                    render(childs[i], mapping, data, $val, Mapping);
+            }
+        }
+    }
+    ;
+    var Mapping = /** @class */ (function () {
+        function Mapping() {
+            this.html = {};
+            this.directive = defaultDirective();
+            this.template = {};
+        }
+        Mapping.prototype.$$preProcess = function (ele, directive) {
+            var list = ele.querySelectorAll('[data-pre-process]'), l = list.length, i = 0, u, e;
+            for (; i < l; i++) {
+                e = list[i];
+                if ((u = directive[e.getAttribute('data-pre-process')])) {
+                    u.call(directive, e, this, ele);
+                }
+            }
+            return this;
+        };
+        Mapping.prototype.setData = function (data) {
+            this.data = data;
+            return this;
+        };
+        Mapping.prototype.addHTML = function (target) {
+            var html = this.html;
+            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
+                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
+            });
+            return this;
+        };
+        Mapping.prototype.addTemplate = function (a, b) {
+            if (typeof a === 'string')
+                this.template[a] = b;
+            else if (a.nodeType === 1)
+                this.addTemplate(Mapping.createTemplates(a));
+            else {
+                var template = this.template, p = void 0;
+                for (p in a)
+                    template[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.addDirective = function (a, b) {
+            if (typeof a === 'string')
+                this.directive[a] = b;
+            else {
+                var directive = this.directive, p = void 0;
+                for (p in a)
+                    directive[p] = a[p];
+            }
+            return this;
+        };
+        Mapping.prototype.readData = function (mapping) {
+            return access(this.data, mapping);
+        };
+        Mapping.prototype.createTemplate = function (name, data) {
+            var element = this.template[name](data);
+            this.$render(element, data);
+            return element;
+        };
+        Mapping.prototype.$render = function (ele, data) {
+            if (data === void 0) { data = this.data; }
+            render(ele, null, this.data, data, this);
+            return ele;
+        };
+        Mapping.prototype.$follow = function (name) {
+            var _this = this;
+            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
+                if (e.getAttribute('data-follow').indexOf(name) !== -1) {
+                    _this.$render(e);
+                }
+            });
+            return this;
+        };
+        return Mapping;
+    }());
+    exports.Mapping = Mapping;
+    (function (Mapping) {
+        var createHTML = dom_1.DOM.createHTML;
+        function createTemplate(obj, target) {
+            var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
+            obj[name] = function () { return html.cloneNode(true); };
+            return obj;
+        }
+        function createTemplates(target) {
+            var $templates = {};
+            if (target.hasAttribute('data-template'))
+                return createTemplate($templates, target);
+            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
+                createTemplate($templates, e);
+            });
+            return $templates;
+        }
+        Mapping.createTemplates = createTemplates;
+    })(Mapping = exports.Mapping || (exports.Mapping = {}));
+    exports.Mapping = Mapping;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(1), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var datetime = format_1.Formats.datetime;
@@ -2842,9 +2816,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 19 */,
 /* 20 */,
-/* 21 */,
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -2903,6 +2877,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r[index];
     }
+    function selectMap(obj, element, directive) {
+        for (var p in directive) {
+            if (typeof directive[p] === 'string')
+                obj[p] = select(element, directive[p]);
+        }
+        return obj;
+    }
+    exports.selectMap = selectMap;
     function select(context, selector) {
         var i = selector.indexOf('='), l = selector.lastIndexOf('"'), key = selector.substring(0, i), value = selector.substring(i + 2, l), r;
         switch (key) {
@@ -2951,17 +2933,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 22 */,
 /* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */,
-/* 27 */
+/* 27 */,
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * Created by hellofunc on 2017-05-06.
  */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(0), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, access_1, format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var hasOwn = {}.hasOwnProperty, hasOwnProperty = function (obj, value) { return hasOwn.call(obj, value); }, r_url = /(https?:\/\/.*?\/)?([^\?]+)\??([^#]+)?#?(.*)/;
@@ -2979,8 +2963,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
             }
             return this;
         };
-        Search.prototype.hash = function () {
-            location.hash = this.toString();
+        Search.prototype.hash = function (obj) {
+            location.hash = this.extend(obj).toString();
             return this;
         };
         Search.prototype.queryString = function (obj) {
@@ -2996,8 +2980,48 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return Search;
     }());
     exports.Search = Search;
+    var HashManager = /** @class */ (function () {
+        function HashManager() {
+            this.handlers = [];
+        }
+        HashManager.prototype.addHandler = function (handler) {
+            this.handlers.push(handler);
+            return this;
+        };
+        HashManager.prototype.reset = function (query) {
+            if (typeof query !== 'string')
+                query = Search.toSearch(query);
+            location.hash = query;
+            return this;
+        };
+        HashManager.prototype.extend = function (query) {
+            if (typeof query === 'string')
+                Search.toObject(query, this.search);
+            else
+                this.search.extend(query);
+            location.hash = this.search.toString();
+            return this;
+        };
+        HashManager.prototype.reset0 = function (queryString) {
+            var _this = this;
+            this.search = new this.factory().reset(queryString);
+            this.onChange().then(function (v) {
+                _this.handlers.forEach(function (handler) { return handler(_this.search, _this); });
+            });
+            return this;
+        };
+        HashManager.prototype.onHash = function () {
+            var _this = this;
+            window.addEventListener('hashchange', function () { return _this.reset0(location.hash.slice(1)); });
+            this.reset0(location.hash.slice(1));
+            return this;
+        };
+        return HashManager;
+    }());
+    exports.HashManager = HashManager;
     (function (Search) {
         var primitive = access_1.Access.primitive;
+        var datetime = format_1.Formats.datetime;
         var r_n = /&/;
         function create() {
             return new Search().reset();
@@ -3037,6 +3061,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
                 // ie는 encodeURIComponent를 안해주면 ajax 에러가 난다.
                 else if (Array.isArray(value)) {
                     array = array.concat(value.map(function (v) { return key + '=' + encodeURIComponent(v); }));
+                }
+                else if (value instanceof Date) {
+                    array.push(key + '=' + datetime(value));
                 }
                 else
                     array.push(prefix + key + '=' + encodeURIComponent(value));
@@ -3157,8 +3184,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 28 */,
-/* 29 */
+/* 29 */,
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -3198,6 +3225,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
                 e.preventDefault();
             });
         }
+        Pager.prototype.on = function (handler) {
+            this._handler = handler;
+            return this;
+        };
         Pager.prototype.setHandler = function (handler) {
             this._handler = handler;
             return this;
@@ -3269,12 +3300,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 30 */,
 /* 31 */,
-/* 32 */
+/* 32 */,
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(5), __webpack_require__(19)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, events_1, Work_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4), __webpack_require__(18)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, events_1, Work_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var acceptKeys = events_1.Events.acceptKeys;
@@ -3388,7 +3419,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 33 */,
 /* 34 */,
 /* 35 */,
 /* 36 */,
@@ -3402,7 +3432,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 44 */,
 /* 45 */,
 /* 46 */,
-/* 47 */
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -3415,7 +3449,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(19), __webpack_require__(27), __webpack_require__(13), __webpack_require__(7), __webpack_require__(4), __webpack_require__(8), __webpack_require__(22), __webpack_require__(10), __webpack_require__(32), __webpack_require__(29)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, location_1, Mapping_1, array_1, dom_1, selector_1, _select_1, replaceHTML_1, WorkCreator_1, Pager_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(18), __webpack_require__(28), __webpack_require__(14), __webpack_require__(5), __webpack_require__(3), __webpack_require__(8), __webpack_require__(21), __webpack_require__(9), __webpack_require__(33), __webpack_require__(30)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, location_1, Mapping_1, array_1, dom_1, selector_1, _select_1, replaceHTML_1, WorkCreator_1, Pager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var className = dom_1.DOM.className;
@@ -3485,6 +3519,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
     // 로딩
     limit = 2, $load = function () {
         var query = $manager.reset().toString();
+        console.log($manager);
         Work_1.Work.list(query).then(function (v) {
             // 데이터가 없고, 1page가 아닐 경우 최대 2번까지 페이지를 줄이면서 재로딩한다.
             if (!v.contents.length && $manager.page > 1) {

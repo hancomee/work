@@ -1,7 +1,7 @@
-import {$get} from "./_core/_ajax";
-import {Work} from "./_core/Work";
+import {$get} from "../../lib/core/_util/_ajax";
+import {Customer, Work} from "./_core/Work";
 import {Calendar} from "../../lib/core/calendar";
-import {Mapping} from "./_support/Mapping";
+import {Mapping} from "../../lib/core/support/Mapping";
 import {
     getElementById,
     getElementsByClassName,
@@ -11,19 +11,20 @@ import {
 import {Events, iEvents} from "../../lib/core/events";
 import dataEvent = Events.dataEvent;
 import {_map} from "../../lib/core/_func/array";
+import {SelectCalendar} from "../../lib/core/component/SelectCalendar";
+import {HTML} from "../../lib/core/html";
+import selectAll = HTML.selectAll;
+import {FormEvent} from "../../lib/core/form/FormEvent";
+import calendar = FormEvent.calendar;
+
+type H = HTMLElement
 
 (function () {
 
 
     let
 
-        mapping = new Mapping()
-            .addTemplate(document.head)
-            .addDirective({
-                bar(ele, data) {
-
-                }
-            }),
+        {body: {classList}} = document,
 
         main = getElementsByTagName(document, 'main', 0),
         nav = getElementsByTagName(document, 'nav', 0),
@@ -33,6 +34,11 @@ import {_map} from "../../lib/core/_func/array";
         selectBtn = getElementsByClassName(document, 'nav-select-btn', 0),
         st = <HTMLInputElement>getElementById('st'),
         et = <HTMLInputElement>getElementById('et'),
+
+        mapping = new Mapping()
+            .addTemplate(document.head)
+            .addDirective({
+            }),
 
         r_date = /\d{4}-\d{1,}-\d{1,}/,
         checker = () => {
@@ -71,18 +77,34 @@ import {_map} from "../../lib/core/_func/array";
                     dirs[name] = () => load.apply(null, fn())
 
                     return (st, et) => {
-                        let [s,e] = fn();
-                        if(st === s && et === e) {
+                        let [s, e] = fn();
+                        if (st === s && et === e) {
                             classList.add('active');
                         } else classList.remove('active');
                     }
                 });
             dataEvent(nav, 'click', 'data-date', dirs);
             return list;
-        })(querySelectorAll(nav, '[data-date]'))
+        })(querySelectorAll(nav, '[data-date]'));
 
-    st.addEventListener('change', checker);
-    et.addEventListener('change', checker);
+
+    ((ele: H, calendar: SelectCalendar) => {
+
+        let $input: HTMLInputElement;
+        calendar.onSelect = (date) => {
+            $input.value = date;
+            checker();
+        }
+
+        ele.addEventListener('dropdown.on', (e) => {
+            let dropdown = <HTMLElement>e.target,
+                input = $input = <HTMLInputElement>getElementsByTagName(dropdown, 'input', 0),
+                box = <HTMLElement>getElementsByClassName(dropdown, 'dropdown-box', 0);
+
+            calendar.create(new Date(input.value)).appendTo(box);
+        });
+
+    })(getElementsByClassName('nav-select', 0), new SelectCalendar())
 
     // 직접 선택
     selectBtn.addEventListener('click', () => {
@@ -137,6 +159,7 @@ import {_map} from "../../lib/core/_func/array";
 
     function load(startDate, endDate): Promise<Work[]> {
 
+        classList.add('loading')
 
         return $get('/work/db/report?st=' + startDate + '&et=' + endDate).then(v => {
 
@@ -144,10 +167,12 @@ import {_map} from "../../lib/core/_func/array";
             st.value = startDate;
             et.value = endDate;
 
-            btnCheck.forEach( f => f(startDate, endDate));
+            btnCheck.forEach(f => f(startDate, endDate));
 
             let val = v.map(val => new Work(val));
             mapping.setData(compute(val)).$render(main);
+
+            classList.remove('loading')
             return val;
         });
     }

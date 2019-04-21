@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="kor">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>한컴기획</title>
@@ -27,11 +27,13 @@
 
     <div class="nav-select">
         <span>직접 선택</span>
-        <div class="dropdown">
-            <input type="date" id="st">
+        <div class="dropdown" data-dropdown-event>
+            <input id="st" readonly data-toggle="dropdown">
+            <div class="dropdown-box"></div>
         </div>
-        <div class="dropdown">
-            <input type="date" id="et">
+        <div class="dropdown" data-dropdown-event>
+            <input id="et" readonly data-toggle="dropdown">
+            <div class="dropdown-box"></div>
         </div>
         <span class="nav-select-btn">확인</span>
     </div>
@@ -41,7 +43,7 @@
 
 <main class="main">
 
-    <div class="main-date">2019-03-01 ~ 2019-03-03</div>
+    <div class="main-date"></div>
 
     <div class="container-fluid">
         <div class="row">

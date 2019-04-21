@@ -2,11 +2,12 @@ import {DOM} from "../dom";
 
 import className = DOM.className;
 import hasClass = DOM.hasClass;
+import {querySelectorAll} from "../_dom/selector";
 
 
 (function () {
 
-    if(window['___toggle-on___']) return;
+    if (window['___toggle-on___']) return;
     window['___toggle-on___'] = true;
 
     let
@@ -14,18 +15,6 @@ import hasClass = DOM.hasClass;
         r_open = ['show', 'open'],
 
         active: HTMLElement,
-
-        onEvent = ((type) => {
-            let event = document.createEvent('Event');
-            event.initEvent(type, false, false);
-            return event;
-        })('dropdown.on'),
-
-        offEvent = ((type) => {
-            let event = document.createEvent('Event');
-            event.initEvent(type, false, false);
-            return event;
-        })('dropdown.off'),
 
         act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
             let dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
@@ -35,43 +24,15 @@ import hasClass = DOM.hasClass;
 
             // dropdown 이벤트
             if (dropdown.hasAttribute('data-dropdown-event')) {
-                dropdown.dispatchEvent(flag ? onEvent : offEvent);
+                let event = document.createEvent('Event');
+                event.initEvent(flag ? 'dropdown.on' : 'dropdown.off', true, true);
+                dropdown.dispatchEvent(event);
             }
-
 
             if (flag) active = dropdown;
             else active = null;
         };
 
-    /*// 열기 커스텀 이벤트
-    document.addEventListener('dropdown-open', (e) => {
-        let ele = <HTMLElement>e.target;
-        while (ele) {
-            if (hasClass(ele, r_dropdown)) {
-                if (active !== ele) {
-                    active && act(active, false, e);
-                    act(ele, true, e);
-                }
-                return;
-            }
-            ele = ele.parentElement;
-        }
-    });
-
-    // 닫기 커스텀 이벤트
-    document.addEventListener('dropdown-close', (e) => {
-        if (active) {
-            let ele = <HTMLElement>e.target;
-            while (ele) {
-                if (hasClass(ele, r_dropdown)) {
-                    if (ele === active)
-                        act(ele, false, e);
-                    return;
-                }
-                ele = ele.parentElement;
-            }
-        }
-    });*/
 
     // 사용자 클릭 이벤트
     document.addEventListener('click', (e) => {
@@ -96,8 +57,8 @@ import hasClass = DOM.hasClass;
             else if (ele.hasAttribute('data-dismiss'))
                 if (ele.getAttribute('data-dismiss') === 'false')
                     return;
-                else
-                    dismiss = true;
+                else dismiss = true;
+
 
         } while (ele = ele.parentElement);
 
@@ -121,3 +82,5 @@ import hasClass = DOM.hasClass;
 
     });
 })();
+
+

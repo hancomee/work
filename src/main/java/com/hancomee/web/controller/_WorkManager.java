@@ -4,9 +4,11 @@ import com.boosteel.nativedb.NativeDB;
 import com.boosteel.nativedb.core.support.RepositoryConfig;
 import com.hancomee.web.controller.support.ReceivableList;
 import com.hancomee.web.controller.support.WorkList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,13 +25,14 @@ import java.util.Map;
 @Component
 public class _WorkManager {
 
-    NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
-     _WorkSQL SQL;
-     RepositoryConfig CONFIG;
+    @Autowired
+    NativeDB db;
 
-    public _WorkManager() throws Exception {
-        System.out.println("-----------------------------------------------------------");
+    _WorkSQL SQL;
+    RepositoryConfig CONFIG;
 
+    @PostConstruct
+    public void before() {
         /*
          *  jar 실행시 path를 가지고 오는 방법은 좀 더럽다.
          *  AsStream을 통해서만 파일을 가지고 올 수 있다.
@@ -40,12 +43,6 @@ public class _WorkManager {
                 CONFIG = new RepositoryConfig()
                         .addSQL(_WorkManager.class.getClassLoader().getResourceAsStream("work.sql"))
         );
-    }
-
-
-    @Bean
-    public NativeDB db() {
-        return this.db;
     }
 
     /*
@@ -84,6 +81,8 @@ public class _WorkManager {
             SQL.deleteAllMemo(stmt, workId);
             // 모든 파일 삭제
             SQL.deleteAllRef(stmt, workId);
+
+            SQL.deleteAllWorkItemFiles(stmt, workId);
             // 모든 아이템 삭제
             SQL.deleteAllWorkItem(stmt, workId);
 
@@ -97,14 +96,14 @@ public class _WorkManager {
     public WorkList getWorkList(WorkList list, Map<String, Object> map) {
         return db.doStmtR(stmt -> {
 
-            if(map.get("state") == null) map.put("state", 0);
+            if (map.get("state") == null) map.put("state", 0);
 
             String
                     duration = map.get("duration").toString(),
                     today = LocalDate.now().toString();
 
             // duration=today
-            if(duration.equals("today")) {
+            if (duration.equals("today")) {
                 map.put("st", today);
                 map.put("et", today);
             }
@@ -238,7 +237,7 @@ public class _WorkManager {
 
     public void deleteRef(int id) {
         db.doStmt(stmt -> {
-            try(ResultSet rs = stmt.executeQuery("SELECT work_id FROM hancomee_workfile_ref WHERE id = " + id)) {
+            try (ResultSet rs = stmt.executeQuery("SELECT work_id FROM hancomee_workfile_ref WHERE id = " + id)) {
                 rs.next();
                 SQL.deleteRef(stmt, id);
                 SQL.refreshRef(stmt, rs.getInt(1));

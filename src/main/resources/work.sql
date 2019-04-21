@@ -68,6 +68,7 @@ SELECT count(DISTINCT work.id)
             [AND customer.name LIKE :%customerName%]
             [AND item.subject LIKE :%itemSubject%]
             [AND memo.value LIKE :%memo%]
+            [AND work.activetime BETWEEN :st{ast} AND :et{aet}]
             [AND work.datetime BETWEEN :st{st} AND :et{et}];
 
 

@@ -23,7 +23,7 @@ export namespace Access {
         let
             r_boolean = /^true$|^false$/,
             r_string = /^['"][^"']+['"]$/,
-            r_date = /^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/,
+            r_date = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/,
 
             r_string_replace = /["']/g;
 

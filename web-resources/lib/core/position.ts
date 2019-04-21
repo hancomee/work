@@ -17,10 +17,17 @@ export let
         return {w: W, h: height};
     },
 
+    __tilt = (rotate: number, r = Math.abs(rotate % 360)) => {
+        return r === 90 || r === 270
+    },
+    __ratio = (num1: number, num1c: number, num2: number) => {
+        return num2 + (num2 * ((num1c - num1) / num1))
+    },
+
     __adjustTo = (parent: HTMLElement, image: HTMLImageElement, forceSize = true) => {
         let {style} = image,
-            {w,h,x,y} = __adjust(parent.offsetWidth, parent.offsetHeight,
-            image.naturalWidth, image.naturalHeight, forceSize);
+            {w, h, x, y} = __adjust(parent.offsetWidth, parent.offsetHeight,
+                image.naturalWidth, image.naturalHeight, forceSize);
 
         style.width = w + 'px';
         style.height = h + 'px';
@@ -42,6 +49,44 @@ export let
 
         pos = __center(W, H, size.w, size.h);
         return {w: size.w, h: size.h, x: pos.x, y: pos.y};
+    },
+
+    __alignmentTo = (obj: { element: HTMLElement, width(): number, height(): number, rotate(): number },
+                     container: HTMLElement) => {
+        let {element: {style}} = obj,
+            [left, top, width, height] = __alignment(obj.width(), obj.height(), obj.rotate(),
+                container.offsetWidth, container.offsetHeight);
+        style.transform = 'rotate(' + obj.rotate() + 'deg)';
+        style.width = width + 'px';
+        style.height = height + 'px';
+        style.left = left + 'px';
+        style.top = top + 'px';
+        return obj;
+    },
+    __alignment = (w: number, h: number, rotate: number, W: number, H: number) => {
+
+        if (__tilt(rotate)) {
+            let maxHeight = __ratio(w, H, h);
+
+            if (maxHeight > W) {
+                w = __ratio(h, W, w);
+                return [(W - w) / 2, (H - W) / 2, w, W]
+            } else {
+                w = H;
+                return [(W - w) / 2, (H - maxHeight) / 2, w, maxHeight];
+            }
+        }
+
+        let maxHeight = __ratio(w, W, h);
+
+        // 세로를 딱 맞춰야 할 경우
+        if (maxHeight > H) {
+            w = __ratio(h, H, w);
+            return [(W - w) / 2, 0, w, H]
+        } else {
+            h = maxHeight;
+            return [0, (H - h) / 2, W, h];
+        }
     },
 
     // from에서 to로 변할때 val의 변환값
@@ -69,7 +114,6 @@ export let
         if (value && value.indexOf('rotate') !== -1) return parseInt(/\d+/.exec(value)[0]);
         else return 0;
     };
-
 
 /*
  *  핀터레스트같은 꽉 채워진 퍼즐같은 이미지 만들기

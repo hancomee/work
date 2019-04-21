@@ -54,6 +54,17 @@ function lookup(r: any[], index: number) {
     return r[index];
 }
 
+export function selectMap<T>(obj: T, element: HTMLElement, directive): T {
+    for(let p in directive) {
+        if(typeof directive[p] === 'string')
+            obj[p] = select(element, directive[p]);
+    }
+    return obj;
+}
+
+
+
+
 export function select(context, selector: string) {
 
     let

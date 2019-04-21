@@ -25,9 +25,8 @@ function _func(prop: string, ele: Element | Document, s: string, opt?, data?) {
     return r;
 }
 
-
-export function getElementById(id: string) {
-    return <HTMLElement>document.getElementById(id);
+export function getElementById(id: string): HTMLElement {
+    return document.getElementById(id);
 }
 
 export function querySelector(s: string): HTMLElement
@@ -73,17 +72,19 @@ export function getElementsByClassName(ele, s?, opt?, data?) {
 }
 
 
-export function getElementsByTagName(s: string): HTMLElement[]
-export function getElementsByTagName(s: string, index: number): HTMLElement
-export function getElementsByTagName(ele: Element | Document, s: string): HTMLElement[]
-export function getElementsByTagName(ele: Element | Document, s: string, index: number): HTMLElement
-export function getElementsByTagName<T>(ele: Element | Document, s: string, handler: (e: HTMLElement, i: number, t: T,) => any, data?: T): T
+
+export function getElementsByTagName<K extends keyof TagNameMap>(s: K): TagNameMap[K][]
+export function getElementsByTagName<K extends keyof TagNameMap>(s: K, index: number): TagNameMap[K]
+export function getElementsByTagName<K extends keyof TagNameMap>(ele: Element | Document, s: K): TagNameMap[K][]
+export function getElementsByTagName<K extends keyof TagNameMap>(ele: Element | Document, s: K, index: number): TagNameMap[K]
+export function getElementsByTagName<K extends keyof TagNameMap, T>(ele: Element | Document, s: K, handler: (e: TagNameMap[K], i: number, t: T,) => any, data?: T): T
 export function getElementsByTagName(ele, s?, opt?, data?) {
     return _func('getElementsByTagName', ele, s, opt, data);
 }
 
 
-export function getElementsByAttr(target: HTMLElement | Document, attrName: string): { [index: string]: HTMLElement }
+export function
+getElementsByAttr(target: HTMLElement | Document, attrName: string): { [index: string]: HTMLElement }
 export function getElementsByAttr<T>(target: HTMLElement | Document,
                                      attrName: string,
                                      handler: (r: T, e: HTMLElement, v: string, i: number) => any, r?: T): T
