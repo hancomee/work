@@ -89,7 +89,8 @@ export class WorkCreator {
 
         // ② 거래처 만들기
         createBtn.addEventListener('click', () => {
-            Customer.save({name: keyword}).then(() => $search(keyword));
+            if (createBtn.classList.contains('active'))
+                Customer.save({name: keyword}).then(() => $search(keyword));
         });
 
         // ③ 거래처 선택

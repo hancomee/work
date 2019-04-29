@@ -5624,6 +5624,25 @@ input.form-error {
 #bill {
   overflow-y: scroll;
   z-index: 1045; }
+  #bill .bill-switch {
+    display: flex;
+    position: absolute;
+    top: .7rem;
+    right: 1rem; }
+    #bill .bill-switch > span {
+      cursor: pointer;
+      border: 1px solid #c3c3c3;
+      padding: .2rem .4rem; }
+  #bill[data-switch="hancomee"] .hancomee2 {
+    display: none; }
+  #bill[data-switch="hancomee"] .bill-switch > span[data-switch-type="hancomee2"] {
+    border-color: transparent; }
+  #bill[data-switch="hancomee2"] .hancomee {
+    display: none; }
+  #bill[data-switch="hancomee2"] .bill-switch > span[data-switch-type="hancomee"] {
+    border-color: transparent; }
+  #bill.ctrl .bill-switch {
+    display: none; }
 
 .bill {
   position: relative;
@@ -5687,8 +5706,6 @@ input.form-error {
       display: inline; }
     .bill .company-info.send .supplier {
       display: none; }
-    .bill .company-info.send .sign > img {
-      display: none; }
     .bill .company-info > tbody > tr > th {
       width: 7.5%;
       border-left: 1px solid #aaa;
@@ -5737,7 +5754,7 @@ input.form-error {
     display: flex; }
     .bill-container.div-2 > div {
       width: 50%; }
-      .bill-container.div-2 > div + div {
+      .bill-container.div-2 > div:last-child {
         border-left: 1px solid #aaa; }
 
 #estimate {
@@ -5823,6 +5840,8 @@ input.form-error {
      *  또한 검은색 배경인 :after도 없앤다.
      */ }
     body > * {
+      display: none; }
+    body .bill-switch {
       display: none; }
     body #bill {
       display: block;

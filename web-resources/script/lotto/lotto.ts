@@ -1,15 +1,21 @@
 import {_everyTrue} from "../../lib/core/_func/array";
 import {$get} from "../../lib/core/_util/_ajax";
 
-let _nTable = [
-    [1, 2, 3, 4, 5, 6, 7],
-    [8, 9, 10, 11, 12, 13, 14],
-    [15, 16, 17, 18, 19, 20, 21],
-    [22, 23, 24, 25, 26, 27, 28],
-    [29, 30, 31, 32, 33, 34, 35],
-    [36, 37, 38, 39, 40, 41, 42],
-    [43, 44, 45, null, null, null, null],
-];
+let
+    _n = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+        31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45],
+    _nTable = [
+        [1, 2, 3, 4, 5, 6, 7],
+        [8, 9, 10, 11, 12, 13, 14],
+        [15, 16, 17, 18, 19, 20, 21],
+        [22, 23, 24, 25, 26, 27, 28],
+        [29, 30, 31, 32, 33, 34, 35],
+        [36, 37, 38, 39, 40, 41, 42],
+        [43, 44, 45, null, null, null, null],
+    ];
 
 export class Lotto {
     id: number
@@ -25,13 +31,13 @@ export class Lotto {
 
     nums: number[]
 
-    rTable
-
     count: number
     money: number
 
     million: string
 
+    tableType
+    rowType
 
     constructor(v) {
         for (let p in v)
@@ -40,7 +46,7 @@ export class Lotto {
         let nums = this.nums = [v.num1, v.num2, v.num3, v.num4, v.num5, v.num6];
         this.million = (v.money / 100000000).toFixed(1);
 
-        this.rTable = _nTable.map(row => {
+        this.tableType = _nTable.map(row => {
             return row.map(val => {
                 return {
                     num: val || '',
@@ -48,6 +54,13 @@ export class Lotto {
                 }
             });
         });
+
+        this.rowType = _n.map( v => {
+            return {
+                num: v,
+                check: nums.indexOf(v) !== -1
+            }
+        })
     }
 
     check(n: number[]) {
@@ -81,7 +94,7 @@ export namespace Lotto {
 
 
     export function $data(): Promise<any[]> {
-        return $get('/lotto/values').then( (v: any[]) => v.reverse());
+        return $get('/lotto/values').then((v: any[]) => v.reverse());
     }
 
     export function $list(): Promise<Lotto[]> {

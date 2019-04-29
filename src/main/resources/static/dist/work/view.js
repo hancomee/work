@@ -1151,6 +1151,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return obj;
     }
     exports._forEachReverse = _forEachReverse;
+    function _loop(i, h, t) {
+        for (var p = 0; p < i; p++)
+            h(t, p);
+        return t;
+    }
+    exports._loop = _loop;
     function _reduce(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -4105,7 +4111,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var datetime = format_1.Formats.datetime;
-    var element = selector_1.getElementById('bill'), types = selector_1.getElementsByClassName(element, 'bill', function (e, i, r) {
+    var element = selector_1.getElementById('bill'), classList = element.classList, types = selector_1.getElementsByClassName(element, 'bill', function (e, i, r) {
         element.removeChild(e);
         r[e.id] = e;
     }, {}), hancome = {
@@ -4115,12 +4121,44 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         biz_num: '124-53-35359',
         biz_type: '광고기획인쇄',
         owner: '고정철',
-    }, date = datetime(new Date(), 'yyyy-MM-dd(E) HH:mm'), $mapping = new Mapping_1.Mapping()
+        sign: 'sign.png'
+    }, hancome2 = {
+        name: '한컴기획',
+        address: '경기도 군포시 금정동 873-1 현대프라자 606',
+        biz_con: '서비스',
+        biz_num: '123-27-78109',
+        biz_type: '광고기획인쇄',
+        owner: '고성재',
+        sign: 'sign2.png'
+    }, 
+    // 스크린캡쳐할때 수원|군포 버튼 없애기
+    key = (function () {
+        var upHandler = function (e) {
+            if (!e.ctrlKey) {
+                classList.remove('ctrl');
+                document.removeEventListener('keyup', upHandler);
+                document.addEventListener('keydown', pressHandler);
+            }
+        }, pressHandler = function (e) {
+            if (e.ctrlKey) {
+                classList.add('ctrl');
+                document.addEventListener('keyup', upHandler);
+                document.removeEventListener('keydown', pressHandler);
+            }
+        };
+        return function (flag) {
+            classList.remove('ctrl');
+            if (flag)
+                document.addEventListener('keydown', pressHandler);
+            else
+                document.addEventListener('keydown', pressHandler);
+        };
+    })(), date = datetime(new Date(), 'yyyy-MM-dd(E) HH:mm'), $mapping = new Mapping_1.Mapping()
         .addTemplate(selector_1.getElementById('bill-template'))
         .addDirective({
         // 공급자, 공급받는자 구분
         check: function (e, v) {
-            if (v.biz_num !== '124-53-35359')
+            if (!v.sign)
                 e.classList.add('send');
         },
         // 견적메모가 없을 경우에는 엘리먼트를 없앤다.
@@ -4134,22 +4172,37 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         now: function (e, work) {
             e.textContent = date;
         },
+        sign: function (e, own) {
+            if (own.sign) {
+                e.src = '/imgs/' + own.sign;
+            }
+            else
+                e.parentElement.removeChild(e);
+        }
     });
     element.addEventListener('click', function (e) {
-        if (e.target === element) {
+        var target = e.target;
+        if (target === element) {
+            key(false);
             element.classList.remove('on');
             element.textContent = '';
             document.body.classList.remove('scroll-lock');
         }
+        else if (target.hasAttribute('data-switch-type')) {
+            element.setAttribute('data-switch', target.getAttribute('data-switch-type'));
+        }
     });
     element.textContent = '';
+    element.setAttribute('data-switch', 'hancomee');
     function $bill($work, type) {
         $work['$hancome'] = hancome;
+        $work['$hancome2'] = hancome2;
         $mapping.setData($work);
         $mapping.$render(types[type]);
         element.appendChild(types[type]);
         document.body.classList.add('scroll-lock');
         element.classList.add('on');
+        key(true);
     }
     exports.$bill = $bill;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),

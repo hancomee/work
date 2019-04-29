@@ -46,18 +46,24 @@
                     </div>
 
                 </div>
-                <table class="item-table s-hide">
-                    <tbody>
-                    <tr ::rTable>
-                        <td class="chk-{{check}}" ::>{{num}}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="numbers" data-nums=" {{_.nums.join(' ')}} ">
+                    <table class="table-type-container">
+                        <tbody>
+                        <tr ::tableType>
+                            <td data-num="{{num}}" ::>{{num}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="row-type-container">
+                        <div data-num="{{num}}" ::rowType>{{num}}</div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </script>
 </head>
-<body>
+<body class="row-type">
 
 <nav>
     <div class="radio-btns">

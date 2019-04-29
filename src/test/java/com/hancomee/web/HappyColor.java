@@ -16,7 +16,8 @@ public class HappyColor {
 
     @Test
     public void run() throws Exception {
-        down("2016", "01");
+        Files.copy(Paths.get("D:\\properies.txt"), Paths.get("D:\\properies2.txt"),
+                StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
     }
 
 

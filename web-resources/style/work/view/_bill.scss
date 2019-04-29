@@ -1,5 +1,3 @@
-
-
 $border-color-normal: #aaa;
 $border-color-darken: #888;
 
@@ -7,6 +5,47 @@ $border-color-darken: #888;
   @extend %fixed-screen;
   overflow-y: scroll;
   z-index: 1045;
+
+  //***************************** 수원/군포 ****************************//
+  .bill-switch {
+    display: flex;
+    position: absolute;
+    top: .7rem;
+    right: 1rem;
+    > span {
+      cursor: pointer;
+      border: 1px solid #c3c3c3;
+      padding: .2rem .4rem;
+    }
+  }
+
+  &[data-switch="hancomee"] {
+    .hancomee2 {
+      display: none;
+    }
+    .bill-switch > span[data-switch-type="hancomee2"] {
+      border-color: transparent;
+    }
+  }
+
+  &[data-switch="hancomee2"] {
+    .hancomee {
+      display: none;
+    }
+    .bill-switch > span[data-switch-type="hancomee"] {
+      border-color: transparent;
+    }
+  }
+
+
+  // 프린트 캡쳐할때 버튼 없애기
+  &.ctrl {
+    .bill-switch {
+      display: none;
+    }
+  }
+
+  //***************************** 수원/군포 ****************************//
 }
 
 .bill {
@@ -22,7 +61,6 @@ $border-color-darken: #888;
     size: contain;
   }
   background-color: white;
-
 
   table {
     width: 100%;
@@ -99,7 +137,6 @@ $border-color-darken: #888;
     width: 100%;
     height: 100%;
 
-
     // 공급받는자 / 공급자 구분
     .customer {
       display: none;
@@ -124,12 +161,7 @@ $border-color-darken: #888;
       .supplier {
         display: none;
       }
-      .sign > img {
-        display: none;
-      }
     }
-
-
 
     > tbody {
       > tr {
@@ -212,13 +244,12 @@ $border-color-darken: #888;
     display: flex;
     > div {
       width: 50%;
-      & + div {
+      &:last-child {
         border-left: 1px solid $border-color-normal;
       }
     }
   }
 }
-
 
 @import "_bill/estimate";
 @import "_bill/account";
@@ -230,7 +261,6 @@ $border-color-darken: #888;
 }
 
 @media print {
-
 
   html, body {
     margin: 0;
@@ -245,6 +275,9 @@ $border-color-darken: #888;
       display: none;
     }
 
+    .bill-switch {
+      display: none;
+    }
     /*
      *  스크롤 영역도 프린트에 잡히므로 없앤다.
      *  또한 검은색 배경인 :after도 없앤다.

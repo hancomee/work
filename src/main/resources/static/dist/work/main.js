@@ -1151,6 +1151,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return obj;
     }
     exports._forEachReverse = _forEachReverse;
+    function _loop(i, h, t) {
+        for (var p = 0; p < i; p++)
+            h(t, p);
+        return t;
+    }
+    exports._loop = _loop;
     function _reduce(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {

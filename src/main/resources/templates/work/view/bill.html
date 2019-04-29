@@ -18,7 +18,7 @@
                     <th>대표자</th>
                     <td class="sign">
                         <span data-directive="owner"></span>
-                        <img src="/imgs/sign.png">
+                        <img src="/imgs/sign.png" data-directive=" | sign">
                     </td>
                 </tr>
                 <tr>
@@ -57,11 +57,19 @@
             </tr>
         </script>
 
+        <script type="text/html" data-template="switch">
+            <div class="bill-switch">
+                <span data-switch-type="hancomee">수원</span>
+                <span data-switch-type="hancomee2">군포</span>
+            </div>
+        </script>
+
         <script type="text/html" data-template="footer">
             <div class="bill-footer">
                 <div class="bill-footer-panel">
                     <span class="label">계좌안내</span>
-                    <span class="value">[농협] <stron>352-1401-2143-63</stron> 예금주 / 고정철</span>
+                    <span class="value hancomee">[농협] <stron>352-1401-2143-63</stron> 예금주 / 고정철</span>
+                    <span class="value hancomee2">[농협] <stron>351-0243-3217-03</stron> 예금주 / 고성재</span>
                 </div>
                 <div class="bill-footer-panel">
                     <span class="label">견적</span>
@@ -79,6 +87,8 @@
     <!-- 견적서 -->
     <div id="estimate" class="bill">
 
+        <br data-replace="!switch">
+
         <div class="bill-header">
             <strong>견적서</strong>
             <span>(공급받는자 보관용)</span>
@@ -91,7 +101,8 @@
 
 
         <div class="bill-container div-2">
-            <div data-mapping="$hancome" data-template="customer"></div>
+            <div data-mapping="$hancome" data-template="customer" class="hancomee"></div>
+            <div data-mapping="$hancome2" data-template="customer" class="hancomee2"></div>
             <div data-mapping="customer" data-template="customer"></div>
         </div>
 
@@ -139,13 +150,16 @@
     <!-- 거래명세표 -->
     <div id="account" class="bill">
 
+        <br data-replace="!switch">
+
         <div class="bill-header">
             <strong>거래명세표</strong>
             <span>(공급받는자 보관용)</span>
         </div>
 
         <div class="bill-container div-2">
-            <div data-mapping="$hancome" data-template="customer"></div>
+            <div data-mapping="$hancome" data-template="customer" class="hancomee"></div>
+            <div data-mapping="$hancome2" data-template="customer" class="hancomee2"></div>
             <div data-mapping="customer" data-template="customer"></div>
         </div>
 
@@ -189,6 +203,8 @@
 
     <!-- 간이영수증 -->
     <div id="receipt" class="bill">
+
+        <br data-replace="!switch">
 
         <div class="bill-header">
             <strong>간이영수증</strong>

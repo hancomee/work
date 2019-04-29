@@ -35,6 +35,39 @@ aside {
   }
 }
 
+@mixin n-select() {
+  @for $i from 1 through 45 {
+    [data-nums*=" #{$i} "] {
+      [data-num="#{$i}"] {
+        @content;
+      }
+    }
+  }
+}
+
+@include n-select() {
+  background-color: #ddd;
+}
+
+/*
+ *  각 타입별 가시성
+ */
+@mixin swap($list) {
+  @each $n in $list {
+    $i: index($list, $n);
+    .#{$n} {
+      @each $ni in $list {
+        @if ($ni != $n) {
+          .#{$ni}-container {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+@include swap((table-type, row-type, simple-type));
+
 .radio-btns {
 
   > input {
@@ -124,67 +157,61 @@ aside {
   }
 }
 
-#display {
+// 가로배열
 
-  // 가로배열
-  &.w-type {
+.row-type {
 
-    .w-hide {
-      display: none;
-    }
+  .w-hide {
+    display: none;
+  }
 
-    > .item {
-      flex: 0 0 100%;
-      max-width: 100%;
+  .item {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-top: -1px;
 
-      & + .item {
-        margin-top: -1px;
+    > div {
+      display: flex;
+      margin: 0;
+
+      > .item-info {
+        width: 4rem;
+        justify-content: center;
       }
 
-      > div {
-        display: flex;
-        margin-top: 0;
-
-        > table {
-          display: flex;
-
-          > tbody {
-            display: flex;
-            flex-basis: 100%;
-            > tr {
-
-              &, & > td {
-                display: flex;
-                justify-content: center;
-                flex-basis: 100 / 7 * 1%;
-                flex-grow: 1;
-              }
-
-              > td {
-                border-top: 0;
-                border-left: 1px solid $line-color;
-              }
-            }
-          }
-        }
+      > .numbers {
+        width: 100%;
       }
     }
   }
 
-  &.simple {
-    > .item {
-      flex: 0 0;
-      padding: 0;
-      > div {
-        margin-top: 0;
+  &-container {
+    display: flex;
+    justify-content: space-around;
+    height: 100%;
+    > div {
+      flex: 0 0 2.2222%;
+      text-align: center;
+      align-items: center;
+      & + div {
+        border-left: 1px solid #ddd;
       }
-    }
-
-    .s-hide {
-      display: none !important;
     }
   }
 
+}
+
+.simple-type-items {
+  .item {
+    flex: 0 0;
+    padding: 0;
+    > div {
+      margin-top: 0;
+    }
+  }
+  .s-hide {
+    display: none !important;
+  }
 }
 
 .item {
