@@ -46,18 +46,6 @@ export function _toString(v) {
     return toString.call(v);
 }
 
-export function __noop(a?) {
-    return a;
-}
-
-export function __returnFalse() {
-    return false;
-}
-
-export function __returnTrue() {
-    return true;
-}
-
 // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
 export function isObjectType(obj) {
     return toString.call(obj) === objStr;
@@ -229,85 +217,3 @@ export function $extend<T>(target: T, source, converts: EXTEND_CONFIG<T> = <any>
 }
 
 
-export function __makeArray<T>(dest: ArrayLike<T>): T[] {
-    if (dest == null) return <T[]>[];
-    let l = dest.length, result = [];
-    while (l-- > 0) result[l] = dest[l];
-    return result;
-}
-
-type OBJECT<T> = { [index: string]: T }
-
-export function __map<T, A>(array: ArrayLike<T>, handler: (v: T, i: number, obj: ArrayLike<T>) => A): A[]
-export function __map<T, A>(obj: OBJECT<T>, handler: (v: T, p: string, obj) => A): {}
-export function __map(obj, handler) {
-    if (obj == null) return obj;
-
-    let r, v, p;
-    if (typeof obj.length === 'number') {
-        r = [];
-        for (let i = 0, l = obj.length; i < l; i++) {
-            if ((v = handler.call(obj, obj[i], i, obj)) !== void 0) r.push(v);
-        }
-    }
-    else if (isPlainObject(obj)) {
-        r = {};
-        for (p in obj) {
-            if ((v = handler.call(obj, obj[p], p, obj)) !== void 0) r[p] = v;
-        }
-    }
-
-    return r || obj;
-}
-
-export function __each<T>(array: ArrayLike<T>, handler: (v: T, i: number, obj: ArrayLike<T>) => any): T[]
-export function __each<T>(obj: OBJECT<T>, handler: (v: T, p: string, obj: OBJECT<T>) => any): OBJECT<T>
-export function __each(obj, handler) {
-    if (obj == null) return obj;
-
-    let p;
-    if (isArrayLike(obj)) {
-        for (let i = 0, l = obj.length; i < l; i++) {
-            if (handler.call(obj, obj[i], i, obj) === false) break;
-        }
-    }
-    else if (isPlainObject(obj)) {
-        for (p in obj) {
-            if (handler.call(obj, obj[p], p, obj) === false) break;
-        }
-    }
-    return obj;
-}
-
-export function __reduce<T, D>(obj: ArrayLike<T>, handler: (d: D, v: T, i: number, obj: ArrayLike<T>) => D, d: D): D
-export function __reduce<T, D>(obj: OBJECT<T>, handler: (d: D, v: T, p: string, obj: OBJECT<T>) => D, d: D): D
-export function __reduce(obj, handler, d) {
-    if (obj == null) return obj;
-
-    let p;
-    if (isArrayLike(obj)) {
-        for (let i = 0, l = obj.length; i < l; i++)
-            d = handler.call(obj, d, obj[i], i, obj);
-    }
-    else if (isPlainObject(obj)) {
-        for (p in obj) d = handler.call(obj, d, obj[p], p, obj);
-
-    }
-    return d;
-}
-
-
-/*
- *   [1,2,3,4,5];
- *   ::  (1,2)  (2,3)  (3,4)  (4,5)
- */
-export function __zipper<T, R>(array: ArrayLike<T>, handler: (before: T, after: T, r: R) => R, r?: R) {
-    let {length} = array;
-    if (length < 2) return;
-
-    let i = 0, l = length - 1;
-    while(i < l) {
-        r = handler(array[i++], array[i], r);
-    }
-    return r;
-}

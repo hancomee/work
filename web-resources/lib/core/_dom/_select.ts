@@ -67,6 +67,9 @@ export function selectMap<T>(obj: T, element: HTMLElement, directive): T {
 
 export function select(context, selector: string) {
 
+    if(selector[0] === '#')
+        return document.getElementById(selector.slice(1));
+
     let
         i = selector.indexOf('='), l = selector.lastIndexOf('"'),
         key = selector.substring(0, i),

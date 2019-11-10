@@ -1,6 +1,5 @@
 import {$get} from "../../lib/core/_util/_ajax";
-import {Customer, Work} from "./_core/Work";
-import {Calendar} from "../../lib/core/calendar";
+import {Work} from "./_core/Work";
 import {Mapping} from "../../lib/core/support/Mapping";
 import {
     getElementById,
@@ -8,14 +7,12 @@ import {
     getElementsByTagName,
     querySelectorAll
 } from "../../lib/core/_dom/selector";
-import {Events, iEvents} from "../../lib/core/events";
-import dataEvent = Events.dataEvent;
-import {_map} from "../../lib/core/_func/array";
+import {Events} from "../../lib/core/events";
 import {SelectCalendar} from "../../lib/core/component/SelectCalendar";
-import {HTML} from "../../lib/core/html";
-import selectAll = HTML.selectAll;
-import {FormEvent} from "../../lib/core/form/FormEvent";
-import calendar = FormEvent.calendar;
+import dataEvent = Events.dataEvent;
+import {Calendar} from "../../lib/core/support/Calendar";
+import {Arrays} from "../../lib/core/support/Arrays";
+import _map = Arrays._map;
 
 type H = HTMLElement
 

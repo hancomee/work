@@ -1,8 +1,6 @@
 import {Work} from "./_core/Work";
-import {Search} from "../../lib/core/location";
 import {Mapping} from "../../lib/core/support/Mapping";
-import {_everyTrue, _forEach, _range} from "../../lib/core/_func/array";
-import {DOM} from "../../lib/core/dom";
+import {DOM} from "../../lib/core/_dom/DOM";
 import {
     getElementById,
     getElementsByAttr,
@@ -11,10 +9,15 @@ import {
     querySelector
 } from "../../lib/core/_dom/selector";
 import {selectAll} from "../../lib/core/_dom/_select";
-import {_replaceHTML} from "../../lib/core/_html/replaceHTML";
 import {WorkCreator} from "./list/WorkCreator";
 import {Pager} from "../../lib/core/component/Pager";
 import className = DOM.className;
+import {Search} from "../../lib/core/support/Search";
+import {Arrays} from "../../lib/core/support/Arrays";
+import _range = Arrays._range;
+import _forEach = Arrays._forEach;
+import _everyTrue = Arrays._everyTrue;
+import {_replaceHTML} from "../../lib/core/_html/_compile";
 
 class ListManager extends Search {
 

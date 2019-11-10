@@ -46,7 +46,8 @@ aside {
 }
 
 @include n-select() {
-  background-color: #ddd;
+  background-color: $line-color;
+  color: white;
 }
 
 /*
@@ -157,120 +158,59 @@ aside {
   }
 }
 
-// 가로배열
+$border: 1px solid $line-color;
+
+.numbers {
+  display: flex;
+
+  > div {
+    text-align: center;
+  }
+}
 
 .row-type {
 
-  .w-hide {
+  .item {
+    max-width: 100%;
+    flex: 0 0 100%;
+
+    > .item-container {
+      border-top: $border;
+    }
+  }
+
+  .item-container {
+    display: flex;
+  }
+
+  .item-info {
     display: none;
   }
 
-  .item {
-    flex: 0 0 100%;
-    max-width: 100%;
-    margin-top: -1px;
-
-    > div {
-      display: flex;
-      margin: 0;
-
-      > .item-info {
-        width: 4rem;
-        justify-content: center;
-      }
-
-      > .numbers {
-        width: 100%;
-      }
-    }
+  .item-id {
+    flex: 1 0 4em;
+    text-align: center;
+    background-color: $line-color;
   }
 
-  &-container {
-    display: flex;
-    justify-content: space-around;
-    height: 100%;
+  .numbers {
+
+    flex: 0 1 100%;
+
     > div {
-      flex: 0 0 2.2222%;
-      text-align: center;
-      align-items: center;
+      flex: 1 1 1%;
       & + div {
-        border-left: 1px solid #ddd;
-      }
-    }
-  }
-
-}
-
-.simple-type-items {
-  .item {
-    flex: 0 0;
-    padding: 0;
-    > div {
-      margin-top: 0;
-    }
-  }
-  .s-hide {
-    display: none !important;
-  }
-}
-
-.item {
-
-  &.disabled {
-    opacity: .2;
-  }
-
-  > div {
-    margin-top: 2rem;
-    border: 1px solid $line-color;
-  }
-
-  &-info {
-    display: flex;
-    align-items: center;
-    padding: .5rem;
-    background-color: darken($line-color, 5%);
-    color: #d4d4d4;
-
-    > .id {
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    > .datetime {
-      margin-left: auto;
-    }
-  }
-
-  &-table {
-    width: 100%;
-    > tbody {
-      > tr {
-        > td {
-          width: 100 / 7 * 1%;
-          text-align: center;
-          vertical-align: middle;
-          font-size: 14px;
-
-          & + td {
-            border-left: 1px solid $line-color;
-          }
-
-          &.chk-true {
-            background-color: $line-color;
-            color: white;
-          }
-        }
-
-        & + tr {
-          > td {
-            border-top: 1px solid $line-color;
-          }
+        border: {
+          left: $border;
         }
       }
     }
   }
+
 }
+
+
+
 
 [data-for] {
   color: #999;

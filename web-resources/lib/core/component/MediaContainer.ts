@@ -154,10 +154,11 @@ export class MediaContainer<T extends MediaData> extends Mapping {
                 this.onEvents.on();
             }
 
+            document.body.classList.add('media-on');
             container.classList.add('media-screen');
             element.classList.add('media-on');
             element.setAttribute('media-type', media.type);
-            window.scrollTo(0, container.parentElement.offsetTop - 100);
+            //window.scrollTo(0, container.parentElement.offsetTop - 100);
             media.onScreen();
             this.index = index;
             this.__handler && this.__handler(this.data[index], this);
@@ -178,6 +179,8 @@ export class MediaContainer<T extends MediaData> extends Mapping {
     private offContent() {
         if (this.content) {
             let {content: {container, media}, element} = this;
+
+            document.body.classList.remove('media-on');
             container.classList.remove('media-screen');
             element.classList.remove('media-on');
             media.offScreen();

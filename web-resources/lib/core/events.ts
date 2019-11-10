@@ -3,10 +3,10 @@
  */
 
 
-import {NameMap} from "./collections/NameMap";
-import {Arrays} from "./arrays";
-import {__makeArray, __returnTrue} from "./core";
+import {NameMap} from "./_collections/NameMap";
+import {Arrays} from "./support/Arrays";
 import {Access} from "./access";
+import {__returnTrue} from "./_snippet/__returnTrue";
 
 type ISwitch = ko.types.event.Switch;
 
@@ -141,6 +141,7 @@ export namespace Events {
 
 
     import primitive = Access.primitive;
+    import _makeArray = Arrays._makeArray;
 
     function noop(e) {
 
@@ -248,7 +249,7 @@ export namespace Events {
                 return new EventsGroup()
                     .register(document, 'keydown', (e: KeyboardEvent) => {
                         let {keyCode} = e,
-                            hovers = <EventTarget[]>__makeArray(document.querySelectorAll(':hover'));
+                            hovers = <EventTarget[]>_makeArray(document.querySelectorAll(':hover'));
 
                         if (keys.indexOf(keyCode) === -1) keys.push(keyCode)
 
@@ -415,9 +416,9 @@ export namespace Events {
 
             if (dir) {
                 let obj = getObj(e, attrValue), limit = element, h = dispatcher;
+                obj['event'] = e;
                 while (target && (limit !== target)) {
                     eventProperty(target, obj);
-                    obj['event'] = e;
                     if (h(target, obj, attrValue, e) === 'break') break;
                     target = target.parentElement
                 }
@@ -426,6 +427,28 @@ export namespace Events {
         });
     }
 
+
+    export function bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
+
+        return new Events(element, type, (e) => {
+
+            let target = <HTMLElement>e.target, prop: string, handler, obj;
+            do {
+                if (!obj) {
+                    if (target.hasAttribute(attr)) {
+                        prop = target.getAttribute(attr);
+                        handler = directive[prop];
+                        if (handler) obj = {target: target};
+                    }
+                }
+                obj && eventProperty(target, obj);
+                target = target.parentElement;
+            } while (target && target !== element);
+
+            obj && handler.call(directive, obj, e);
+        });
+
+    }
 
     /*
      *  click 이벤트에 의한 focus-in focus-out 토글 이벤트

@@ -34,31 +34,16 @@
 
     <script type="text/html" id="item-template">
         <div class="col-2 item" data-id="{{id}}">
-            <div>
+            <div class="item-container">
+                <div class="item-id">{{id}}</div>
                 <div class="item-info">
-                    <div>
-                        <div class="datetime s-hide w-hide">{{date}}</div>
-                        <div class="id font-weight-bold text-lg-left">{{id}}</div>
-                    </div>
-                    <div class="ml-auto s-hide w-hide">
-                        <div class="text-right">{{million}}억원</div>
-                        <div class="text-right">{{count}}명</div>
-                    </div>
-
+                    <div class="datetime s-hide w-hide">{{date}}</div>
+                    <div class="text-right">{{million}}억원</div>
+                    <div class="text-right">{{count}}명</div>
                 </div>
                 <div class="numbers" data-nums=" {{_.nums.join(' ')}} ">
-                    <table class="table-type-container">
-                        <tbody>
-                        <tr ::tableType>
-                            <td data-num="{{num}}" ::>{{num}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <div class="row-type-container">
-                        <div data-num="{{num}}" ::rowType>{{num}}</div>
-                    </div>
+                    <div data-num="{{_}}" ::balls>{{_}}</div>
                 </div>
-
             </div>
         </div>
     </script>

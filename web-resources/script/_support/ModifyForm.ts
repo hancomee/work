@@ -1,5 +1,5 @@
-import {Forms} from "../../lib/core/form/Forms";
-import {DOM} from "../../lib/core/dom";
+import {Forms} from "../../lib/core/support/Forms";
+import {DOM} from "../../lib/core/_dom/DOM";
 import className = DOM.className;
 
 

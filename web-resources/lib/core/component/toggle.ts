@@ -1,4 +1,4 @@
-import {DOM} from "../dom";
+import {DOM} from "../_dom/DOM";
 
 import className = DOM.className;
 import hasClass = DOM.hasClass;

@@ -3,7 +3,6 @@
  */
 
 import {getElementsByClassName} from "../_dom/selector";
-import {HTML} from "../html";
 
 type AlikePager = { page: number, totalPages: number }
 

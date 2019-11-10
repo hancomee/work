@@ -1,6 +1,8 @@
 import {Events} from "../../../lib/core/events";
-import {_map, _selector} from "../../../lib/core/_func/array";
-import {DOM} from "../../../lib/core/dom";
+import {DOM} from "../../../lib/core/_dom/DOM";
+import {Arrays} from "../../../lib/core/support/Arrays";
+import _selector = Arrays._selector;
+import _map = Arrays._map;
 
 class Offset {
     private start: number

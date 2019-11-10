@@ -1,6 +1,5 @@
-import {HTML} from "../html";
-import {Calendar, Month} from "../calendar";
-import {_compile} from "../_html/replaceHTML";
+import {Calendar, Month} from "../support/Calendar";
+import {_compile} from "../_html/_compile";
 
 let $html = _compile(require("./SelectCalendar.html"));
 

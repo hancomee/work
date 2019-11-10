@@ -1,5 +1,4 @@
 import "../../../lib/core/component/toggle";
-import {Calendar} from "../../../lib/core/calendar";
 import {_zeroFill} from "../../../lib/core/_util/_zeroFill";
 import {
     getElementsByAttr,
@@ -9,6 +8,7 @@ import {
 } from "../../../lib/core/_dom/selector";
 import {todo} from "./aside/todo";
 import {calculator} from "./aside/calculator";
+import {Calendar} from "../../../lib/core/support/Calendar";
 
 let
     aside = getElementsByTagName(document.body, 'aside', 0),

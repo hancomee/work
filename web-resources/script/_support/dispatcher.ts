@@ -1,5 +1,5 @@
 import {iEvents} from "../../lib/core/events";
-import {__noop} from "../../lib/core/_func/_noop";
+import {__noop} from "../../lib/core/_snippet/__noop";
 
 
 export function mapperDispatcher(handler: iEvents.dataEvent.dispatcher<any> = __noop) {

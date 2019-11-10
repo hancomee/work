@@ -60,14 +60,14 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 53);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Access;
@@ -126,7 +126,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, number_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
@@ -373,13 +373,376 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_number = /^[+-]?\d+$/;
+    var Arrays;
+    (function (Arrays) {
+        var indexOf = Array.prototype.indexOf;
+        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
+        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
+        function cols(array, col, callback) {
+            var limit = array.length, i = 0, colNum, row = -1;
+            if (col < 1)
+                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
+            for (; i < limit; i++) {
+                if ((colNum = i % col) === 0)
+                    row++;
+                if (callback.call(array, array[i], i, i % col, row) === false)
+                    return;
+            }
+        }
+        Arrays.cols = cols;
+        function slice(array, col, callback) {
+            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
+            for (; i < len; i++) {
+                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
+            }
+            return result;
+        }
+        Arrays.slice = slice;
+        /*
+         *  DataTransferItemList 때문에 만든 함수
+         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
+         *  *사용법은 로직 참고
+         */
+        function promiseMap(array, handler) {
+            return new Promise(function (resolve, _) {
+                var check, len = check = array.length, result = [];
+                var _loop_1 = function () {
+                    var index = len;
+                    handler(array[index], function (d) {
+                        result[index] = d;
+                        --check === 0 && resolve(result);
+                    });
+                };
+                while (len-- > 0) {
+                    _loop_1();
+                }
+            });
+        }
+        Arrays.promiseMap = promiseMap;
+        // 숫자배열을 만들어준다.
+        // 시작넘버부터 객수
+        function rangeBySize(start, size) {
+            var array = [];
+            for (var l = start + size; start < l; start++) {
+                array.push(start);
+            }
+            return array;
+        }
+        Arrays.rangeBySize = rangeBySize;
+        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
+        function range_atob(start, lastNum) {
+            var reverse = start > lastNum ? true : false, array = [];
+            /*
+             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
+             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
+             */
+            if (reverse) {
+                var temp = start;
+                start = lastNum;
+                lastNum = temp;
+            }
+            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
+                array.push(i + start);
+            }
+            return reverse ? array.reverse() : array;
+        }
+        Arrays.range_atob = range_atob;
+        // drive 배열의 원소만큼 루프를 돌린다.
+        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
+        function _with(drive, driven, callback) {
+            if (drive == null)
+                return;
+            for (var i = 0; i < drive.length; i++) {
+                callback.call(drive, drive[i], driven, i);
+            }
+        }
+        Arrays._with = _with;
+        function fill(length, v) {
+            if (v === void 0) { v = null; }
+            var i = 0, array = [], handler = v;
+            if (typeof v !== 'function')
+                handler = function () { return v; };
+            for (; i < length; i++) {
+                array[i] = handler.call(array, i);
+            }
+            return array;
+        }
+        Arrays.fill = fill;
+        // 배열을 length의 갯수만큼 나눈다.
+        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
+        function split(target, length) {
+            var result = [], temp, pos;
+            for (var i = 0, l = target.length; i < l; i++) {
+                pos = i % length;
+                if (!pos)
+                    result.push(temp = []);
+                temp[pos] = target[i];
+            }
+            return result;
+        }
+        Arrays.split = split;
+        // target의 앞부터 다 맞으면 오케이
+        function startWith(key, target) {
+            var i = 0, l = key.length;
+            if (target.length < l)
+                return false;
+            for (; i < l; i++) {
+                if (key[i] !== target[i])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.startWith = startWith;
+        function endWith(key, target) {
+            var i = 0, l = key.length, r = target.length - l;
+            if (r < 0)
+                return false;
+            for (; i < l; i++, r++) {
+                if (key[i] !== target[r])
+                    return false;
+            }
+            return true;
+        }
+        Arrays.endWith = endWith;
+        // 값 비교
+        function equals(a, b, valueMatch) {
+            if (valueMatch === void 0) { valueMatch = false; }
+            if (a === b)
+                return true;
+            if (a == null || b == null)
+                return false;
+            if (a.length != b.length)
+                return false;
+            // If you don't care about the order of the elements inside
+            // the array, you should sort both arrays here.
+            var i = 0, l = a.length;
+            if (valueMatch) {
+                for (; i < l; i++) {
+                    if (a.indexOf(b[i]) === -1)
+                        return false;
+                }
+            }
+            else {
+                for (; i < l; i++) {
+                    if (a[i] !== b[i])
+                        return false;
+                }
+            }
+            return true;
+        }
+        Arrays.equals = equals;
+        /*
+         *   [1,2,3,4,5];
+         *   ::  (1,2)  (2,3)  (3,4)  (4,5)
+         */
+        function _zipper(array, handler, r) {
+            var length = array.length;
+            if (length < 2)
+                return;
+            var i = 0, l = length - 1;
+            while (i < l) {
+                r = handler(array[i++], array[i], r);
+            }
+            return r;
+        }
+        Arrays._zipper = _zipper;
+        function _indexOf(obj, v) {
+            return indexOf.call(obj, v);
+        }
+        Arrays._indexOf = _indexOf;
+        function _range(i, l, handler, t) {
+            for (; i < l; i++)
+                handler(i, t);
+            return t;
+        }
+        Arrays._range = _range;
+        // index 위치에 있는 원소를 move 위치로 옮기기
+        function _move(obj, index, move) {
+            var r = [], i = 0, l = obj.length;
+            r[move] = obj[index];
+            // 역방향 이동
+            if (index > move) {
+                for (; i < l; i++) {
+                    if (i !== index) {
+                        if (i < move)
+                            r[i] = obj[i];
+                        else if (i > index)
+                            r[i] = obj[i];
+                        else
+                            r[i + 1] = obj[i];
+                    }
+                }
+            }
+            // 정방향 이동
+            else {
+                for (; i < l; i++) {
+                    if (i !== index) {
+                        if (i < index)
+                            r[i] = obj[i];
+                        else if (i > move)
+                            r[i] = obj[i];
+                        else
+                            r[i - 1] = obj[i];
+                    }
+                }
+            }
+            return r;
+        }
+        Arrays._move = _move;
+        function _makeArray(obj) {
+            var r = [], l = obj.length;
+            while (l-- > 0)
+                r[l] = obj[l];
+            return r;
+        }
+        Arrays._makeArray = _makeArray;
+        function _filter(obj, filter) {
+            var r = [], i = 0, l = obj.length, pos = 0;
+            for (; i < l; i++)
+                if (filter(obj[i], i))
+                    r[pos++] = obj[i];
+            return r;
+        }
+        Arrays._filter = _filter;
+        function _forEach(obj, h) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                if (h(obj[i], i++) === false)
+                    return obj;
+            }
+            return obj;
+        }
+        Arrays._forEach = _forEach;
+        function _selector(obj, h) {
+            var i = 0, l = obj.length, v;
+            while (i < l) {
+                if (h(v = obj[i], i++))
+                    return v;
+            }
+            return undefined;
+        }
+        Arrays._selector = _selector;
+        function _forEachReverse(obj, h) {
+            var i = obj.length;
+            while (i-- > 0) {
+                if (h(obj[i], i) === false)
+                    break;
+            }
+            return obj;
+        }
+        Arrays._forEachReverse = _forEachReverse;
+        function _loop(i, h, t) {
+            for (var p = 0; p < i; p++)
+                h(t, p);
+            return t;
+        }
+        Arrays._loop = _loop;
+        function _reduce(obj, h, r) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                r = h(r, obj[i], i++);
+            }
+            return r;
+        }
+        Arrays._reduce = _reduce;
+        function _reduceN(obj, h, r) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                h(r, obj[i], i++);
+            }
+            return r;
+        }
+        Arrays._reduceN = _reduceN;
+        function _map(obj, h) {
+            var r = [], i = 0, l = obj.length;
+            while (i < l) {
+                r[i] = h(obj[i], i++);
+            }
+            return r;
+        }
+        Arrays._map = _map;
+        function _colMap(values, size, handler) {
+            var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+            while (index < l) {
+                if (index % size === 0) {
+                    v && (r[rIndex] = handler(v, rIndex++));
+                    v = [];
+                    vIndex = 0;
+                }
+                v[vIndex++] = values[index++];
+            }
+            v && (r[rIndex] = handler(v, rIndex++));
+            return r;
+        }
+        Arrays._colMap = _colMap;
+        function _colReduce(values, size, handler, r) {
+            var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
+            while (index < l) {
+                if (index % size === 0) {
+                    v && (r = handler(r, v, rIndex++));
+                    v = [];
+                    vIndex = 0;
+                }
+                v[vIndex++] = values[index++];
+            }
+            v && (r = handler(r, v, rIndex++));
+            return r;
+        }
+        Arrays._colReduce = _colReduce;
+        function _in(obj, filter, r) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                if (filter(obj[i], i++) === r)
+                    return r;
+            }
+            return !r;
+        }
+        // true가 하나라도 있으면
+        function _inTrue(obj, filter) {
+            return _in(obj, filter, true);
+        }
+        Arrays._inTrue = _inTrue;
+        function _inFalse(obj, filter) {
+            return _in(obj, filter, false);
+        }
+        Arrays._inFalse = _inFalse;
+        function _everyTrue(obj, filter) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                if (filter(obj[i], i++) === false)
+                    return false;
+            }
+            return true;
+        }
+        Arrays._everyTrue = _everyTrue;
+        function _everyFalse(obj, filter) {
+            var i = 0, l = obj.length;
+            while (i < l) {
+                if (filter(obj[i], i++) === true)
+                    return false;
+            }
+            return true;
+        }
+        Arrays._everyFalse = _everyFalse;
+    })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.r_number = /^[+-]?\d+$/;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -622,7 +985,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -638,7 +1001,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(7), __webpack_require__(6), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, arrays_1, core_1, access_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(2), __webpack_require__(0), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, Arrays_1, access_1, __returnTrue_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -748,6 +1111,7 @@ var __extends = (this && this.__extends) || (function () {
     exports.TargetEvent = TargetEvent;
     (function (Events) {
         var primitive = access_1.Access.primitive;
+        var _makeArray = Arrays_1.Arrays._makeArray;
         function noop(e) {
         }
         function closest(target, selector, ele) {
@@ -847,11 +1211,11 @@ var __extends = (this && this.__extends) || (function () {
                 // 키 이벤트를 받는 그룹
                 return new EventsGroup()
                     .register(document, 'keydown', function (e) {
-                    var keyCode = e.keyCode, hovers = core_1.__makeArray(document.querySelectorAll(':hover'));
+                    var keyCode = e.keyCode, hovers = _makeArray(document.querySelectorAll(':hover'));
                     if (keys.indexOf(keyCode) === -1)
                         keys.push(keyCode);
                     keyListener.forEach(function (v) {
-                        if (hovers.indexOf(v.target) !== -1 && arrays_1.Arrays.equals(v.keys, keys))
+                        if (hovers.indexOf(v.target) !== -1 && Arrays_1.Arrays.equals(v.keys, keys))
                             v.down();
                     });
                 })
@@ -965,20 +1329,20 @@ var __extends = (this && this.__extends) || (function () {
             if (!dispatcher) {
                 directive = getObj;
                 getObj = getObject;
-                dispatcher = core_1.__returnTrue;
+                dispatcher = __returnTrue_1.__returnTrue;
             }
             // arguments : 5
             else if (!directive) {
                 directive = dispatcher;
-                dispatcher = core_1.__returnTrue;
+                dispatcher = __returnTrue_1.__returnTrue;
             }
             return new Events(element, type, function (e) {
                 var target = e.target, attrValue = target.getAttribute(attr), dir = directive[target.getAttribute(attr)];
                 if (dir) {
                     var obj = getObj(e, attrValue), limit = element, h = dispatcher;
+                    obj['event'] = e;
                     while (target && (limit !== target)) {
                         eventProperty(target, obj);
-                        obj['event'] = e;
                         if (h(target, obj, attrValue, e) === 'break')
                             break;
                         target = target.parentElement;
@@ -988,6 +1352,25 @@ var __extends = (this && this.__extends) || (function () {
             });
         }
         Events.dataEvent = dataEvent;
+        function bubbleEvent(element, type, attr, directive) {
+            return new Events(element, type, function (e) {
+                var target = e.target, prop, handler, obj;
+                do {
+                    if (!obj) {
+                        if (target.hasAttribute(attr)) {
+                            prop = target.getAttribute(attr);
+                            handler = directive[prop];
+                            if (handler)
+                                obj = { target: target };
+                        }
+                    }
+                    obj && eventProperty(target, obj);
+                    target = target.parentElement;
+                } while (target && target !== element);
+                obj && handler.call(directive, obj, e);
+            });
+        }
+        Events.bubbleEvent = bubbleEvent;
         /*
          *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
          *
@@ -1055,646 +1438,7 @@ var __extends = (this && this.__extends) || (function () {
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var indexOf = Array.prototype.indexOf;
-    function _indexOf(obj, v) {
-        var l = obj.length;
-        while (l-- > 0)
-            if (obj[l] === v)
-                return l;
-        return -1;
-    }
-    exports._indexOf = _indexOf;
-    function _range(i, l, handler, t) {
-        for (; i < l; i++)
-            handler(i, t);
-        return t;
-    }
-    exports._range = _range;
-    // index 위치에 있는 원소를 move 위치로 옮기기
-    function _move(obj, index, move) {
-        var r = [], i = 0, l = obj.length;
-        r[move] = obj[index];
-        // 역방향 이동
-        if (index > move) {
-            for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < move)
-                        r[i] = obj[i];
-                    else if (i > index)
-                        r[i] = obj[i];
-                    else
-                        r[i + 1] = obj[i];
-                }
-            }
-        }
-        // 정방향 이동
-        else {
-            for (; i < l; i++) {
-                if (i !== index) {
-                    if (i < index)
-                        r[i] = obj[i];
-                    else if (i > move)
-                        r[i] = obj[i];
-                    else
-                        r[i - 1] = obj[i];
-                }
-            }
-        }
-        return r;
-    }
-    exports._move = _move;
-    function _makeArray(obj) {
-        var r = [], l = obj.length;
-        while (l-- > 0)
-            r[l] = obj[l];
-        return r;
-    }
-    exports._makeArray = _makeArray;
-    function _filter(obj, filter) {
-        var r = [], i = 0, l = obj.length, pos = 0;
-        for (; i < l; i++)
-            if (filter(obj[i], i))
-                r[pos++] = obj[i];
-        return r;
-    }
-    exports._filter = _filter;
-    function _forEach(obj, h) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (h(obj[i], i++) === false)
-                return obj;
-        }
-        return obj;
-    }
-    exports._forEach = _forEach;
-    function _selector(obj, h) {
-        var i = 0, l = obj.length, v;
-        while (i < l) {
-            if (h(v = obj[i], i++))
-                return v;
-        }
-        return undefined;
-    }
-    exports._selector = _selector;
-    function _forEachReverse(obj, h) {
-        var i = obj.length;
-        while (i-- > 0) {
-            if (h(obj[i], i) === false)
-                break;
-        }
-        return obj;
-    }
-    exports._forEachReverse = _forEachReverse;
-    function _loop(i, h, t) {
-        for (var p = 0; p < i; p++)
-            h(t, p);
-        return t;
-    }
-    exports._loop = _loop;
-    function _reduce(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            r = h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduce = _reduce;
-    function _reduceN(obj, h, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            h(r, obj[i], i++);
-        }
-        return r;
-    }
-    exports._reduceN = _reduceN;
-    function _map(obj, h) {
-        var r = [], i = 0, l = obj.length;
-        while (i < l) {
-            r[i] = h(obj[i], i++);
-        }
-        return r;
-    }
-    exports._map = _map;
-    function _colMap(values, size, handler) {
-        var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r[rIndex] = handler(v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r[rIndex] = handler(v, rIndex++));
-        return r;
-    }
-    exports._colMap = _colMap;
-    function _colReduce(values, size, handler, r) {
-        var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
-        while (index < l) {
-            if (index % size === 0) {
-                v && (r = handler(r, v, rIndex++));
-                v = [];
-                vIndex = 0;
-            }
-            v[vIndex++] = values[index++];
-        }
-        v && (r = handler(r, v, rIndex++));
-        return r;
-    }
-    exports._colReduce = _colReduce;
-    function _in(obj, filter, r) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === r)
-                return r;
-        }
-        return !r;
-    }
-    // true가 하나라도 있으면
-    function _inTrue(obj, filter) {
-        return _in(obj, filter, true);
-    }
-    exports._inTrue = _inTrue;
-    function _inFalse(obj, filter) {
-        return _in(obj, filter, false);
-    }
-    exports._inFalse = _inFalse;
-    function _everyTrue(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === false)
-                return false;
-        }
-        return true;
-    }
-    exports._everyTrue = _everyTrue;
-    function _everyFalse(obj, filter) {
-        var i = 0, l = obj.length;
-        while (i < l) {
-            if (filter(obj[i], i++) === true)
-                return false;
-        }
-        return true;
-    }
-    exports._everyFalse = _everyFalse;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Created by hellofunc on 2017-03-22.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
-    objStr = class2type.toString(), // [object Object]
-    __onload, __ready = [];
-    function $ready(a) {
-        if (a) {
-            if (__onload)
-                a();
-            else
-                __ready.indexOf(a) === -1 && __ready.push(a);
-        }
-    }
-    exports.$ready = $ready;
-    function $$ready() {
-        __ready.forEach(function (h) { return h(); });
-    }
-    (function (onload) {
-        __onload = onload;
-        if (onload)
-            window.setTimeout($$ready);
-        else {
-            var completed_1 = function () {
-                document.removeEventListener("DOMContentLoaded", completed_1);
-                window.removeEventListener("load", completed_1);
-                __onload = true;
-                window.setTimeout($$ready);
-            };
-            window.addEventListener("load", completed_1);
-        }
-    })(document.readyState === 'complete');
-    exports.ownNames = Object.getOwnPropertyNames;
-    function _toString(v) {
-        return toString.call(v);
-    }
-    exports._toString = _toString;
-    function __noop(a) {
-        return a;
-    }
-    exports.__noop = __noop;
-    function __returnFalse() {
-        return false;
-    }
-    exports.__returnFalse = __returnFalse;
-    function __returnTrue() {
-        return true;
-    }
-    exports.__returnTrue = __returnTrue;
-    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
-    function isObjectType(obj) {
-        return toString.call(obj) === objStr;
-    }
-    exports.isObjectType = isObjectType;
-    function isPlainObject(obj) {
-        var proto, Ctor;
-        // Detect obvious negatives
-        // Use toString instead of jQuery.type to catch host objects
-        if (!obj || toString.call(obj) !== "[object Object]") {
-            return false;
-        }
-        proto = getProto(obj);
-        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
-        if (!proto) {
-            return true;
-        }
-        // Objects with prototype are plain iff they were constructed by a global Object function
-        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
-        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
-    }
-    exports.isPlainObject = isPlainObject;
-    function isEmptyObject(obj) {
-        var name;
-        for (name in obj) {
-            return false;
-        }
-        return true;
-    }
-    exports.isEmptyObject = isEmptyObject;
-    function isArrayLike(item) {
-        return Array.isArray(item) ||
-            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
-    }
-    exports.isArrayLike = isArrayLike;
-    var r_fn = /^function\s*([^\s(]+)/;
-    function getFunctionName(func) {
-        return func.name ? func.name : func.toString().match(r_fn)[1];
-    }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
-    /*
-     *  일종의 객체 Decode/Encode
-     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
-     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
-     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
-     */
-    var dummy = {}, converts = {
-        number: function (a) { return a ? parseInt(a) : 0; },
-    };
-    function extend() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var handler = _extend, i = 0, len, temp;
-        if (typeof args[0] === 'boolean') {
-            if (args[0])
-                handler = _deepExtend;
-            i = 1;
-        }
-        temp = args[i++];
-        len = args.length;
-        for (; i < len; i++) {
-            temp = handler(temp, args[i]);
-        }
-        return temp;
-    }
-    exports.extend = extend;
-    function _extend(dest, source) {
-        if (source == null)
-            return dest;
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length;
-            for (; i < l; i++) {
-                dest[i] = source[i];
-            }
-        }
-        else {
-            var p = void 0;
-            for (p in source) {
-                dest[p] = source[p];
-            }
-        }
-        return dest;
-    }
-    exports._extend = _extend;
-    function _deepExtend(dest, source) {
-        if (isArrayLike(source)) {
-            var i = 0, l = source.length, d = void 0, s = void 0;
-            for (; i < l; i++) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        else {
-            var i = void 0, s = void 0, d = void 0;
-            for (i in source) {
-                s = source[i];
-                d = dest[i];
-                if (isArrayLike(s))
-                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
-                else if (isPlainObject(s))
-                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        return dest;
-    }
-    exports._deepExtend = _deepExtend;
-    function $extend(target, source, converts) {
-        if (converts === void 0) { converts = dummy; }
-        // undefined값이 올때만 패스한다.
-        // null이 들어오면 모든 프로퍼티가 null이 된다.
-        if (source === void 0)
-            return target;
-        var p, v, f;
-        // source가 단순 값일 경우!
-        if (source === null) {
-            for (p in target) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
-                    target[p] = source;
-            }
-        }
-        // source가 객체 혹은 valueMap일 경우
-        else {
-            for (p in source) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
-                    if (typeof f === 'function') {
-                        v = f.call(target, source[p], target);
-                        if (v !== void 0)
-                            target[p] = v;
-                    }
-                    else
-                        target[p] = v;
-            }
-        }
-        return target;
-    }
-    exports.$extend = $extend;
-    function __makeArray(dest) {
-        if (dest == null)
-            return [];
-        var l = dest.length, result = [];
-        while (l-- > 0)
-            result[l] = dest[l];
-        return result;
-    }
-    exports.__makeArray = __makeArray;
-    function __map(obj, handler) {
-        if (obj == null)
-            return obj;
-        var r, v, p;
-        if (typeof obj.length === 'number') {
-            r = [];
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if ((v = handler.call(obj, obj[i], i, obj)) !== void 0)
-                    r.push(v);
-            }
-        }
-        else if (isPlainObject(obj)) {
-            r = {};
-            for (p in obj) {
-                if ((v = handler.call(obj, obj[p], p, obj)) !== void 0)
-                    r[p] = v;
-            }
-        }
-        return r || obj;
-    }
-    exports.__map = __map;
-    function __each(obj, handler) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++) {
-                if (handler.call(obj, obj[i], i, obj) === false)
-                    break;
-            }
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj) {
-                if (handler.call(obj, obj[p], p, obj) === false)
-                    break;
-            }
-        }
-        return obj;
-    }
-    exports.__each = __each;
-    function __reduce(obj, handler, d) {
-        if (obj == null)
-            return obj;
-        var p;
-        if (isArrayLike(obj)) {
-            for (var i = 0, l = obj.length; i < l; i++)
-                d = handler.call(obj, d, obj[i], i, obj);
-        }
-        else if (isPlainObject(obj)) {
-            for (p in obj)
-                d = handler.call(obj, d, obj[p], p, obj);
-        }
-        return d;
-    }
-    exports.__reduce = __reduce;
-    /*
-     *   [1,2,3,4,5];
-     *   ::  (1,2)  (2,3)  (3,4)  (4,5)
-     */
-    function __zipper(array, handler, r) {
-        var length = array.length;
-        if (length < 2)
-            return;
-        var i = 0, l = length - 1;
-        while (i < l) {
-            r = handler(array[i++], array[i], r);
-        }
-        return r;
-    }
-    exports.__zipper = __zipper;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Arrays;
-    (function (Arrays) {
-        // 배열을 테이블화 시켜서 순회한다. 행이 존재함
-        // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
-            var limit = array.length, i = 0, colNum, row = -1;
-            if (col < 1)
-                throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
-            for (; i < limit; i++) {
-                if ((colNum = i % col) === 0)
-                    row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
-                    return;
-            }
-        }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
-            var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
-            for (; i < len; i++) {
-                result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
-            }
-            return result;
-        }
-        Arrays.slice = slice;
-        /*
-         *  DataTransferItemList 때문에 만든 함수
-         *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
-         *  *사용법은 로직 참고
-         */
-        function promiseMap(array, handler) {
-            return new Promise(function (resolve, _) {
-                var check, len = check = array.length, result = [];
-                var _loop_1 = function () {
-                    var index = len;
-                    handler(array[index], function (d) {
-                        result[index] = d;
-                        --check === 0 && resolve(result);
-                    });
-                };
-                while (len-- > 0) {
-                    _loop_1();
-                }
-            });
-        }
-        Arrays.promiseMap = promiseMap;
-        // 숫자배열을 만들어준다.
-        // 시작넘버부터 객수
-        function rangeBySize(start, size) {
-            var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
-            }
-            return array;
-        }
-        Arrays.rangeBySize = rangeBySize;
-        // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
-            var reverse = start > lastNum ? true : false, array = [];
-            /*
-             *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
-             *  일단 뒤짚어서 배열을 만든 후, 내보낼때 reserve()한다.
-             */
-            if (reverse) {
-                var temp = start;
-                start = lastNum;
-                lastNum = temp;
-            }
-            for (var i = 0, l = lastNum - start + 1; i < l; i++) {
-                array.push(i + start);
-            }
-            return reverse ? array.reverse() : array;
-        }
-        Arrays.range_atob = range_atob;
-        // drive 배열의 원소만큼 루프를 돌린다.
-        // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
-            if (drive == null)
-                return;
-            for (var i = 0; i < drive.length; i++) {
-                callback.call(drive, drive[i], driven, i);
-            }
-        }
-        Arrays._with = _with;
-        function fill(length, v) {
-            if (v === void 0) { v = null; }
-            var i = 0, array = [], handler = v;
-            if (typeof v !== 'function')
-                handler = function () { return v; };
-            for (; i < length; i++) {
-                array[i] = handler.call(array, i);
-            }
-            return array;
-        }
-        Arrays.fill = fill;
-        // 배열을 length의 갯수만큼 나눈다.
-        // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
-            var result = [], temp, pos;
-            for (var i = 0, l = target.length; i < l; i++) {
-                pos = i % length;
-                if (!pos)
-                    result.push(temp = []);
-                temp[pos] = target[i];
-            }
-            return result;
-        }
-        Arrays.split = split;
-        // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
-            var i = 0, l = key.length;
-            if (target.length < l)
-                return false;
-            for (; i < l; i++) {
-                if (key[i] !== target[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
-            var i = 0, l = key.length, r = target.length - l;
-            if (r < 0)
-                return false;
-            for (; i < l; i++, r++) {
-                if (key[i] !== target[r])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.endWith = endWith;
-        // 값 비교
-        function equals(a, b) {
-            if (a === b)
-                return true;
-            if (a == null || b == null)
-                return false;
-            if (a.length != b.length)
-                return false;
-            // If you don't care about the order of the elements inside
-            // the array, you should sort both arrays here.
-            for (var i = 0, l = a.length; i < l; i++) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        }
-        Arrays.equals = equals;
-    })(Arrays = exports.Arrays || (exports.Arrays = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -1790,15 +1534,78 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Arrays_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var NameMap = /** @class */ (function () {
+        function NameMap() {
+            this.map = {};
+            this.datas = []; // 중복방지를 위한 리스트
+        }
+        NameMap.prototype.get = function (name) {
+            if (typeof name !== 'string')
+                return this.datas;
+            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
+            if (!list)
+                return [];
+            return list.filter(function (v) { return Arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
+        };
+        NameMap.prototype.add = function (name, data) {
+            if (this.datas.indexOf(data) === -1) {
+                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
+                (map[key] || (map[key] = [])).push({ names: args, data: data });
+                this.datas.push(data);
+            }
+            return this;
+        };
+        NameMap.prototype.remove = function (name) {
+            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
+            if (list) {
+                map[key] = list.filter(function (v) {
+                    if (Arrays_1.Arrays.startWith(args, v.names)) {
+                        datas.splice(datas.indexOf(v.data), 1);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            return this;
+        };
+        return NameMap;
+    }());
+    exports.NameMap = NameMap;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function __returnTrue(a) {
+        return true;
+    }
+    exports.__returnTrue = __returnTrue;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(1), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, format_1, _indexOf_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(12), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, _indexOf_1, Formats_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var expValParse = format_1.Formats.expValParse;
     var access = access_1.Access.access;
-    var directive = format_1.Formats.getDirective(), ___createFunction = function (exp) { return new Function('_', '$', 'return _ == null ? null : (' + exp + ');'); }, __createFunction = function (str) {
+    var expValParse = Formats_1.Formats.expValParse;
+    var directive = Formats_1.Formats.getDirective(), ___createFunction = function (exp) { return new Function('_', '$', 'return _ == null ? null : (' + exp + ');'); }, __createFunction = function (str) {
         var _a = expValParse(str), _prop = _a[0], dir = _a[1], opt = _a[2], prop = _prop[0] !== '_' && _prop[0] !== '$' && _prop.indexOf(' ') === -1 && _prop.indexOf('.') === -1
             ? '_.' + _prop : _prop, func = ___createFunction(prop);
         return function (data, opData, directive) {
@@ -1996,173 +1803,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Formats_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function $get(url) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('GET', url, true);
-            xhr.send(null);
-        });
-    }
-    exports.$get = $get;
-    function $post(url, data) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('POST', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify(data));
-        });
-    }
-    exports.$post = $post;
-    function $put(url, data) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('PUT', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify(data));
-        });
-    }
-    exports.$put = $put;
-    function $delete(url) {
-        return new Promise(function (resolve, error) {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200)
-                        resolve();
-                    else
-                        error(xhr);
-                }
-            };
-            xhr.open('DELETE', url, true);
-            xhr.send(null);
-        });
-    }
-    exports.$delete = $delete;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, arrays_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var NameMap = /** @class */ (function () {
-        function NameMap() {
-            this.map = {};
-            this.datas = []; // 중복방지를 위한 리스트
-        }
-        NameMap.prototype.get = function (name) {
-            if (typeof name !== 'string')
-                return this.datas;
-            var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
-            if (!list)
-                return [];
-            return list.filter(function (v) { return arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
-        };
-        NameMap.prototype.add = function (name, data) {
-            if (this.datas.indexOf(data) === -1) {
-                var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1);
-                (map[key] || (map[key] = [])).push({ names: args, data: data });
-                this.datas.push(data);
-            }
-            return this;
-        };
-        NameMap.prototype.remove = function (name) {
-            var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
-            if (list) {
-                map[key] = list.filter(function (v) {
-                    if (arrays_1.Arrays.startWith(args, v.names)) {
-                        datas.splice(datas.indexOf(v.data), 1);
-                        return false;
-                    }
-                    return true;
-                });
-            }
-            return this;
-        };
-        return NameMap;
-    }());
-    exports.NameMap = NameMap;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
-    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
-    function indexOfChar(str, char, i) {
-        if (i === void 0) { i = 0; }
-        var l = str.length;
-        for (; i < l; i++) {
-            if (str[i] === char)
-                return i;
-            if (str[i] === '"')
-                i = str.indexOf('"', i + 1);
-        }
-        return -1;
-    }
-    exports.indexOfChar = indexOfChar;
-    function lastIndexOfChar(str, char, i) {
-        if (i === void 0) { i = str.length; }
-        var l = -1;
-        for (; i > l; i--) {
-            if (str[i] === char)
-                return i;
-            if (str[i] === '"')
-                i = str.lastIndexOf('"', i);
-        }
-        return -1;
-    }
-    exports.lastIndexOfChar = lastIndexOfChar;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, format_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var date = format_1.Formats.date;
-    var datetime = format_1.Formats.datetime;
+    var date = Formats_1.Formats.date;
+    var datetime = Formats_1.Formats.datetime;
     var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, __day = ["일", "월", "화", "수", "목", "금", "토"], __month = function (year, month, val) {
         var i = 1;
         if (val < 0)
@@ -2406,16 +2051,249 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 14 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(3), __webpack_require__(9), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1, access_1, dom_1, replaceHTML_1, format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Created by hellofunc on 2017-03-22.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
+    objStr = class2type.toString(), // [object Object]
+    __onload, __ready = [];
+    function $ready(a) {
+        if (a) {
+            if (__onload)
+                a();
+            else
+                __ready.indexOf(a) === -1 && __ready.push(a);
+        }
+    }
+    exports.$ready = $ready;
+    function $$ready() {
+        __ready.forEach(function (h) { return h(); });
+    }
+    (function (onload) {
+        __onload = onload;
+        if (onload)
+            window.setTimeout($$ready);
+        else {
+            var completed_1 = function () {
+                document.removeEventListener("DOMContentLoaded", completed_1);
+                window.removeEventListener("load", completed_1);
+                __onload = true;
+                window.setTimeout($$ready);
+            };
+            window.addEventListener("load", completed_1);
+        }
+    })(document.readyState === 'complete');
+    exports.ownNames = Object.getOwnPropertyNames;
+    function _toString(v) {
+        return toString.call(v);
+    }
+    exports._toString = _toString;
+    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
+    function isObjectType(obj) {
+        return toString.call(obj) === objStr;
+    }
+    exports.isObjectType = isObjectType;
+    function isPlainObject(obj) {
+        var proto, Ctor;
+        // Detect obvious negatives
+        // Use toString instead of jQuery.type to catch host objects
+        if (!obj || toString.call(obj) !== "[object Object]") {
+            return false;
+        }
+        proto = getProto(obj);
+        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
+        if (!proto) {
+            return true;
+        }
+        // Objects with prototype are plain iff they were constructed by a global Object function
+        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
+        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
+    }
+    exports.isPlainObject = isPlainObject;
+    function isEmptyObject(obj) {
+        var name;
+        for (name in obj) {
+            return false;
+        }
+        return true;
+    }
+    exports.isEmptyObject = isEmptyObject;
+    function isArrayLike(item) {
+        return Array.isArray(item) ||
+            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
+    }
+    exports.isArrayLike = isArrayLike;
+    var r_fn = /^function\s*([^\s(]+)/;
+    function getFunctionName(func) {
+        return func.name ? func.name : func.toString().match(r_fn)[1];
+    }
+    exports.getFunctionName = getFunctionName;
+    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    /*
+     *  일종의 객체 Decode/Encode
+     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
+     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
+     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
+     */
+    var dummy = {}, converts = {
+        number: function (a) { return a ? parseInt(a) : 0; },
+    };
+    function extend() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var handler = _extend, i = 0, len, temp;
+        if (typeof args[0] === 'boolean') {
+            if (args[0])
+                handler = _deepExtend;
+            i = 1;
+        }
+        temp = args[i++];
+        len = args.length;
+        for (; i < len; i++) {
+            temp = handler(temp, args[i]);
+        }
+        return temp;
+    }
+    exports.extend = extend;
+    function _extend(dest, source) {
+        if (source == null)
+            return dest;
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length;
+            for (; i < l; i++) {
+                dest[i] = source[i];
+            }
+        }
+        else {
+            var p = void 0;
+            for (p in source) {
+                dest[p] = source[p];
+            }
+        }
+        return dest;
+    }
+    exports._extend = _extend;
+    function _deepExtend(dest, source) {
+        if (isArrayLike(source)) {
+            var i = 0, l = source.length, d = void 0, s = void 0;
+            for (; i < l; i++) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        else {
+            var i = void 0, s = void 0, d = void 0;
+            for (i in source) {
+                s = source[i];
+                d = dest[i];
+                if (isArrayLike(s))
+                    dest[i] = _deepExtend(isArrayLike(d) ? d : [], s);
+                else if (isPlainObject(s))
+                    dest[i] = _deepExtend(isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        return dest;
+    }
+    exports._deepExtend = _deepExtend;
+    function $extend(target, source, converts) {
+        if (converts === void 0) { converts = dummy; }
+        // undefined값이 올때만 패스한다.
+        // null이 들어오면 모든 프로퍼티가 null이 된다.
+        if (source === void 0)
+            return target;
+        var p, v, f;
+        // source가 단순 값일 경우!
+        if (source === null) {
+            for (p in target) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
+                    target[p] = source;
+            }
+        }
+        // source가 객체 혹은 valueMap일 경우
+        else {
+            for (p in source) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
+                    if (typeof f === 'function') {
+                        v = f.call(target, source[p], target);
+                        if (v !== void 0)
+                            target[p] = v;
+                    }
+                    else
+                        target[p] = v;
+            }
+        }
+        return target;
+    }
+    exports.$extend = $extend;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // "..." 안의 문자는 제외한 상태에서 char를 찾는다.
+    // HTML 문법상 "" 안에는 "는 절대 들어갈 수 없다.
+    function indexOfChar(str, char, i) {
+        if (i === void 0) { i = 0; }
+        var l = str.length;
+        for (; i < l; i++) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.indexOf('"', i + 1);
+        }
+        return -1;
+    }
+    exports.indexOfChar = indexOfChar;
+    function lastIndexOfChar(str, char, i) {
+        if (i === void 0) { i = str.length; }
+        var l = -1;
+        for (; i > l; i--) {
+            if (str[i] === char)
+                return i;
+            if (str[i] === '"')
+                i = str.lastIndexOf('"', i);
+        }
+        return -1;
+    }
+    exports.lastIndexOfChar = lastIndexOfChar;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0), __webpack_require__(4), __webpack_require__(1), __webpack_require__(2), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, access_1, DOM_1, Formats_1, Arrays_1, _compile_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var access = access_1.Access.access;
-    var expValParse = format_1.Formats.expValParse;
-    var number = format_1.Formats.number;
-    var datetime = format_1.Formats.datetime;
+    var number = Formats_1.Formats.number;
+    var datetime = Formats_1.Formats.datetime;
+    var expValParse = Formats_1.Formats.expValParse;
+    var _forEach = Arrays_1.Arrays._forEach;
     function isAlikeArray(target) {
         if (target && typeof target.length === 'number') {
             return true;
@@ -2466,7 +2344,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             ele.textContent = '';
             // ① 배열인 경우
             if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) {
+                _forEach($val, function (v, p) {
                     var c = temple_1(v), prop = $$mapping(mapping, p);
                     render(c, prop, data, v, Mapping);
                     c.setAttribute('data-mapping', prop);
@@ -2488,7 +2366,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         else if ((attrVal = ele.getAttribute('data-html')) != null) {
             var html_1 = Mapping.html[attrVal], htmls_1 = [], pos_1 = 0;
             if (isAlikeArray($val)) {
-                array_1._forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
+                _forEach($val, function (v, p) { return htmls_1[pos_1++] = html_1(v); });
             }
             else
                 htmls_1[pos_1++] = html_1($val);
@@ -2538,8 +2416,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Mapping.prototype.addHTML = function (target) {
             var html = this.html;
-            array_1._forEach(target.querySelectorAll('[data-html]'), function (e) {
-                html[e.getAttribute('data-html')] = replaceHTML_1._replaceHTML(e.innerText);
+            _forEach(target.querySelectorAll('[data-html]'), function (e) {
+                html[e.getAttribute('data-html')] = _compile_1._replaceHTML(e.innerText);
             });
             return this;
         };
@@ -2580,7 +2458,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Mapping.prototype.$follow = function (name) {
             var _this = this;
-            array_1._forEach(document.querySelectorAll('[data-follow]'), function (e) {
+            _forEach(document.querySelectorAll('[data-follow]'), function (e) {
                 if (e.getAttribute('data-follow').indexOf(name) !== -1) {
                     _this.$render(e);
                 }
@@ -2591,7 +2469,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }());
     exports.Mapping = Mapping;
     (function (Mapping) {
-        var createHTML = dom_1.DOM.createHTML;
+        var createHTML = DOM_1.DOM.createHTML;
         function createTemplate(obj, target) {
             var name = target.getAttribute('data-template'), html = createHTML(target.innerText);
             obj[name] = function () { return html.cloneNode(true); };
@@ -2601,7 +2479,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var $templates = {};
             if (target.hasAttribute('data-template'))
                 return createTemplate($templates, target);
-            array_1._forEach(target.querySelectorAll('[data-template]'), function (e) {
+            _forEach(target.querySelectorAll('[data-template]'), function (e) {
                 createTemplate($templates, e);
             });
             return $templates;
@@ -2609,6 +2487,83 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Mapping.createTemplates = createTemplates;
     })(Mapping = exports.Mapping || (exports.Mapping = {}));
     exports.Mapping = Mapping;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function $get(url) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('GET', url, true);
+            xhr.send(null);
+        });
+    }
+    exports.$get = $get;
+    function $post(url, data) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+        });
+    }
+    exports.$post = $post;
+    function $put(url, data) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText && JSON.parse(xhr.responseText));
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('PUT', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+        });
+    }
+    exports.$put = $put;
+    function $delete(url) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve();
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('DELETE', url, true);
+            xhr.send(null);
+        });
+    }
+    exports.$delete = $delete;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -2631,13 +2586,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2), __webpack_require__(17), __webpack_require__(19), __webpack_require__(13), __webpack_require__(0), __webpack_require__(15), __webpack_require__(1), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, calendar_1, access_1, _noop_1, format_1, events_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(17), __webpack_require__(19), __webpack_require__(10), __webpack_require__(0), __webpack_require__(5), __webpack_require__(1), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, Calendar_1, access_1, events_1, Formats_1, __noop_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var date = format_1.Formats.date;
-    var datetime = format_1.Formats.datetime;
-    var toDate = format_1.Formats.toDate;
     var simpleTrigger = events_1.Events.simpleTrigger;
+    var toDate = Formats_1.Formats.toDate;
+    var date = Formats_1.Formats.date;
+    var datetime = Formats_1.Formats.datetime;
     var forEach = Array.prototype.forEach, dummy = {}, r_date = /\d{4}-\d{1,2}-\d{1,2}/, 
     /*
      *  ① type.name
@@ -2739,6 +2694,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }), 
     // <input>값을 셋팅한다.
     DEFAULT_SETTER = remap_1._remap({
+        select: function (input, val) {
+        },
+        'select-one': function (input, val) {
+            var opt = input.selectedOptions, len = opt.length;
+            while (len-- > 0) {
+                opt[len].selected = opt[len].value == val;
+            }
+        },
         number: function (input, val) {
             if (typeof val === "number")
                 val = val.toString();
@@ -2775,7 +2738,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 if (Array.isArray(val))
                     input.checked = val.indexOf(value) !== -1;
                 else
-                    input.checked = value == val;
+                    input.checked = value === (val + '');
             }
         },
         checkbox: 'radio',
@@ -2783,9 +2746,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             switch (input.getAttribute('data-type')) {
                 case 'date':
                     if (value instanceof Date)
-                        return input.value = calendar_1.Calendar.isodate(value);
+                        return input.value = Calendar_1.Calendar.isodate(value);
                 default:
-                    input.value = value || '';
+                    input.value = value == null ? '' : value;
             }
         }
     });
@@ -2845,7 +2808,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.element = element;
             this.groups = [];
             this.defaultHandler = dummy;
-            this.validHandler = _noop_1.__noop;
+            this.validHandler = __noop_1.__noop;
             formEach(element, this);
         }
         Forms.prototype.$element = function (handler) {
@@ -2871,7 +2834,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Forms.prototype.values = function (handlers) {
             if (handlers === void 0) { handlers = this.defaultHandler; }
             var result = {};
-            this.each(function (p, inputs) {
+            this.each(function (inputs, p) {
                 if (handlers[p])
                     result[p] = handlers[p].get(inputs);
                 else
@@ -2883,7 +2846,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             if (obj === void 0) { obj = dummy; }
             if (handlers === void 0) { handlers = this.defaultHandler; }
             var v;
-            this.each(function (p, inputs) {
+            this.each(function (inputs, p) {
                 v = obj[p];
                 if (handlers[p])
                     handlers[p].set(inputs, v);
@@ -2896,12 +2859,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return this;
         };
         Forms.prototype.each = function (handler, obj) {
-            var p, inputs;
-            this.groups.forEach(function (g) {
-                inputs = g.inputs;
-                for (p in inputs)
-                    obj = handler(p, inputs[p], obj);
-            });
+            if (typeof handler === 'function') {
+                this.groups.forEach(function (g) {
+                    var p, inputs = g.inputs, element = g.element;
+                    for (p in inputs)
+                        handler(inputs[p], p, inputs, element, obj);
+                });
+            }
+            else {
+                this.groups.forEach(function (g) {
+                    var p, inputs = g.inputs, element = g.element;
+                    for (p in handler) {
+                        if (inputs[p])
+                            handler[p](inputs[p], p, inputs, element, obj);
+                    }
+                });
+            }
             return obj;
         };
         Forms.prototype.valid = function (handler) {
@@ -3032,18 +3005,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return attrName + ' is wrong.' + '(:' + attrValue + ')';
         }
         function $valid(t, handler) {
-            if (handler === void 0) { handler = _noop_1.__noop; }
+            if (handler === void 0) { handler = __noop_1.__noop; }
             var form = t instanceof Forms ? t : Forms.createForms(t), element = form.element, result = true, valid, fn;
             form.groups.forEach(function (group) {
                 var name, inputs = group.inputs, e = group.element;
                 for (name in inputs) {
-                    inputs[name].forEach(function (input) {
+                    inputs[name].forEach(function (input, i) {
                         var type = input.type, attributes = input.attributes, l = input.attributes.length, attr;
                         while (l-- > 0) {
                             attr = attributes[l];
                             if (fn = getValid(attr.name, type, name)) {
                                 result = (valid = fn(input, attr.value)) ? result : false;
-                                handler(valid, input, e, element);
+                                handler(valid, input, e, element, inputs, i);
                             }
                         }
                     });
@@ -3123,10 +3096,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(1), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, format_1, _ajax_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(11), __webpack_require__(14), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, core_1, _ajax_1, Formats_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var datetime = format_1.Formats.datetime;
+    var datetime = Formats_1.Formats.datetime;
     var $disassemble = {
         activetime: function (v) {
             if (!v)
@@ -3587,8 +3560,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 20 */,
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -3656,6 +3628,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }
     exports.selectMap = selectMap;
     function select(context, selector) {
+        if (selector[0] === '#')
+            return document.getElementById(selector.slice(1));
         var i = selector.indexOf('='), l = selector.lastIndexOf('"'), key = selector.substring(0, i), value = selector.substring(i + 2, l), r;
         switch (key) {
             case 'sel':
@@ -3703,14 +3677,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _noop_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, __noop_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function mapperDispatcher(handler) {
-        if (handler === void 0) { handler = _noop_1.__noop; }
+        if (handler === void 0) { handler = __noop_1.__noop; }
         return function (t, o, v, e) {
             var p;
             if (!o.mapping && (p = t.getAttribute('data-mapping'))) {
@@ -3732,7 +3706,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -3891,20 +3865,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, DOM_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var FormEvent;
     (function (FormEvent) {
-        var className = dom_1.DOM.className;
+        var className = DOM_1.DOM.className;
         var forEach = Array.prototype.forEach, placeholder_props = 'text number', func = {
             number: (function (r) {
                 return function (s) {
@@ -3982,8 +3955,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 30 */,
-/* 31 */
+/* 28 */,
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -3996,10 +3969,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(16), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(16), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Forms_1, DOM_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var className = dom_1.DOM.className;
+    var className = DOM_1.DOM.className;
     var vf_className = ['form-error'], validHandler = function (valid, input, g, f) { return className(input, vf_className, !valid); };
     var ModifyForm = /** @class */ (function (_super) {
         __extends(ModifyForm, _super);
@@ -4032,13 +4005,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 32 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, DOM_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var className = dom_1.DOM.className;
+    var className = DOM_1.DOM.className;
     var cName = ['confirm-active'];
     var ConfirmBox = /** @class */ (function () {
         function ConfirmBox(element) {
@@ -4098,19 +4071,20 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
+/* 31 */,
+/* 32 */,
 /* 33 */,
 /* 34 */,
 /* 35 */,
 /* 36 */,
 /* 37 */,
-/* 38 */,
-/* 39 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(14), __webpack_require__(1), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Mapping_1, format_1, selector_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(6), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Mapping_1, selector_1, Formats_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var datetime = format_1.Formats.datetime;
+    var datetime = Formats_1.Formats.datetime;
     var element = selector_1.getElementById('bill'), classList = element.classList, types = selector_1.getElementsByClassName(element, 'bill', function (e, i, r) {
         element.removeChild(e);
         r[e.id] = e;
@@ -4210,12 +4184,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(5), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, array_1, dom_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(4), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, DOM_1, Arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var _selector = Arrays_1.Arrays._selector;
+    var _map = Arrays_1.Arrays._map;
     var Offset = /** @class */ (function () {
         function Offset(element) {
             this.element = element;
@@ -4225,7 +4201,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
          *  위치가 이동했을수도 있으므로 재계산용 메서드
          */
         Offset.prototype.reset = function () {
-            var element = this.element, s = this.start = dom_1.DOM.offset(element).top, h = element.offsetHeight;
+            var element = this.element, s = this.start = DOM_1.DOM.offset(element).top, h = element.offsetHeight;
             this.end = s + element.offsetHeight;
             this.center = s + Math.ceil(h / 2);
         };
@@ -4242,7 +4218,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var _this = this;
             this.y = 0;
             this.event = new events_1.Events(document, 'dragover', function (e) {
-                var isUp = e.pageY < _this.y, y = _this.y = e.pageY, matched = array_1._selector(_this.list, function (offset) { return isUp ? offset.up(y) : offset.down(y); });
+                var isUp = e.pageY < _this.y, y = _this.y = e.pageY, matched = _selector(_this.list, function (offset) { return isUp ? offset.up(y) : offset.down(y); });
                 // ① 매치되는게 있으면
                 if (matched) {
                     _this.handler(matched.element, isUp);
@@ -4251,7 +4227,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }).off();
         }
         DragSort.prototype.on = function (list, handler) {
-            this.list = array_1._map(list, function (l) { return new Offset(l); });
+            this.list = _map(list, function (l) { return new Offset(l); });
             this.handler = handler;
             this.event.on();
             return this;
@@ -4268,7 +4244,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -4281,7 +4257,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(42)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(41)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageScreen = /** @class */ (function (_super) {
@@ -4322,10 +4298,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
-/* 42 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(23)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageController = /** @class */ (function () {
@@ -4529,7 +4505,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -4542,13 +4518,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(13), __webpack_require__(4), __webpack_require__(14), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, calendar_1, events_1, Mapping_1, dom_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(13), __webpack_require__(4), __webpack_require__(10)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, Mapping_1, DOM_1, Calendar_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var className = dom_1.DOM.className;
+    var className = DOM_1.DOM.className;
     var directive = {
         datetime: function (ele, v) {
-            ele.textContent = calendar_1.Calendar.format(v.datetime, 'yyyy-MM-dd(E) HH:mm');
+            ele.textContent = Calendar_1.Calendar.format(v.datetime, 'yyyy-MM-dd(E) HH:mm');
         },
         name: function (ele, v) {
             var img = v.img;
@@ -4636,6 +4612,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 
 /***/ }),
+/* 43 */,
 /* 44 */,
 /* 45 */,
 /* 46 */,
@@ -4645,23 +4622,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 /* 50 */,
 /* 51 */,
 /* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(18), __webpack_require__(13), __webpack_require__(6), __webpack_require__(1), __webpack_require__(57), __webpack_require__(43), __webpack_require__(5), __webpack_require__(3), __webpack_require__(4), __webpack_require__(0), __webpack_require__(29), __webpack_require__(58), __webpack_require__(9), __webpack_require__(40), __webpack_require__(23), __webpack_require__(59), __webpack_require__(41), __webpack_require__(31), __webpack_require__(14), __webpack_require__(32), __webpack_require__(8), __webpack_require__(39), __webpack_require__(2), __webpack_require__(21), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, calendar_1, core_1, format_1, FileUpload_1, Screen_1, array_1, dom_1, events_1, access_1, FormEvent_1, _recieveFiles_1, replaceHTML_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ModifyForm_1, Mapping_1, ComfirmBox_1, selector_1, Bill_1, number_1, _select_1, dispatcher_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(18), __webpack_require__(11), __webpack_require__(54), __webpack_require__(42), __webpack_require__(4), __webpack_require__(5), __webpack_require__(0), __webpack_require__(27), __webpack_require__(55), __webpack_require__(39), __webpack_require__(22), __webpack_require__(56), __webpack_require__(40), __webpack_require__(29), __webpack_require__(13), __webpack_require__(30), __webpack_require__(6), __webpack_require__(38), __webpack_require__(3), __webpack_require__(20), __webpack_require__(21), __webpack_require__(1), __webpack_require__(10), __webpack_require__(2), __webpack_require__(9)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Work_1, core_1, FileUpload_1, Screen_1, DOM_1, events_1, access_1, FormEvent_1, _recieveFiles_1, DragSort_1, position_1, patseImage_1, ImageScreen_1, ModifyForm_1, Mapping_1, ComfirmBox_1, selector_1, Bill_1, number_1, _select_1, dispatcher_1, Formats_1, Calendar_1, Arrays_1, _compile_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var createHTML = dom_1.DOM.createHTML;
+    var createHTML = DOM_1.DOM.createHTML;
     var dataEvent = events_1.Events.dataEvent;
     var access = access_1.Access.access;
-    var className = dom_1.DOM.className;
-    var number = format_1.Formats.number;
+    var className = DOM_1.DOM.className;
     var simpleTrigger = events_1.Events.simpleTrigger;
-    var filesize = format_1.Formats.filesize;
     var acceptKeys = events_1.Events.acceptKeys;
+    var number = Formats_1.Formats.number;
+    var filesize = Formats_1.Formats.filesize;
+    var _forEach = Arrays_1.Arrays._forEach;
+    var _makeArray = Arrays_1.Arrays._makeArray;
+    var _move = Arrays_1.Arrays._move;
+    var _filter = Arrays_1.Arrays._filter;
+    var _reduce = Arrays_1.Arrays._reduce;
+    var _map = Arrays_1.Arrays._map;
     var EventObject = /** @class */ (function () {
         function EventObject(e) {
             this.e = e;
@@ -4681,7 +4661,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             },
             datetime: function (ele, v) {
                 if (v)
-                    ele.textContent = calendar_1.Calendar.format(v, 'yyyy-MM-dd(E) HH:mm');
+                    ele.textContent = Calendar_1.Calendar.format(v, 'yyyy-MM-dd(E) HH:mm');
             },
             len: function (ele, v) {
                 var p = ele.parentElement;
@@ -4755,7 +4735,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 var _this = this;
                 if (e.hasAttribute('data-pre-processor'))
                     this[e.getAttribute('data-pre-processor')](e);
-                array_1._forEach(e.querySelectorAll('[data-pre-processor]'), function (e) {
+                _forEach(e.querySelectorAll('[data-pre-processor]'), function (e) {
                     _this[e.getAttribute('data-pre-processor')](e);
                 });
                 return e;
@@ -4763,7 +4743,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             state: function (ele) {
                 var $state = Work_1.Work.$state, _a = _select_1.selectAll(ele, ['tag="span"[0]', 'tag="ul"[0]']), span = _a[0], ul = _a[1], current = $work.state.toString(), $active = function (i) {
                     span.textContent = $state[current = i];
-                    array_1._forEach(ul.children, function (e) {
+                    _forEach(ul.children, function (e) {
                         if (e.getAttribute('data-dismiss') == i)
                             e.classList.add('active');
                         else
@@ -4822,14 +4802,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     function (val) { return inputs[3].value = (val[0] * val[1] + val[2]) + ''; }
                 ];
                 // keyup 이벤트
-                array_1._forEach(inputs, function (input, i) {
+                _forEach(inputs, function (input, i) {
                     acceptKeys(input, function (val) {
                         if (!val.trim())
                             val = '0';
                         if (number_1.r_number.test(val)) {
                             var values_1 = [];
                             values_1[i] = read(val);
-                            array_1._forEach(processor, function (func, i) { return values_1[i] = func(values_1); });
+                            _forEach(processor, function (func, i) { return values_1[i] = func(values_1); });
                         }
                     }, false);
                 });
@@ -4853,9 +4833,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     target && className(target, ['sort-active'], false);
                     upEvent.off();
                     sort.off();
-                    var idx = array_1._makeArray(tbody.getElementsByTagName('tr')).indexOf(target);
+                    var idx = _makeArray(tbody.getElementsByTagName('tr')).indexOf(target);
                     if (index !== idx) {
-                        var values_2 = array_1._move(items, index, idx);
+                        var values_2 = _move(items, index, idx);
                         Work_1.WorkItem.priority(values_2.map(function (v) { return v.id; })).then(function (v) {
                             $work.items = values_2;
                             $mapping.$render(mapper);
@@ -4880,7 +4860,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         items = $work.items;
                         index = items.indexOf(access($work, target.getAttribute('data-mapping')));
                         upEvent.on();
-                        sort.on(array_1._filter(array_1._makeArray(tbody.getElementsByTagName('tr')), function (v) { return v !== target; }), sortHandler);
+                        sort.on(_filter(_makeArray(tbody.getElementsByTagName('tr')), function (v) { return v !== target; }), sortHandler);
                     }
                 });
             },
@@ -4927,7 +4907,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         $viewForms = (function (list) {
             var $forms = {};
             // <script data-form="{}"> 순회
-            array_1._forEach(list, function (e) {
+            _forEach(list, function (e) {
                 $forms[e.getAttribute('data-form')] =
                     new ModifyForm_1.ModifyForm(preProcessor.$attach(createHTML(e.innerText)));
             });
@@ -4938,8 +4918,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
          */
         $$templates = (function (list) {
             var result = {};
-            array_1._forEach(list, function (e) {
-                result[e.getAttribute('data-template')] = replaceHTML_1._replaceHTML(e.innerText);
+            _forEach(list, function (e) {
+                result[e.getAttribute('data-template')] = _compile_1._replaceHTML(e.innerText);
             });
             return result;
         })(document.head.querySelectorAll('[data-template]')), fileTo = function (file) { return ({ name: file.name, data: file }); }, blobTo = function (blob) {
@@ -4948,7 +4928,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }, $fileUpload = function (type, ownId, files, handler) {
             $uploadProgress.init(files.length).on();
             // ② files 순회
-            array_1._reduce(files, function (promise, file, i) {
+            _reduce(files, function (promise, file, i) {
                 return promise.then(function () {
                     return Work_1.WorkFile
                         .uploadFile($path, file, $uploadProgress.start(file.name, i))
@@ -5118,7 +5098,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             upload: function (_a) {
                 var mapper = _a.mapper, name = _a.name;
                 _recieveFiles_1._recieveFiles(function (files) {
-                    $fileUpload('ref', $work.id, array_1._map(files, fileTo), function (file) {
+                    $fileUpload('ref', $work.id, _map(files, fileTo), function (file) {
                         $work.addRef(file);
                         $mapping.$render(mapper);
                         $mapping.$follow(name);
@@ -5130,7 +5110,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 var name = _a.name, mapping = _a.mapping, type = _a.type;
                 var item = $screen.item;
                 _recieveFiles_1._recieveFiles(function (files) {
-                    $fileUpload(type, item.id, array_1._map(files, fileTo), function (file) {
+                    $fileUpload(type, item.id, _map(files, fileTo), function (file) {
                         if (type === 'print')
                             item.addPrint(file);
                         else
@@ -5198,12 +5178,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 57 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var _forEach = Arrays_1.Arrays._forEach;
     var FileUpload = /** @class */ (function () {
         /*
          *  서버 송출하는 upload 진행도가 전체에서 차지할 비율
@@ -5220,7 +5201,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             this.send = send;
             this._sending = false;
             this.rr = 100 * up;
-            array_1._forEach(element.querySelectorAll('[data-prop]'), function (e) {
+            _forEach(element.querySelectorAll('[data-prop]'), function (e) {
                 _this[e.getAttribute('data-prop')] = e;
             });
         }
@@ -5272,7 +5253,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 58 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
@@ -5304,13 +5285,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 59 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(15), __webpack_require__(60), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _noop_1, util_1, array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(57), __webpack_require__(15), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _base64ToBlob_1, __noop_1, Arrays_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var catchKey = events_1.Events.catchKey;
+    var _forEach = Arrays_1.Arrays._forEach;
     var r_filename = /\.[^.]+$/, r_https = /^https?:\/\//, r_img = /img/i, r_http = /^http/, r_data = /^data:/, 
     /*
      *  모든 pasteImage는 하나의 엘리먼트를 공유한다.
@@ -5387,7 +5369,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // ctrl키에 따라 focus()
             .register(catchKey(ele, [17], function (n) { return n === 0 && ctrl.on(); }, function () { return ctrl.off(); }))
             // v키를 업하면 곧바로 editElement를 확인한다.
-            .register(catchKey(ele, [17, 86], _noop_1.__noop, function () {
+            .register(catchKey(ele, [17, 86], __noop_1.__noop, function () {
             var child = contenteditable.firstChild, src;
             if (child) {
                 // base64는 textNode로 들어온다.
@@ -5407,7 +5389,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 if (r_data.test(src)) {
                     handler({
                         kind: 'blob',
-                        blob: util_1.base64ToBlob(src)
+                        blob: _base64ToBlob_1.base64ToBlob(src)
                     });
                 }
             }
@@ -5426,7 +5408,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                  */
                 if (items.length) {
                     readItems(items).then(function (array) {
-                        array_1._forEach(array, function (item) {
+                        _forEach(array, function (item) {
                             var kind = item.kind, url = item.url, file = item.file;
                             // ① string && url
                             if (kind === 'url') {
@@ -5434,7 +5416,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                                 if (r_data.test(url)) {
                                     handler({
                                         kind: 'blob',
-                                        blob: util_1.base64ToBlob(url)
+                                        blob: _base64ToBlob_1.base64ToBlob(url)
                                     });
                                     return false;
                                 }
@@ -5466,13 +5448,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 60 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var r_data = /^data:/, r_base64_cut = /:([^;]+)/;
+    var r_base64_cut = /:([^;]+)/;
     /*
      *
      *   base64 ==> binary data
@@ -5488,16 +5470,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return new Blob([new Uint8Array(byteNumbers)], { type: contentType });
     }
     exports.base64ToBlob = base64ToBlob;
-    function s4() {
-        return ((1 + Math.random()) * 0x10000 | 0).toString(16).substring(1);
-    }
-    function guid(short) {
-        if (short === void 0) { short = false; }
-        return short ?
-            s4() + s4() + s4() :
-            s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-    }
-    exports.guid = guid;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

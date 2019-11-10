@@ -1,8 +1,6 @@
-import {__alignment} from "../../position";
-import {ImageController} from "../../support/ImageController";
-import {VideoController} from "../../support/VideoController";
-import {HTML} from "../../html";
-import {DOM} from "../../dom";
+import {ImageController} from "../ImageController";
+import {VideoController} from "../VideoController";
+import {__alignment} from "../../_calcurator/_image";
 
 export interface iMediaElement {
     type: string

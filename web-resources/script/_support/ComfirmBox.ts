@@ -1,7 +1,7 @@
 import {EventsGroup} from "../../lib/core/events";
-import {DOM} from "../../lib/core/dom";
+import {DOM} from "../../lib/core/_dom/DOM";
 import className = DOM.className;
-import {Forms} from "../../lib/core/form/Forms";
+import {Forms} from "../../lib/core/support/Forms";
 import set = Forms.set;
 
 let cName = ['confirm-active'];

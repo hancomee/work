@@ -1,3 +1,18 @@
+
+export function $html(url: string): Promise<any> {
+    return new Promise((resolve, error) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) resolve(xhr.responseText);
+                else error(xhr);
+            }
+        }
+        xhr.open('GET', url, true);
+        xhr.send(null);
+    });
+}
+
 export function $get(url: string): Promise<any> {
     return new Promise((resolve, error) => {
         let xhr = new XMLHttpRequest();

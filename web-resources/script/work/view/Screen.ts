@@ -1,10 +1,10 @@
 // 시안 창
 import {WorkFile, WorkItem} from "../_core/Work";
-import {Calendar} from "../../../lib/core/calendar";
 import {EventsGroup} from "../../../lib/core/events";
 import {Mapping} from "../../../lib/core/support/Mapping";
-import {DOM} from "../../../lib/core/dom";
+import {DOM} from "../../../lib/core/_dom/DOM";
 import className = DOM.className;
+import {Calendar} from "../../../lib/core/support/Calendar";
 
 let directive = {
     datetime(ele: HTMLElement, v: WorkFile) {

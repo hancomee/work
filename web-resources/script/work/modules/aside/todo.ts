@@ -1,7 +1,5 @@
-import {Forms} from "../../../../lib/core/form/Forms";
-import {DOM} from "../../../../lib/core/dom";
+import {Forms} from "../../../../lib/core/support/Forms";
 import {querySelector, querySelectorCut} from "../../../../lib/core/_dom/selector";
-import {$extend} from "../../../../lib/core/core";
 import {Mapping} from "../../../../lib/core/support/Mapping";
 import {Modifier} from "../../../_support/Modifier";
 import {Todo} from "../../_core/Todo";

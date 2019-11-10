@@ -1,4 +1,4 @@
-import {Formats} from "../../../lib/core/format";
+import {Formats} from "../../../lib/core/support/Formats";
 import datetime = Formats.datetime;
 import number = Formats.number;
 

@@ -1,9 +1,10 @@
 
 
 // 파일 업로드 창
-import {_forEach} from "../../lib/core/_func/array";
 import {WorkFile} from "../work/_core/Work";
 import UploadHandler = WorkFile.UploadHandler;
+import {Arrays} from "../../lib/core/support/Arrays";
+import _forEach = Arrays._forEach;
 
 export class FileUpload implements UploadHandler {
     current: HTMLElement

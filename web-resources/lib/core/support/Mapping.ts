@@ -1,12 +1,13 @@
-import {_forEach} from "../_func/array";
 import {Access} from "../access";
-import {DOM} from "../dom";
-import {_replaceHTML} from "../_html/replaceHTML";
-import {Formats} from "../format";
+import {DOM} from "../_dom/DOM";
 import access = Access.access;
-import expValParse = Formats.expValParse;
+import {Formats} from "./Formats";
 import number = Formats.number;
 import datetime = Formats.datetime;
+import expValParse = Formats.expValParse;
+import {Arrays} from "./Arrays";
+import _forEach = Arrays._forEach;
+import {_replaceHTML} from "../_html/_compile";
 
 
 function isAlikeArray(target) {

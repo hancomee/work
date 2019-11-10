@@ -1,5 +1,5 @@
 import {getElementsByAttr, querySelector} from "../../../../lib/core/_dom/selector";
-import {Formats} from "../../../../lib/core/format";
+import {Formats} from "../../../../lib/core/support/Formats";
 import number = Formats.number;
 
 

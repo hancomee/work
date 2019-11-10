@@ -1,8 +1,9 @@
 import {Events, EventsGroup} from "../events";
 import catchKey = Events.catchKey;
-import {__noop} from "../_func/_noop";
-import {base64ToBlob} from "../util";
-import {_forEach} from "../_func/array";
+import {base64ToBlob} from "../_util/_base64ToBlob";
+import {__noop} from "../_snippet/__noop";
+import {Arrays} from "./Arrays";
+import _forEach = Arrays._forEach;
 
 type TransferData = { kind: 'blob' | 'url' | 'file', url?: string, file?: File, blob?: Blob };
 

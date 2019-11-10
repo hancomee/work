@@ -1,4 +1,4 @@
-import {Arrays} from "../arrays";
+import {Arrays} from "./Arrays";
 
 type WatchAll<T> = (nTarget: T, oTarget?:T) => void
 type Watch<T> = (this: T, newVal, oldVal, obj: T) => void

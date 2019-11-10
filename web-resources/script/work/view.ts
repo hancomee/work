@@ -1,16 +1,12 @@
 import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./_core/Work";
-import {Calendar} from "../../lib/core/calendar";
 import {$extend} from "../../lib/core/core";
-import {Formats} from "../../lib/core/format";
 import {FileUpload} from "../_support/FileUpload";
 import {Screen} from "./view/Screen";
-import {_filter, _forEach, _makeArray, _map, _move, _reduce} from "../../lib/core/_func/array";
-import {DOM} from "../../lib/core/dom";
+import {DOM} from "../../lib/core/_dom/DOM";
 import {Events, EventsGroup, iEvents} from "../../lib/core/events";
 import {Access} from "../../lib/core/access";
-import {FormEvent} from "../../lib/core/form/FormEvent";
-import {_recieveFiles} from "../../lib/core/form/_recieveFiles";
-import {_replaceHTML} from "../../lib/core/_html/replaceHTML";
+import {FormEvent} from "../../lib/core/support/forms/FormEvent";
+import {_recieveFiles} from "../../lib/core/support/forms/_recieveFiles";
 import {DragSort} from "./view/DragSort";
 import {__adjustTo} from "../../lib/core/position";
 import {patseImage} from "../../lib/core/support/patseImage";
@@ -26,11 +22,21 @@ import createHTML = DOM.createHTML;
 import dataEvent = Events.dataEvent;
 import access = Access.access;
 import className = DOM.className;
-import number = Formats.number;
 import simpleTrigger = Events.simpleTrigger;
-import filesize = Formats.filesize;
 import acceptKeys = Events.acceptKeys;
 import {mapperDispatcher} from "../_support/dispatcher";
+import {Formats} from "../../lib/core/support/Formats";
+import number = Formats.number;
+import {Calendar} from "../../lib/core/support/Calendar";
+import filesize = Formats.filesize;
+import {Arrays} from "../../lib/core/support/Arrays";
+import _forEach = Arrays._forEach;
+import _makeArray = Arrays._makeArray;
+import _move = Arrays._move;
+import _filter = Arrays._filter;
+import {_replaceHTML} from "../../lib/core/_html/_compile";
+import _reduce = Arrays._reduce;
+import _map = Arrays._map;
 
 class EventObject {
 

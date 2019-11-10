@@ -1,9 +1,8 @@
-import {_forEach} from "../../../lib/core/_func/array";
 import {Events} from "../../../lib/core/events";
-import acceptKeys = Events.acceptKeys;
 import {Customer, Work} from "../_core/Work";
-import {DOM} from "../../../lib/core/dom";
-import className = DOM.className;
+import {Arrays} from "../../../lib/core/support/Arrays";
+import acceptKeys = Events.acceptKeys;
+import _forEach = Arrays._forEach;
 
 
 export class WorkCreator {

@@ -5,6 +5,7 @@ declare interface Event {
     selectTarget?: HTMLElement
 }
 
+
 // SPA
 declare interface IPageModule {
 

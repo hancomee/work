@@ -1,10 +1,9 @@
 import {Mapping} from "../../../lib/core/support/Mapping";
-import {Formats} from "../../../lib/core/format";
-import datetime = Formats.datetime;
-import {Customer, Work} from "../_core/Work";
+import {Work} from "../_core/Work";
 import {getElementById, getElementsByClassName} from "../../../lib/core/_dom/selector";
-import {Events, EventsGroup} from "../../../lib/core/events";
-import catchKey = Events.catchKey;
+import {Events} from "../../../lib/core/events";
+import {Formats} from "../../../lib/core/support/Formats";
+import datetime = Formats.datetime;
 
 let
     element = getElementById('bill'),

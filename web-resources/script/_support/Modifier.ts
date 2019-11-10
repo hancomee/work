@@ -1,12 +1,11 @@
 import {Events} from "../../lib/core/events";
-import {Forms} from "../../lib/core/form/Forms";
+import {Forms} from "../../lib/core/support/Forms";
 import {getElementsByAttr, querySelector} from "../../lib/core/_dom/selector";
-import {DOM} from "../../lib/core/dom";
+import {DOM} from "../../lib/core/_dom/DOM";
 import dataEvent = Events.dataEvent;
 import createHTML = DOM.createHTML;
 import {mapperDispatcher} from "./dispatcher";
 import {AbstractUtilClass} from "./_AbstractUtilClass";
-import {HTML} from "../../lib/core/html";
 
 export interface ModifierEventObject extends iMapperObject {
     event: MouseEvent

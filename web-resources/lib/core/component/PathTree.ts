@@ -1,26 +1,10 @@
-import {DOM} from "../dom";
+import {DOM} from "../_dom/DOM";
 import createHTML = DOM.createHTML;
-import {_forEach} from "../_func/array";
-import className = DOM.className;
+import {Arrays} from "../support/Arrays";
+import _forEach = Arrays._forEach;
+import {_pathMap} from "../_util/_pathMap";
 
 let
-    __loop = (paths: string[], index: number, obj) => {
-        if (paths.length === index) return obj;
-        if (!obj[paths[index]])
-            obj[paths[index]] = {
-                name: paths[index],
-                path: paths.slice(0, index + 1).join('/'),
-                childs: {}
-            };
-        obj = obj[paths[index]].childs;
-        return __loop(paths, index + 1, obj);
-    },
-
-    __createTree = (paths: string[]) => {
-        let obj = {};
-        paths.forEach(v => __loop(v.split('/'), 0, obj));
-        return obj;
-    },
     ___createHTML = (tree, html: string[] = [], index = {v: 0}) => {
         let p, hasChild = '';
         for (p in tree.childs) {
@@ -61,7 +45,7 @@ export class PathTree {
     private _onClick
 
     constructor(paths: string[]) {
-        this.element = createHTML(__createHTML(__createTree(paths)), true);
+        this.element = createHTML(__createHTML(_pathMap(paths)), true);
         this.trees = this.element.querySelectorAll('[data-tree]');
 
         this.element.addEventListener('click', (e) => {
