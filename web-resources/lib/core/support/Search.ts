@@ -17,6 +17,10 @@ export class Search implements iLocation.iSearch {
         return this.extend(Search.toObject(search))
     }
 
+    resetHash() {
+        return this.reset(location.hash.slice(1));
+    }
+
     extend(obj: {}) {
         let p;
         for (p in obj) {

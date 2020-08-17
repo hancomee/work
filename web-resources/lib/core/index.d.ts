@@ -138,14 +138,7 @@ type MappingTemplates = { [index: string]: MappingTemplate };
 interface iMapping {
     directive: MappingDirectives
     template: MappingTemplates
-
-    readData(mapping: string): any
-
-    createTemplate(name: string, data): HTMLElement
-
-    $render(ele: HTMLElement, data?: any): HTMLElement
-
-    $follow(name: string): this
+    html: {[index: string]: (data) => string}
 }
 
 

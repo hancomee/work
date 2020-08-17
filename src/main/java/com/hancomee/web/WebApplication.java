@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 @ComponentScan({"com.hancomee"})
 @SpringBootApplication
 @RequestMapping
@@ -39,8 +43,9 @@ public class WebApplication extends SpringBootServletInitializer implements WebM
     }
 
     @Bean
-    public NativeDB db() {
-        return new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
+    public NativeDB db() throws Exception {
+        List<String> lines = Files.readAllLines(Paths.get("d:/dbip.txt"));
+        return new NativeDB("jdbc:mariadb://" + lines.get(0) + ":3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
     }
 
     @Override

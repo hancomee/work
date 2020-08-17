@@ -9,7 +9,6 @@ import {$delete, $get, $post, $put} from "../../lib/core/_util/_ajax";
 import {Receivable} from "./data-table/receivable";
 import {Forms} from "../../lib/core/support/Forms";
 import {Events} from "../../lib/core/events";
-import {_remap} from "../../lib/core/_util/remap";
 import {SelectCalendar} from "../../lib/core/component/SelectCalendar";
 import {FormEvent} from "../../lib/core/support/forms/FormEvent";
 import {_orders} from "../../lib/core/_util/_orders";
@@ -27,6 +26,7 @@ import {_compile} from "../../lib/core/_html/_compile";
 import {Formats} from "../../lib/core/support/Formats";
 import toDate = Formats.toDate;
 import {Search} from "../../lib/core/support/Search";
+import {_remap} from "../../lib/core/_util/_remap";
 
 type H = HTMLElement
 type OnLoadHandler = (values: ServerData<any>, query: DataSearch, key: string) => void

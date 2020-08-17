@@ -70,7 +70,7 @@ export class Modifier extends AbstractUtilClass<Modifier> {
 
     private removeConfirm: RemoveConfirmHandler = _removeConfirm
 
-    constructor(public element: HTMLElement, private $mapping: iMapping) {
+    constructor(public element: HTMLElement, private $mapping: any /* iMapping */) {
         super();
         dataEvent(this.element, 'click', 'data-modifier',
             (e) => ({event: e, eventTarget: e.target}),

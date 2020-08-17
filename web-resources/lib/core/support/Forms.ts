@@ -28,6 +28,7 @@ let
      */
 
     DATA_CONVERT = (p: string, value) => {
+        if(value == null) return value;
         switch (p) {
             case 'boolean' :
                 return value === 'true' ? true : false;
@@ -99,21 +100,20 @@ let
             return null;
         },
         number(input: HTMLInputElement) {
-
             let value = input.value;
-
             if (r_number.test(value))
                 return parseInt(value);
             return 0;
         },
         text(input: HTMLInputElement) {
-            return input.value;
-        },
-        hidden(input: HTMLInputElement) {
             let {value} = input;
-            if (input.hasAttribute('identity') && !value) return null;
+            if(!value.trim() && input.hasAttribute('data-empty')) {
+                value = input.getAttribute('data-empty');
+                if(value === 'null' || !value) value = null;
+            }
             return DATA_CONVERT(input.getAttribute('data-type'), value);
         },
+        hidden: 'text',
         textarea(input: HTMLTextAreaElement) {
             return input.value;
         }
@@ -141,7 +141,14 @@ let
         },
         // null값이 들어올 수 있다.
         date(input: HTMLInputElement, val) {
-            if (val == null) input.value = '';
+            if (val == null) {
+                val = '';
+                if (input.hasAttribute('data-default')) {
+                    val = input.getAttribute('data-default');
+                    if (val === 'now') val = date(new Date());
+                }
+                input.value = val;
+            }
             else {
                 if (val instanceof Date)
                     input.value = date(val);
@@ -342,7 +349,7 @@ export class Forms {
         return element;
     }
 
-    prepend(ele: HTMLElement) {
+    prepend(ele: Element) {
         ele.parentElement.insertBefore(this.element, ele);
         return this;
     }
@@ -549,5 +556,17 @@ export namespace Forms {
         }
 
         return obj;
+    }
+
+}
+
+export namespace FormEvents {
+
+    export function $$number(input: HTMLInputElement | HTMLTextAreaElement) {
+        return new Events(input, 'keyup', () => {
+            let {value} = input, flag = value[0] === '-' ? '-' : '';
+            value = value.replace(/[^\d]/g, '');
+            input.value = flag + value;
+        })
     }
 }

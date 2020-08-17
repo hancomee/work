@@ -244,9 +244,10 @@ export function _replaceHTML(html: string, dir = directive) {
 }
 
 
-export function _compile(html, directive?) {
+export function _compile(html, directive?, _opt?) {
     let fn = __compile(html, directive);
     return function (data, opt?) {
+        if(!opt) opt = _opt;
         return fn.call({}, data, opt);
     }
 }

@@ -178,6 +178,20 @@ export namespace Events {
         return group;
     }
 
+    export function keydown(ele: HTMLElement,
+                            handler: (this: HTMLElement, e: KeyboardEvent) => void) {
+        let key;
+        return new EventsGroup()
+            .register(ele, 'keyup', () => key = null)
+            .register(ele, 'keypress', (e) => {
+                let {keyCode} = e;
+                if (keyCode !== key) {
+                    key = keyCode;
+                    handler.call(ele, e);
+                }
+            })
+    }
+
 
     // noDuplicationd : 같은 문자열 입력은 무시
     export function acceptKeys(target: HTMLInputElement | HTMLTextAreaElement, handler, noDuplication = true) {
@@ -428,6 +442,7 @@ export namespace Events {
     }
 
 
+
     export function bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
 
         return new Events(element, type, (e) => {
@@ -445,7 +460,10 @@ export namespace Events {
                 target = target.parentElement;
             } while (target && target !== element);
 
-            obj && handler.call(directive, obj, e);
+            if (obj) {
+                directive['*'] && directive['*'](obj, e);
+                handler.call(directive, obj, e);
+            }
         });
 
     }

@@ -28,16 +28,13 @@ import static com.boosteel.nativedb.core.DataConverter.data_by_dType;
 
 public class TTEST {
 
-    private NativeDB db = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
+    private NativeDB db; // = new NativeDB("jdbc:mariadb://115.23.187.44:3306/hellofunc?useOldAliasMetadataBehavior=true", "root", "ko9984");
 
     @Test
     public void copy() throws Exception {
 
-
-        Object b = 1l;
-        if (b instanceof Long)
-            out("Asdf");
-
+        List<String> lines = Files.readAllLines(Paths.get("d:/dbip.txt"));
+        out(lines.get(0));
 
     }
 

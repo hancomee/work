@@ -423,8 +423,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         // 시작넘버부터 객수
         function rangeBySize(start, size) {
             var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
+            for (var i = 0, l = start + size; start < l; start++) {
+                array[i++] = start;
             }
             return array;
         }
@@ -631,6 +631,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return obj;
         }
         Arrays._forEachReverse = _forEachReverse;
+        function _loopMap(i, h) {
+            var dr = [], p = 0;
+            for (; p < i; p++)
+                dr[p] = h(p);
+            return dr;
+        }
+        Arrays._loopMap = _loopMap;
         function _loop(i, h, t) {
             for (var p = 0; p < i; p++)
                 h(t, p);
@@ -724,6 +731,27 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return true;
         }
         Arrays._everyFalse = _everyFalse;
+        // sort 순서까지 맞아야하는지
+        function _contains(source, target, sort) {
+            if (sort === void 0) { sort = true; }
+            var limit = source.length, i = target.length;
+            if (limit < i)
+                return false;
+            if (sort) {
+                while (i-- > 0) {
+                    if (target[i] !== source[i])
+                        return false;
+                }
+            }
+            else {
+                while (i-- > 0) {
+                    if (indexOf.call(source, target[i]) === -1)
+                        return false;
+                }
+            }
+            return true;
+        }
+        Arrays._contains = _contains;
     })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -1146,6 +1174,19 @@ var __extends = (this && this.__extends) || (function () {
             return group;
         }
         Events.map = map;
+        function keydown(ele, handler) {
+            var key;
+            return new EventsGroup()
+                .register(ele, 'keyup', function () { return key = null; })
+                .register(ele, 'keypress', function (e) {
+                var keyCode = e.keyCode;
+                if (keyCode !== key) {
+                    key = keyCode;
+                    handler.call(ele, e);
+                }
+            });
+        }
+        Events.keydown = keydown;
         // noDuplicationd : 같은 문자열 입력은 무시
         function acceptKeys(target, handler, noDuplication) {
             if (noDuplication === void 0) { noDuplication = true; }
@@ -1367,7 +1408,10 @@ var __extends = (this && this.__extends) || (function () {
                     obj && eventProperty(target, obj);
                     target = target.parentElement;
                 } while (target && target !== element);
-                obj && handler.call(directive, obj, e);
+                if (obj) {
+                    directive['*'] && directive['*'](obj, e);
+                    handler.call(directive, obj, e);
+                }
             });
         }
         Events.bubbleEvent = bubbleEvent;
@@ -1788,9 +1832,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return __replaceHTML(html, pos, html.length, dir);
     }
     exports._replaceHTML = _replaceHTML;
-    function _compile(html, directive) {
+    function _compile(html, directive, _opt) {
         var fn = __compile(html, directive);
         return function (data, opt) {
+            if (!opt)
+                opt = _opt;
             return fn.call({}, data, opt);
         };
     }
@@ -2016,6 +2062,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             if (str === void 0) { str = 'yyyy-MM-dd'; }
             return datetime(new Date(), str);
         }
+        // 날짜 계산
+        function days(before, after) {
+            if (after === void 0) { after = new Date(); }
+            return Math.floor((after.getTime() - before.getTime()) / day) + 1;
+        }
+        Calendar.days = days;
         // 달력을 만들기 위한 배열
         function toArray(y, m) {
             var _a = monthInfo(y, m), fd = _a[1], l = _a[2], start = new Calendar(new Date(y, m, 1)).$date((fd % 7 * -1) - 1), // 1를 빼는 이유는 일요일도 포함시키기 위함
@@ -2317,10 +2369,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     function $$mapping(prefix, val) {
         return prefix ? prefix + '.' + val : val;
     }
-    function render(ele, mapping, data, $val, Mapping) {
+    function $render(ele, mapping, data, $val, Mapping) {
         if (ele.hasAttribute('data-ignore'))
             return;
         var $mapping = ele.getAttribute('data-mapping'), attrVal;
+        // mapping정보가 존재하면 data를 변경한다.
         if ($mapping != null) {
             $val = access(data, mapping = $mapping);
         }
@@ -2346,7 +2399,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             if (isAlikeArray($val)) {
                 _forEach($val, function (v, p) {
                     var c = temple_1(v), prop = $$mapping(mapping, p);
-                    render(c, prop, data, v, Mapping);
+                    $render(c, prop, data, v, Mapping);
                     c.setAttribute('data-mapping', prop);
                     fragment_1.appendChild(c);
                 });
@@ -2354,7 +2407,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             // ② 단일 객체
             else {
                 var c = temple_1(ele);
-                render(c, mapping, data, $val, Mapping);
+                $render(c, mapping, data, $val, Mapping);
                 c.setAttribute('data-mapping', mapping);
                 fragment_1.appendChild(c);
             }
@@ -2381,7 +2434,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
              *  !로 시작하면 맨처음에만 붙이고 그 다음엔 붙이지 않는다.
              */
             noRender = attrVal[0] === '!', clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val);
-            render(clone, mapping, data, $val, Mapping);
+            $render(clone, mapping, data, $val, Mapping);
             noRender || ele.setAttribute('data-ignore', 'true');
             ele.parentElement.replaceChild(clone, ele);
         }
@@ -2389,10 +2442,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var i = 0, childs = ele.children, l = childs.length;
             for (; i < l; i++) {
                 if (childs[i].nodeType === 1)
-                    render(childs[i], mapping, data, $val, Mapping);
+                    $render(childs[i], mapping, data, $val, Mapping);
             }
         }
     }
+    exports.$render = $render;
     ;
     var Mapping = /** @class */ (function () {
         function Mapping() {
@@ -2453,7 +2507,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Mapping.prototype.$render = function (ele, data) {
             if (data === void 0) { data = this.data; }
-            render(ele, null, this.data, data, this);
+            $render(ele, null, this.data, data, this);
             return ele;
         };
         Mapping.prototype.$follow = function (name) {
@@ -2498,6 +2552,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    function $html(url) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText);
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('GET', url, true);
+            xhr.send(null);
+        });
+    }
+    exports.$html = $html;
     function $get(url) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -2586,7 +2656,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(17), __webpack_require__(19), __webpack_require__(10), __webpack_require__(0), __webpack_require__(5), __webpack_require__(1), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, remap_1, inputs_1, Calendar_1, access_1, events_1, Formats_1, __noop_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3), __webpack_require__(17), __webpack_require__(19), __webpack_require__(10), __webpack_require__(0), __webpack_require__(5), __webpack_require__(1), __webpack_require__(15)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1, _remap_1, inputs_1, Calendar_1, access_1, events_1, Formats_1, __noop_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var simpleTrigger = events_1.Events.simpleTrigger;
@@ -2599,6 +2669,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
      *  ② type
      */
     DATA_CONVERT = function (p, value) {
+        if (value == null)
+            return value;
         switch (p) {
             case 'boolean':
                 return value === 'true' ? true : false;
@@ -2620,7 +2692,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
      *  input에서 null이 나올리 없으므로
      *  null 반환시 최종 결과객체에 제외된다.
      */
-    DEFAULT_GETTER = remap_1._remap({
+    DEFAULT_GETTER = _remap_1._remap({
         file: function (input) {
             if (input.value) {
                 if (input.files)
@@ -2680,20 +2752,21 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return 0;
         },
         text: function (input) {
-            return input.value;
-        },
-        hidden: function (input) {
             var value = input.value;
-            if (input.hasAttribute('identity') && !value)
-                return null;
+            if (!value.trim() && input.hasAttribute('data-empty')) {
+                value = input.getAttribute('data-empty');
+                if (value === 'null' || !value)
+                    value = null;
+            }
             return DATA_CONVERT(input.getAttribute('data-type'), value);
         },
+        hidden: 'text',
         textarea: function (input) {
             return input.value;
         }
     }), 
     // <input>값을 셋팅한다.
-    DEFAULT_SETTER = remap_1._remap({
+    DEFAULT_SETTER = _remap_1._remap({
         select: function (input, val) {
         },
         'select-one': function (input, val) {
@@ -2711,8 +2784,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         },
         // null값이 들어올 수 있다.
         date: function (input, val) {
-            if (val == null)
-                input.value = '';
+            if (val == null) {
+                val = '';
+                if (input.hasAttribute('data-default')) {
+                    val = input.getAttribute('data-default');
+                    if (val === 'now')
+                        val = date(new Date());
+                }
+                input.value = val;
+            }
             else {
                 if (val instanceof Date)
                     input.value = date(val);
@@ -2918,7 +2998,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
          *  ② attr.type
          *  ③ attr
          */
-        input_valid = remap_1._remap({
+        input_valid = _remap_1._remap({
             // 두번째 인자값은 해당 어트리뷰트의 값
             required: function (target, v) {
                 if (v === 'false')
@@ -2977,7 +3057,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             'min.select-one': 'min.select',
             'min.number': function (target, v) {
             }
-        }), group_valid = remap_1._remap({
+        }), group_valid = _remap_1._remap({
             min: function (ele, val) {
             },
             max: function (ele, val) {
@@ -3069,6 +3149,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         Forms.serialize = serialize;
     })(Forms = exports.Forms || (exports.Forms = {}));
     exports.Forms = Forms;
+    var FormEvents;
+    (function (FormEvents) {
+        function $$number(input) {
+            return new events_1.Events(input, 'keyup', function () {
+                var value = input.value, flag = value[0] === '-' ? '-' : '';
+                value = value.replace(/[^\d]/g, '');
+                input.value = flag + value;
+            });
+        }
+        FormEvents.$$number = $$number;
+    })(FormEvents = exports.FormEvents || (exports.FormEvents = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -3169,6 +3260,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             price.addEventListener('keyup', compute);
             width.addEventListener('keyup', compute);
             height.addEventListener('keyup', compute);
+        },
+        tax: function (ele) {
         }
     };
     function calculator(element) {
@@ -3294,7 +3387,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
      */
     var Modifier = /** @class */ (function (_super) {
         __extends(Modifier, _super);
-        function Modifier(element, $mapping) {
+        function Modifier(element, $mapping /* iMapping */) {
             var _this = _super.call(this) || this;
             _this.element = element;
             _this.$mapping = $mapping;

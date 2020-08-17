@@ -390,4 +390,23 @@ export namespace Arrays {
         return true;
     }
 
+
+    // sort 순서까지 맞아야하는지
+    export  function _contains(source: ArrayLike<any>, target: ArrayLike<any>, sort = true) {
+        let limit = source.length, i = target.length;
+        if(limit < i) return false;
+
+        if(sort) {
+            while(i-- > 0) {
+                if(target[i] !== source[i]) return false;
+            }
+        }
+        else {
+            while(i-- > 0) {
+                if(indexOf.call(source, target[i]) === -1) return false;
+            }
+        }
+
+        return true;
+    }
 }

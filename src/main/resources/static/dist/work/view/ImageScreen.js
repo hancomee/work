@@ -181,8 +181,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         // 시작넘버부터 객수
         function rangeBySize(start, size) {
             var array = [];
-            for (var l = start + size; start < l; start++) {
-                array.push(start);
+            for (var i = 0, l = start + size; start < l; start++) {
+                array[i++] = start;
             }
             return array;
         }
@@ -389,6 +389,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return obj;
         }
         Arrays._forEachReverse = _forEachReverse;
+        function _loopMap(i, h) {
+            var dr = [], p = 0;
+            for (; p < i; p++)
+                dr[p] = h(p);
+            return dr;
+        }
+        Arrays._loopMap = _loopMap;
         function _loop(i, h, t) {
             for (var p = 0; p < i; p++)
                 h(t, p);
@@ -482,6 +489,27 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return true;
         }
         Arrays._everyFalse = _everyFalse;
+        // sort 순서까지 맞아야하는지
+        function _contains(source, target, sort) {
+            if (sort === void 0) { sort = true; }
+            var limit = source.length, i = target.length;
+            if (limit < i)
+                return false;
+            if (sort) {
+                while (i-- > 0) {
+                    if (target[i] !== source[i])
+                        return false;
+                }
+            }
+            else {
+                while (i-- > 0) {
+                    if (indexOf.call(source, target[i]) === -1)
+                        return false;
+                }
+            }
+            return true;
+        }
+        Arrays._contains = _contains;
     })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -495,17 +523,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // 컨테이너 사이즈에 딱 맞추기
-    var _rate = function (N, n) { return (N - n) / n; }, _adjust = function (W, H, w, h) {
-        var height = h + (_rate(W, w) * h);
+    // n이 N이 되기 위한 비율
+    exports._rate = function (N, n) { return (N - n) / n; }, exports._adjust = function (W, H, w, h) {
+        var height = h + (exports._rate(W, w) * h);
         if (height > H)
-            return { w: w + (_rate(H, h) * w), h: H };
-        return { w: W, h: height };
-    };
-    exports.__cover = function (W, H, w, h) {
-        var height = h + (_rate(W, w) * h);
-        if (height < H)
-            return { w: w + (_rate(H, h) * w), h: H };
+            return { w: w + (exports._rate(H, h) * w), h: H };
         return { w: W, h: height };
     }, exports.__tilt = function (rotate, r) {
         if (r === void 0) { r = Math.abs(rotate % 360); }
@@ -530,7 +552,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         var size, pos;
         // 강제 맞춤옵션이거나, 이미지가 대지보다 클 경우
         if (forceSize || W < w || H < h)
-            size = _adjust(W, H, w, h);
+            size = exports._adjust(W, H, w, h);
         else
             size = { w: w, h: h };
         pos = exports.__center(W, H, size.w, size.h);
@@ -574,11 +596,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }, 
     // 가로 사이즈에 딱 맞추기
     exports.__adjustWidth = function (W, H, w, h) {
-        return { w: W, h: h + Math.round(_rate(W, w) * h) };
+        return { w: W, h: h + Math.round(exports._rate(W, w) * h) };
     }, 
     // 세로사이즈에 딱 맞추기
     exports.__adjustHeigth = function (W, H, w, h) {
-        return { w: w + Math.round(_rate(H, h) * w), h: H };
+        return { w: w + Math.round(exports._rate(H, h) * w), h: H };
     }, 
     // 가운데 맞춤
     exports.__center = function (W, H, w, h) {
@@ -720,7 +742,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 /***/ 41:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, position_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _image_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageController = /** @class */ (function () {
@@ -860,7 +882,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         });
         Object.defineProperty(Imager.prototype, "rotate", {
             get: function () {
-                return position_1.__transform(this.CSSStyle.transform);
+                return _image_1.__transform(this.CSSStyle.transform);
             },
             set: function (v) {
                 this.CSSStyle.transform = 'rotate(' + v + 'deg)';
@@ -1086,6 +1108,19 @@ var __extends = (this && this.__extends) || (function () {
             return group;
         }
         Events.map = map;
+        function keydown(ele, handler) {
+            var key;
+            return new EventsGroup()
+                .register(ele, 'keyup', function () { return key = null; })
+                .register(ele, 'keypress', function (e) {
+                var keyCode = e.keyCode;
+                if (keyCode !== key) {
+                    key = keyCode;
+                    handler.call(ele, e);
+                }
+            });
+        }
+        Events.keydown = keydown;
         // noDuplicationd : 같은 문자열 입력은 무시
         function acceptKeys(target, handler, noDuplication) {
             if (noDuplication === void 0) { noDuplication = true; }
@@ -1307,7 +1342,10 @@ var __extends = (this && this.__extends) || (function () {
                     obj && eventProperty(target, obj);
                     target = target.parentElement;
                 } while (target && target !== element);
-                obj && handler.call(directive, obj, e);
+                if (obj) {
+                    directive['*'] && directive['*'](obj, e);
+                    handler.call(directive, obj, e);
+                }
             });
         }
         Events.bubbleEvent = bubbleEvent;

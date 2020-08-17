@@ -17,9 +17,9 @@ let
     hancome = {
         name: '한컴기획',
         address: '경기도 수원시 권선구 산업로156번길 142-10 수원벤처밸리2 A동 B122호 (고색동 1152)',
-        biz_con: '서비스',
+        biz_con: '제조업',
         biz_num: '124-53-35359',
-        biz_type: '광고기획인쇄',
+        biz_type: '옥외광고물 인쇄광고기획',
         owner: '고정철',
         sign: 'sign.png'
     },

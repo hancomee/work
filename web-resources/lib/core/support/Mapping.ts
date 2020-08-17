@@ -40,16 +40,16 @@ function $$mapping(prefix: string, val: any) {
     return prefix ? prefix + '.' + val : val;
 }
 
-function render(ele: HTMLElement, mapping: string,
-                data, $val, Mapping: Mapping) {
 
+export function $render(ele: HTMLElement, mapping: string, data, $val, Mapping: iMapping) {
 
-    if(ele.hasAttribute('data-ignore'))
+    if (ele.hasAttribute('data-ignore'))
         return;
 
     let $mapping = ele.getAttribute('data-mapping'),
         attrVal: string;
 
+    // mapping정보가 존재하면 data를 변경한다.
     if ($mapping != null) {
         $val = access(data, mapping = $mapping);
     }
@@ -89,7 +89,7 @@ function render(ele: HTMLElement, mapping: string,
                 let c = temple(v),
                     prop = $$mapping(mapping, p);
 
-                render(c, prop, data, v, Mapping);
+                $render(c, prop, data, v, Mapping);
                 c.setAttribute('data-mapping', prop);
                 fragment.appendChild(c);
             });
@@ -97,7 +97,7 @@ function render(ele: HTMLElement, mapping: string,
         // ② 단일 객체
         else {
             let c = temple(ele);
-            render(c, mapping, data, $val, Mapping);
+            $render(c, mapping, data, $val, Mapping);
             c.setAttribute('data-mapping', mapping);
             fragment.appendChild(c);
         }
@@ -129,7 +129,7 @@ function render(ele: HTMLElement, mapping: string,
             noRender = attrVal[0] === '!',
             clone = Mapping.template[noRender ? attrVal.slice(1) : attrVal]($val);
 
-        render(clone, mapping, data, $val, Mapping);
+        $render(clone, mapping, data, $val, Mapping);
 
         noRender || ele.setAttribute('data-ignore', 'true');
 
@@ -139,13 +139,13 @@ function render(ele: HTMLElement, mapping: string,
         let i = 0, childs = ele.children, l = childs.length
         for (; i < l; i++) {
             if (childs[i].nodeType === 1)
-                render(<HTMLElement>childs[i], mapping, data, $val, Mapping);
+                $render(<HTMLElement>childs[i], mapping, data, $val, Mapping);
         }
     }
 
 };
 
-export class Mapping {
+export class Mapping implements iMapping {
 
     data
     html = {}
@@ -213,7 +213,7 @@ export class Mapping {
     }
 
     $render(ele: HTMLElement, data = this.data) {
-        render(ele, null, this.data, data, this);
+        $render(ele, null, this.data, data, this);
         return ele;
     }
 

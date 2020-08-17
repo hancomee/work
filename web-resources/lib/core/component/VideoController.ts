@@ -126,7 +126,7 @@ export class VideoController extends RepeatVideo {
                 let video = this.element,
                     duration = video.duration;
 
-                duration = duration < 100 ? 5 : Math.floor(duration / 100);
+                duration = 5;// duration < 100 ? 5 : Math.floor(duration / 100);
 
                 switch (e.keyCode) {
                     // 스페이스바 시작/중지

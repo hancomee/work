@@ -27,6 +27,9 @@ let program = {
         price.addEventListener('keyup', compute);
         width.addEventListener('keyup', compute);
         height.addEventListener('keyup', compute);
+    },
+    tax(ele: HTMLElement) {
+
     }
 }
 
