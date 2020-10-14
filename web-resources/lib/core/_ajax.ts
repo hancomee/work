@@ -50,7 +50,7 @@ export function $head(url: string, it?: Interceptor): Promise<XMLHttpRequest> {
 
 // asdf
 
-export function $html(url: string, it?: Interceptor): Promise<any> {
+export function $text(url: string, it?: Interceptor): Promise<any> {
     return new Promise((resolve, error) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {

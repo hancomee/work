@@ -1,12 +1,12 @@
 import {Arrays} from "../../lib/core/_array";
-import {Mappings} from "../../lib/core/_dom/_template";
+import {Templates} from "../../lib/core/_dom/_template";
 import {$get} from "../../lib/core/_ajax";
 import {Events} from "../../lib/core/_events";
 import __reduceN = Arrays.__reduceN;
-import Template = Mappings.Template;
-import __templateMap = Mappings.__templateMap;
+import Template = Templates.Template;
+import __templateMap = Templates.__templateMap;
 import __$dataEvent = Events.__$dataEvent;
-import $TEMPLATE_KEY$ = Mappings.$TEMPLATE_KEY$;
+import $TEMPLATE_KEY$ = Templates.$TEMPLATE_KEY$;
 
 let
     $view = document.getElementById('view'),
