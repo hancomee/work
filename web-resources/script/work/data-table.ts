@@ -1,32 +1,30 @@
 import {
-    getElementById,
+    __findById,
     getElementsByAttr,
-    getElementsByClassName,
-    getElementsByTagName, querySelectorAll
-} from "../../lib/core/_dom/selector";
-import {DOM} from "../../lib/core/_dom/DOM";
-import {$delete, $get, $post, $put} from "../../lib/core/_util/_ajax";
+    __findByClass,
+    __findByTag, __findAll
+} from "../../lib/core/_dom/_selector";
+import {$delete, $get, $post, $put} from "../../lib/core/_ajax";
 import {Receivable} from "./data-table/receivable";
 import {Forms} from "../../lib/core/support/Forms";
-import {Events} from "../../lib/core/events";
+import {Events} from "../../lib/core/_events";
 import {SelectCalendar} from "../../lib/core/component/SelectCalendar";
 import {FormEvent} from "../../lib/core/support/forms/FormEvent";
-import {_orders} from "../../lib/core/_util/_orders";
-import createHTML = DOM.createHTML;
-import dataEvent = Events.dataEvent;
+import {__orders} from "../../lib/core/_util/_orders";
+import dataEvent = Events.__$dataEvent;
 import numbers = FormEvent.numbers;
-import className = DOM.className;
 import {BankAccount} from "./data-table/bankAccount";
 import {Pager} from "../../lib/core/component/Pager";
-import {selectAll} from "../../lib/core/_dom/_select";
+import {__selectA} from "../../lib/core/_dom/_select";
 import {ModifyForm} from "../_support/ModifyForm";
 import {ConfirmBox} from "../_support/ComfirmBox";
-import {$extend} from "../../lib/core/core";
-import {_compile} from "../../lib/core/_html/_compile";
-import {Formats} from "../../lib/core/support/Formats";
-import toDate = Formats.toDate;
+import {$extend} from "../../lib/core/_core";
+import {__compileHTML} from "../../lib/core/_html/_compile";
+import {Formats} from "../../lib/core/_format";
+import toDate = Formats.__toDate;
 import {Search} from "../../lib/core/support/Search";
-import {_remap} from "../../lib/core/_util/_remap";
+import {__remap} from "../../lib/core/_util/_remap";
+import {__className, __createHTML} from "../../lib/core/_dom/_commons";
 
 type H = HTMLElement
 type OnLoadHandler = (values: ServerData<any>, query: DataSearch, key: string) => void
@@ -49,29 +47,29 @@ let
 
     $$converter = (v) => v,
 
-    ctrlContainer = getElementsByClassName('data-ctrl', 0),
-    tabsContainer = getElementsByClassName('container-tabs', 0),
-    container = getElementById('data-table'),
+    ctrlContainer = __findByClass('data-ctrl', 0),
+    tabsContainer = __findByClass('container-tabs', 0),
+    container = __findById('data-table'),
 
     // template functions
-    headerTemple = _compile(getElementById('table-header-template').innerText),
-    bodyTemple = _compile(getElementById('table-body-template').innerText),
-    formTemple = _compile(getElementById('form-template').innerText),
+    headerTemple = __compileHTML(__findById('table-header-template').innerText),
+    bodyTemple = __compileHTML(__findById('table-body-template').innerText),
+    formTemple = __compileHTML(__findById('form-template').innerText),
 
     $confirm = new ConfirmBox(document.getElementById('confirm-box')),
 
     // searchList
-    searchList = _compile('<li class="{{_.check ? \'active\' : \'\'}}" ::>' +
+    searchList = __compileHTML('<li class="{{_.check ? \'active\' : \'\'}}" ::>' +
         '<span data-key="{{_.key}}" data-dismiss="{{_.title}}">{{_.title}}</span></li>'),
 
     // type:list
     createList = (function ($com) {
-        let ul = <HTMLUListElement>createHTML('<ul class="dropdown-box dropdown-list"></ul>', true);
+        let ul = <HTMLUListElement>__createHTML('<ul class="dropdown-box dropdown-list"></ul>', true);
         return (list: string[], current) => {
             ul.innerHTML = $com(list, current);
             return ul;
         }
-    })(_compile('<li class="{{_ === $.value ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::>{{_}}</li>')),
+    })(__compileHTML('<li class="{{_ === $.value ? \'active\' : \'\'}}" data-dismiss="{{_}}" ::>{{_}}</li>')),
 
     // type:date
     calendar = new SelectCalendar().$element((e, c) => {
@@ -79,7 +77,7 @@ let
     }),
 
     // input pre processor
-    inputTypes = _remap({
+    inputTypes = __remap({
 
         number: numbers,
         numeric: 'number',
@@ -143,13 +141,13 @@ class DataTable {
         let {headers, table} = item,
             query = this.query = <DataSearch>new Search().extend(item.query),
 
-            tableElement = this.table = createHTML(headerTemple(item), true),
-            thead = getElementsByTagName(tableElement, 'thead', 0),
+            tableElement = this.table = __createHTML(headerTemple(item), true),
+            thead = __findByTag(tableElement, 'thead', 0),
 
             searchList = this._searchList = [];
 
-        this.orders = querySelectorAll(tableElement, '[data-order-value]');
-        this.tbody = getElementsByTagName(tableElement, 'tbody', 0);
+        this.orders = __findAll(tableElement, '[data-order-value]');
+        this.tbody = __findByTag(tableElement, 'tbody', 0);
 
         // headers 서치
         this.names = headers.reduce((r, v, i) => {
@@ -177,13 +175,13 @@ class DataTable {
             let target = <HTMLElement>e.target,
                 key = target.getAttribute('data-order-value');
             if (key) {
-                query.order = _orders(key, target.getAttribute('data-order') === 'desc');
+                query.order = __orders(key, target.getAttribute('data-order') === 'desc');
                 query.page = 1;
                 location.hash = table + '?' + query.toString();
             }
         });
 
-        this.form = new ModifyForm(createHTML(formTemple(headers)))
+        this.form = new ModifyForm(__createHTML(formTemple(headers)))
             .$element((element, forms) => {
                 getElementsByAttr(element, 'data-type',
                     (r, e: HTMLInputElement, v) =>
@@ -193,7 +191,7 @@ class DataTable {
 
     setOrder(v: string) {
         let {orders, names} = this,
-            [type, prop] = _orders(v);
+            [type, prop] = __orders(v);
 
         names.forEach((v, i) => {
             orders[i].setAttribute('data-order', v === prop ? type : '');
@@ -256,7 +254,7 @@ class DataManager {
             values = this.values,
             names = this.names,
             $$onLoad = this._onLoad, i = 0,
-            pager = new Pager(getElementsByClassName('data-ctrl-pager', 0), 5, 5)
+            pager = new Pager(__findByClass('data-ctrl-pager', 0), 5, 5)
                 .setHandler((page) => this.dataTable.run({page: page})),
             tableName: string;
 
@@ -277,19 +275,19 @@ class DataManager {
         // 탭 갱신
         $$onLoad[i++] = ((tabs) => {
             return (_, __, key) => {
-                names.forEach((v, i) => className(tabs[i], 'active', key === v));
+                names.forEach((v, i) => __className(tabs[i], 'active', key === v));
             }
-        })(querySelectorAll(tabsContainer, '[data-table]'))
+        })(__findAll(tabsContainer, '[data-table]'))
 
         // dataEvent
-        dataEvent(getElementsByClassName('container-table', 0), 'click', 'data-form', <any>this);
+        dataEvent(__findByClass('container-table', 0), 'click', 'data-form', <any>this);
 
         // hashchange
         window.addEventListener('hashchange', () => this.run(location.hash));
 
-        selectAll(ctrlContainer,
-            ['class="data-ctrl-search"[0]', ':0 class="data-ctrl-search-before"[0]',
-                ':1 tag="span"[0]', ':1 class="dropdown-list"[0]', ':0 tag="input"[0]'],
+        __selectA(ctrlContainer,
+            ['.data-ctrl-search[0]', '{0}.data-ctrl-search-before[0]',
+                '{1}<span>[0]', '{1}.dropdown-list[0]', '{0}<input>[0]'],
             (container: H, dropdown: H, btn: H, list: H, input: HTMLInputElement) => {
 
                 let render = (key) => this.dataTable.searchList(key, list, btn);

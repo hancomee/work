@@ -1,8 +1,4 @@
-import {DOM} from "../_dom/DOM";
-
-import className = DOM.className;
-import hasClass = DOM.hasClass;
-import {querySelectorAll} from "../_dom/selector";
+import {__className, __hasClass} from "../_dom/_commons";
 
 
 (function () {
@@ -19,8 +15,8 @@ import {querySelectorAll} from "../_dom/selector";
         act = (dropdown: HTMLElement, flag: boolean, e: Event) => {
             let dropdownMenu = dropdown.getElementsByClassName('dropdown-menu')[0];
 
-            className(dropdown, r_open, flag);
-            dropdownMenu && className(dropdownMenu, r_open, flag);
+            __className(dropdown, r_open, flag);
+            dropdownMenu && __className(dropdownMenu, r_open, flag);
 
             // dropdown 이벤트
             if (dropdown.hasAttribute('data-dropdown-event')) {
@@ -49,7 +45,7 @@ import {querySelectorAll} from "../_dom/selector";
         // 순회
         do {
             // dropdown 찾기
-            if (hasClass(ele, r_dropdown)) {
+            if (__hasClass(ele, r_dropdown)) {
                 dropdown = ele;
                 break;
             }
@@ -71,7 +67,7 @@ import {querySelectorAll} from "../_dom/selector";
         if (dropdown) {
 
             // 현재 열려져있다면 dismiss 체킹이 되어있을때만 없앤다.
-            if (hasClass(dropdown, r_open)) {
+            if (__hasClass(dropdown, r_open)) {
                 dismiss && act(dropdown, false, e);
             }
             // 아니라면 btn을 클릭했을 경우에만 켠다.

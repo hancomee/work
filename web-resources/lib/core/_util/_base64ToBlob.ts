@@ -9,7 +9,7 @@ let
  *   데이터타입을 유추해야 하므로,
  *   반드시 data:image/png;base64 로 시작하는 텍스트를 입력해야 한다.
  */
-export function base64ToBlob(base64: string) {
+export function __base64ToBlob(base64: string) {
 
     let [header, src] = base64.split(/,/),
         contentType = r_base64_cut.exec(header)[1],

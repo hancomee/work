@@ -1,17 +1,17 @@
 import "../../../lib/core/component/toggle";
-import {_zeroFill} from "../../../lib/core/_util/_zeroFill";
+import {__zeroFill} from "../../../lib/core/_util/_zeroFill";
 import {
     getElementsByAttr,
-    getElementsByClassName,
-    getElementsByTagName,
-    querySelectorAll
-} from "../../../lib/core/_dom/selector";
+    __findByClass,
+    __findByTag,
+    __findAll
+} from "../../../lib/core/_dom/_selector";
 import {todo} from "./aside/todo";
 import {calculator} from "./aside/calculator";
 import {Calendar} from "../../../lib/core/support/Calendar";
 
 let
-    aside = getElementsByTagName(document.body, 'aside', 0),
+    aside = __findByTag(document.body, 'aside', 0),
     {pathname} = location,
     data = () => {
         let date = new Calendar(),
@@ -31,12 +31,12 @@ let
         calculator: calculator
     }
 
-querySelectorAll(aside, '[data-url]', (v) => {
+__findAll(aside, '[data-url]').forEach(v => {
     if (pathname.indexOf(v.getAttribute('data-url')) !== -1)
         v.classList.add('active');
 });
 
-querySelectorAll(aside, '[data-val]', (v) => {
+__findAll(aside, '[data-val]').forEach(v => {
     v.textContent = values[v.getAttribute('data-val')];
 });
 
@@ -50,9 +50,9 @@ getElementsByAttr(aside, 'data-pop', (r, ele, v) => {
 
     function clock() {
         var currentDate = new Date(),
-            currentHours = _zeroFill(currentDate.getHours(), 2),
-            currentMinute = _zeroFill(currentDate.getMinutes(), 2),
-            currentSeconds = _zeroFill(currentDate.getSeconds(), 2);
+            currentHours = __zeroFill(currentDate.getHours(), 2),
+            currentMinute = __zeroFill(currentDate.getMinutes(), 2),
+            currentSeconds = __zeroFill(currentDate.getSeconds(), 2);
         hour.textContent = currentHours + ":" + currentMinute;
         time.textContent = ":" + currentSeconds;
         setTimeout(clock, 1000);
@@ -61,7 +61,7 @@ getElementsByAttr(aside, 'data-pop', (r, ele, v) => {
     clock();
 
 })(
-    getElementsByClassName(aside, 'aside-today-time-hour', 0),
-    getElementsByClassName(aside, 'aside-today-time-second', 0)
+    __findByClass(aside, 'aside-today-time-hour', 0),
+    __findByClass(aside, 'aside-today-time-second', 0)
 );
 

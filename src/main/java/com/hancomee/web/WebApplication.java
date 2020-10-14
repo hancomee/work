@@ -52,6 +52,7 @@ public class WebApplication extends SpringBootServletInitializer implements WebM
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/workdata/**").addResourceLocations("file:D:/work/");
         registry.addResourceHandler("/images/**").addResourceLocations("file:D:/images/");
+        registry.addResourceHandler("/wr/**").addResourceLocations("file:D:/work-resources/");
     }
 
 }

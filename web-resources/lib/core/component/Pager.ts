@@ -2,7 +2,7 @@
  * Created by hellofunc on 2017-01-23.
  */
 
-import {getElementsByClassName} from "../_dom/selector";
+import {__findByClass} from "../_dom/_selector";
 
 type AlikePager = { page: number, totalPages: number }
 
@@ -32,11 +32,11 @@ export class Pager {
 
         container.classList.add('component-pager');
 
-        this.pagerElement = getElementsByClassName(container, 'component-pager-table', 0);
-        this.currentBtn = getElementsByClassName(container, 'component-pager-current', 0);
-        this.prevBtn = getElementsByClassName(container, 'component-pager-prev', 0);
-        this.nextBtn = getElementsByClassName(container, 'component-pager-next', 0);
-        this.totalBtn = getElementsByClassName(container, 'component-pager-total', 0);
+        this.pagerElement = __findByClass(container, 'component-pager-table', 0);
+        this.currentBtn = __findByClass(container, 'component-pager-current', 0);
+        this.prevBtn = __findByClass(container, 'component-pager-prev', 0);
+        this.nextBtn = __findByClass(container, 'component-pager-next', 0);
+        this.totalBtn = __findByClass(container, 'component-pager-total', 0);
 
         container.addEventListener('click', (e) => {
 

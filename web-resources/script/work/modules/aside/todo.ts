@@ -1,6 +1,6 @@
 import {Forms} from "../../../../lib/core/support/Forms";
-import {querySelector, querySelectorCut} from "../../../../lib/core/_dom/selector";
-import {Mapping} from "../../../../lib/core/support/Mapping";
+import {__find, querySelectorCut} from "../../../../lib/core/_dom/_selector";
+import {Mapping} from "../../../../lib/core/_dom/Mapping";
 import {Modifier} from "../../../_support/Modifier";
 import {Todo} from "../../_core/Todo";
 
@@ -24,7 +24,7 @@ export function todo(element: HTMLElement) {
     Todo.list().then($list => {
 
         let
-            btn = querySelector(element, '[data-toggle]'),
+            btn = __find(element, '[data-toggle]'),
             btnText = btn.textContent,
             lenCheck = () => {
                 btn.textContent = btnText + ' (' + $list.length + ')';
@@ -39,7 +39,7 @@ export function todo(element: HTMLElement) {
                 .$$preProcess(element, {
                     listForm(ele, modi) {
                         let forms = new Forms(ele),
-                            template = querySelector(element, 'todo-list')
+                            template = __find(element, 'todo-list')
 
                     }
                 })

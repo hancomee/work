@@ -1,25 +1,26 @@
 {
-  "name": "web",
+  "name": "hancomee",
   "version": "1.0.0",
-  "description": "hello hello func",
+  "description": "work",
   "main": "gulpfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "hellofunc",
+  "author": "hancomee",
   "license": "ISC",
   "devDependencies": {
+    "@types/jquery": "^2.0.48",
+    "angular": "^1.6.4",
     "bootstrap-sass": "^3.3.7",
     "css-loader": "^0.28.5",
     "extract-text-webpack-plugin": "^3.0.0",
-    "gulp": "^3.9.1",
-    "bootstrap": "^4.2.1",
-    "gulp-sass": "^3.1.0",
-    "gulp-typescript": "^3.1.4",
+    "gulp": "^4.0.2",
+    "gulp-sass": "^4.1.0",
     "html-es6-template-loader": "^1.0.5",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "node-sass": "^4.5.3",
+    "jquery": "^2.2.4",
+    "node-sass": "^4.14.1",
     "postcss-loader": "^2.0.6",
     "reflect-metadata": "^0.1.10",
     "sass-loader": "^6.0.6",
@@ -31,6 +32,7 @@
     "webpack-typescript": "^0.5.6"
   },
   "dependencies": {
-    "@types/es6-promise": "0.0.33"
+    "@types/es6-promise": "0.0.33",
+    "bootstrap": "^4.5.0"
   }
 }

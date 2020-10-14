@@ -1,8 +1,8 @@
 import {Work} from "./Work";
-import {$extend} from "../../../lib/core/core";
-import {$delete, $get, $post} from "../../../lib/core/_util/_ajax";
-import {Formats} from "../../../lib/core/support/Formats";
-import datetime = Formats.datetime;
+import {$extend} from "../../../lib/core/_core";
+import {$delete, $get, $post} from "../../../lib/core/_ajax";
+import {Formats} from "../../../lib/core/_format";
+import datetime = Formats.__datetime;
 
 
 let

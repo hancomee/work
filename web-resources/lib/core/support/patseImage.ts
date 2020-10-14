@@ -1,9 +1,9 @@
-import {Events, EventsGroup} from "../events";
-import catchKey = Events.catchKey;
-import {base64ToBlob} from "../_util/_base64ToBlob";
-import {__noop} from "../_snippet/__noop";
-import {Arrays} from "./Arrays";
-import _forEach = Arrays._forEach;
+import {Events, EventsGroup} from "../_events";
+import catchKey = Events.__$catchKey;
+import {__base64ToBlob} from "../_util/_base64ToBlob";
+import {__noop} from "../_snippet/_noop";
+import {Arrays} from "../_array";
+import _forEach = Arrays.__forEach;
 
 type TransferData = { kind: 'blob' | 'url' | 'file', url?: string, file?: File, blob?: Blob };
 
@@ -91,13 +91,12 @@ function __blobSetName(blob: Blob, name: string) {
     return blob;
 }
 
-export function patseImage(ele: HTMLElement, handler: (data: TransferData) => void) {
+export function __pasteImage(ele: HTMLElement, handler: (data: TransferData) => void) {
     let
         ctrl = $ctrl,
         contenteditable = ctrl.element,
 
         eventGroup = new EventsGroup()
-            .off()
 
             // ctrl키에 따라 focus()
             .register(catchKey(ele, [17],
@@ -132,7 +131,7 @@ export function patseImage(ele: HTMLElement, handler: (data: TransferData) => vo
                     if (r_data.test(src)) {
                         handler({
                             kind: 'blob',
-                            blob: base64ToBlob(src)
+                            blob: __base64ToBlob(src)
                         })
                     }
                 }
@@ -169,7 +168,7 @@ export function patseImage(ele: HTMLElement, handler: (data: TransferData) => vo
                                     if (r_data.test(url)) {
                                         handler({
                                             kind: 'blob',
-                                            blob: base64ToBlob(url)
+                                            blob: __base64ToBlob(url)
                                         });
                                         return false;
                                     }
@@ -194,9 +193,10 @@ export function patseImage(ele: HTMLElement, handler: (data: TransferData) => vo
                     }
                 }
             })
+            //.off();
 
-    ele.addEventListener('mouseenter', (e: MouseEvent) => eventGroup.on());
-    ele.addEventListener('mouseleave', (e: MouseEvent) => eventGroup.off());
+    // ele.addEventListener('mouseenter', (e: MouseEvent) => eventGroup.on());
+    // ele.addEventListener('mouseleave', (e: MouseEvent) => eventGroup.off());
 
 }
 

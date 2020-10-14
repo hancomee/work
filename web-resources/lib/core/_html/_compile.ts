@@ -1,11 +1,11 @@
-import {Access} from "../access";
-import access = Access.access;
-import {indexOfChar} from "./_indexOf";
-import {Formats} from "../support/Formats";
-import expValParse = Formats.expValParse;
+import {Access} from "../_access";
+import access = Access.__access;
+import {__indexOfChar} from "./_indexof";
+import {Formats} from "../_format";
+import expValParse = Formats.__expValParse;
 
 let
-    directive = Formats.getDirective(),
+    directive = Formats.__getDirective(),
     ___createFunction = (exp) => new Function('_', '$', 'return _ == null ? null : (' + exp + ');'),
     __createFunction = (str: string) => {
 
@@ -25,17 +25,17 @@ let
 
     // "div>"  or "div class=...>"
     // 앞 <는 빼고 올린다.
-    __getTagName = (html: string, pos: number) => {
+    ___getTagName = (html: string, pos: number) => {
         let i = pos;
         while (html[pos] !== ' ' && html[pos] !== '>')
             pos++;
         return html.substring(i, pos);
     },
 
-    __parse = (str: string) => {
+    ___parse = (str: string) => {
 
         let l = str.length,
-            pos = indexOfChar(str, ':');
+            pos = __indexOfChar(str, ':');
 
         if (pos !== -1) {
 
@@ -72,7 +72,7 @@ let
     }
 
 
-function __replaceHTML(html: string, pos: number, limit: number, directive) {
+function ___replaceHTML(html: string, pos: number, limit: number, directive) {
 
     let index = 0, func = [], fi = 0;
 
@@ -113,8 +113,8 @@ function __replaceHTML(html: string, pos: number, limit: number, directive) {
     }
 }
 
-function __compile(html: string, directive,
-                   idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
+function ____compile(html: string, directive,
+                     idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
 
     let pos: number, i = pos = idx.val, e: number,
         r = [], rIdx = 0, tag: string,
@@ -127,7 +127,7 @@ function __compile(html: string, directive,
 
     // ① 태그인 경우
     if (index) {
-        let [line, type, exp] = __parse(lines[index - 1]),
+        let [line, type, exp] = ___parse(lines[index - 1]),
             _handler = handler;
 
         switch (type) {
@@ -148,8 +148,7 @@ function __compile(html: string, directive,
                     if (val != null) {
                         if (Array.isArray(val)) {
                             return val.map((v, i) => _handler.call((this.index = i, this), v, opt)).join('');
-                        }
-                        else {
+                        } else {
                             let r = [], i = 0, p;
                             for (p in val) {
                                 this.index = p;
@@ -171,28 +170,28 @@ function __compile(html: string, directive,
                 }
         }
 
-        r[rIdx++] = _replaceHTML(line);
+        r[rIdx++] = __replaceHTML(line);
     }
 
 
     while ((pos = html.indexOf('<', pos)) !== -1) {
 
-        e = indexOfChar(html, '>', pos) + 1;
+        e = __indexOfChar(html, '>', pos) + 1;
 
         // ① 여는 태그
         if (html[pos + 1] !== '/') {
 
             // prefix string
             if (i !== pos) {
-                r[rIdx++] = _replaceHTML(html.substring(i, pos));
+                r[rIdx++] = __replaceHTML(html.substring(i, pos));
             }
 
 
             lines[index] = html.substring(pos, e);
-            tag = tagStack[index] = __getTagName(html, pos + 1);
+            tag = tagStack[index] = ___getTagName(html, pos + 1);
 
             idx.val = e;
-            r[rIdx++] = __compile(html, directive, idx, lines, tagStack, index + 1);
+            r[rIdx++] = ____compile(html, directive, idx, lines, tagStack, index + 1);
             e = idx.val;
         }
 
@@ -204,10 +203,9 @@ function __compile(html: string, directive,
 
             // 현재 태그의 끝
             if (tagStack[index] === tag) {
-                r[rIdx++] = _replaceHTML(html.substring(i, e));
+                r[rIdx++] = __replaceHTML(html.substring(i, e));
                 idx.val = e;
-            }
-            else {
+            } else {
                 idx.val = i;
             }
 
@@ -225,29 +223,135 @@ function __compile(html: string, directive,
      */
 
     if (i < html.length) {
-        r[rIdx++] = _replaceHTML(html.substring(i, html.length));
+        r[rIdx++] = __replaceHTML(html.substring(i, html.length));
     }
 
     return handler;
 }
 
 
+export namespace DHTML {
+
+    // {{str}}
+    import __expValParse = Formats.__expValParse;
+
+    function ___str(html: string) {
+        let prefix, endfix, fn,
+            i = html.indexOf('{'), ii = html.indexOf('}', i);
+        prefix = html.slice(0, i);
+        endfix = html.slice(ii + 1);
+        fn = ___exp(html.slice(i + 1, ii));
+        html = i = ii = void 0;
+        return (obj) => {
+            let d = fn(obj);
+            return d ? prefix + d + endfix : '';
+        }
+    }
+
+    // {prop}
+    function ___exp(html: string) {
+        let [prop, func, val] = __expValParse(html);
+        if (func = directive[func]) {
+            return (obj) => (obj = obj[prop]) != null ? func(obj, val) : '';
+        } else return (obj) => (obj = obj[prop]) != null ? obj : '';
+    }
+
+    /*
+     * {prop} => obj[prop]
+     * {prop | directive} => directive[prop](obj[prop])
+     * {prop | directive : primitive} => directive[prop](obj[prop], primitive)
+     * {{ class="{prop}"}}  =>  obj[prop] != null && {{...}}
+     */
+    export function __simpleMap(html: string) {
+        let result = [], idx = 0,
+            search = 0, pos = 0,
+            len = html.length;
+
+        while (pos < len) {
+
+            search = html.indexOf('{', pos);
+
+            // "{{" 전까지 문자열 저장
+            if (search !== -1) {
+
+                result[idx++] = html.slice(pos, search);
+
+                if (html[search + 1] === '{') {
+                    pos = html.indexOf('}}', search);
+                    result[idx++] = ___str(html.slice(search + 2, pos));
+                    pos += 2;
+                } else {
+                    pos = html.indexOf('}', search);
+                    result[idx++] = ___exp(html.slice(search + 1, pos));
+                    pos++;
+                }
+            } else break;
+        }
+
+        if (pos < len) result[idx++] = html.slice(pos);
+
+        return (obj) => result.map(v => typeof v === 'string' ? v : v(obj)).join('');
+    }
+}
+
+/*
+
+export function __htmlMap(str: string, k = ['[', ']']) {
+
+    let [a, z] = k, html = [], key = [], map = {}, p = 0,
+        s = 0, e = 0, i = 0, l = str.length;
+
+    while (i < l) {
+
+        s = str.indexOf(a, i);
+
+        // "{{" 전까지 문자열 저장
+        if (s == -1) {
+            html[p++] = str.substring(i, l);
+            break;
+        } else {
+            s != i && (html[p++] = str.substring(i, s));
+        }
+
+        e = str.indexOf(z, s);
+        key.push(p);
+        map[p] = str.substring(s + a.length, e);
+        html[p++] = null;
+
+        i = e + z.length;
+
+    }
+
+    s = e = i = p = void 0;
+    l = key.length;
+
+    return (obj) => {
+        for (let i = 0, p, v; i < l; i++) {
+            p = key[i];
+            v = obj[map[p]];
+            html[p] = v == null ? '' : v;
+        }
+        return html.join('');
+    }
+}
+*/
+
 /*
  *  단순히 문자열을 치환할때 쓴다.
  */
-export function _replaceHTML(html: string, dir = directive) {
+export function __replaceHTML(html: string, dir = directive) {
 
     let pos = html.indexOf('{{');
     if (pos === -1) return () => html;
-    return __replaceHTML(html, pos, html.length, dir);
+    return ___replaceHTML(html, pos, html.length, dir);
 
 }
 
 
-export function _compile(html, directive?, _opt?) {
-    let fn = __compile(html, directive);
+export function __compileHTML(html, directive?, _opt?) {
+    let fn = ____compile(html, directive);
     return function (data, opt?) {
-        if(!opt) opt = _opt;
+        if (!opt) opt = _opt;
         return fn.call({}, data, opt);
     }
 }

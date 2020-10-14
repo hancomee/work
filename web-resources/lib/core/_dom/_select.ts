@@ -1,4 +1,5 @@
 import {r_number} from "../_regexp/number";
+import {__newApply} from "../_util/newApply";
 
 // 정방향
 function cEach(children: ArrayLike<Node>, n: number) {
@@ -27,75 +28,78 @@ function cEachReverse(children: ArrayLike<Node>, n: number) {
 /*
  *
  *  젓같은 ie에서는 fragment에 children이 없다. 따라서 childNodes로 한다..
+ *  음수값을 넣으며녀 뒤에서부터 찾는다
  */
-export function nthChildren(context: Element, nth: number) {
+export function __nthChildren(context: Element, nth: number) {
     if (nth < 0) return cEachReverse(context.childNodes, nth * -1);
     else return cEach(context.childNodes, nth === 0 ? 1 : nth);
 }
 
 
-/*
- *   :0 첫번째 자식
- *   :-1 마지막 자식
- *   :* 모든 자식
- *
- *   =  querySelector
- *   [1] querySelectorAll
- *   "1"  getElementsByClassName
- *   <2> getElementsById
- */
-function lookup(r: any[], index: number) {
-    if (index < 0) {
-        let l = r.length;
-        index *= -1;
-        index = index % l;
-        return index === 0 ? r[0] : r[l - index];
-    }
-    return r[index];
-}
+export function __selectMap<T>(obj: new(...args) => T, element: HTMLElement, selectors: string[]|string): T
+export function __selectMap<T>(obj: T, element: HTMLElement, directive: Object): T
+export function __selectMap(obj, element: HTMLElement, directive) {
 
-export function selectMap<T>(obj: T, element: HTMLElement, directive): T {
-    for(let p in directive) {
-        if(typeof directive[p] === 'string')
-            obj[p] = select(element, directive[p]);
+    if(typeof obj === 'function') {
+        return __newApply(obj, __selectA(element, directive));
+    }
+
+    for (let p in directive) {
+        if (typeof directive[p] === 'string') {
+            obj[p] = __select1(element, directive[p]);
+        }
     }
     return obj;
 }
 
 
 
-
-export function select(context, selector: string) {
-
-    if(selector[0] === '#')
-        return document.getElementById(selector.slice(1));
-
-    let
-        i = selector.indexOf('='), l = selector.lastIndexOf('"'),
-        key = selector.substring(0, i),
-        value = selector.substring(i + 2, l),
-        r;
-
-    switch (key) {
-        case 'sel' :
-            return context.querySelector(value);
-        case 'class' :
-            r = context.getElementsByClassName(value);
-            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
-        case 'tag' :
-            r = context.getElementsByTagName(value);
-            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
-        case 'all' :
-            r = context.querySelectorAll(value);
-            return selector[l + 1] === '[' ? lookup(r, parseInt(selector.substring(l + 2, selector.length - 1))) : r;
-    }
-
+function _lookup(str: string, e: number) {
+    return parseInt(str.substring(str.lastIndexOf('[') + 1, e));
 }
 
 
-export function selectAll(ele: Element, arg: any[]): HTMLElement[]
-export function selectAll<T>(ele: Element, arg: any[], handler: (...args: any[]) => T): T
-export function selectAll(element: Element, arg, handler?) {
+export function __select1(context, selector: string) {
+
+    if (selector[0] === '#')
+        return document.getElementById(selector.slice(1));
+
+    let
+        r, e, l = selector[e = (selector.length - 1)];
+
+    switch (selector[0]) {
+        case '(' :
+            r = selector.substring(1, selector.lastIndexOf(')'));
+            return l === ']' ? context.querySelectorAll(r) : context.querySelector(r);
+        case '<' :
+            r = selector.substring(1, selector.lastIndexOf('>'));
+            r = context.getElementsByTagName(r);
+            return l === '>' ? r : r[_lookup(selector, e)]
+        case '.' :
+            if (l === ']') {
+                r = context.getElementsByClassName(selector.substring(1, selector.lastIndexOf('[')));
+                return r[_lookup(selector, e)];
+            }
+            else return context.getElementsByClassName(selector.substring(1));
+        default :
+            return null;
+    }
+}
+
+/*
+ *   getElementById         #id
+ *   getElementByClassName  .class[1], .classes
+ *   getElementByTagName    <tag>[1], <tags>
+ *   querySelector          (selector)
+ *   querySelectorAll       (selector)[]
+ */
+export function __selectA(ele: Element, arg: any[] | string): HTMLElement[]
+export function __selectA<T>(ele: Element, arg: any[] | string, handler: (...args: any[]) => T): T
+export function __selectA(element: Element, arg, handler?) {
+
+    if (typeof arg === 'string')
+        arg = arg.split(/\s+/g);
+
     let
         args = [], index = 0, i = 0, l = arg.length, str;
 
@@ -105,12 +109,11 @@ export function selectAll(element: Element, arg, handler?) {
         // (1) 문자열일 경우
         if (typeof str === 'string') {
 
-            // :1 일 경우 앞선 결과를 element 주체로 사용한다.
-            if (str[0] === ':') {
-                let i = str.indexOf(' ');
-                args[index++] = select(args[str.substring(1, i)], str.slice(i + 1))
-            }
-            else args[index++] = select(element, str);
+            // /1: 일 경우 앞선 결과를 element 주체로 사용한다.
+            if (str[0] === '{') {
+                let i = str.indexOf('}');
+                args[index++] = __select1(args[str.substring(1, i)], str.slice(i + 1))
+            } else args[index++] = __select1(element, str);
         }
         // (2) 함수일 경우, 결과물을 그대로 보내준다..
         else if (typeof str === 'function')

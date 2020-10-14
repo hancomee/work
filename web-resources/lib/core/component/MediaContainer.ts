@@ -1,8 +1,8 @@
-import {Mapping} from "../support/Mapping";
-import {EventsGroup} from "../events";
+import {Mapping} from "../_dom/Mapping";
+import {EventsGroup} from "../_events";
 import {iMediaElement, MediaElement} from "./mediaContainer/MediaElement";
-import {getElementsByClassName} from "../_dom/selector";
-import {selectMap} from "../_dom/_select";
+import {__findByClass} from "../_dom/_selector";
+import {__selectMap} from "../_dom/_select";
 
 
 export interface MediaData {
@@ -47,11 +47,11 @@ export class MediaContainer<T extends MediaData> extends Mapping {
         super();
 
         // 비디오 재생정보
-        let videoHTMLMap = selectMap({}, getElementsByClassName(element, 'media-meta', 0), {
-            start: 'class="video-repeat-start"[0]',
-            end: 'class="video-repeat-end"[0]',
-            currentTime: 'class="video-current"[0]',
-            duration: 'class="video-duration"[0]',
+        let videoHTMLMap = __selectMap({}, __findByClass(element, 'media-meta', 0), {
+            start: '.video-repeat-start[0]',
+            end: '.video-repeat-end[0]',
+            currentTime: '.video-current[0]',
+            duration: '.video-duration[0]',
         });
 
         element.addEventListener('video.update', (e) => {
@@ -60,7 +60,7 @@ export class MediaContainer<T extends MediaData> extends Mapping {
                 videoHTMLMap[p].textContent = data[p];
         })
 
-        this.metaCount = getElementsByClassName(element, 'media-meta-count', 0);
+        this.metaCount = __findByClass(element, 'media-meta-count', 0);
 
         let $self = this,
             wheelEventHandler = (e: MouseWheelEvent) => {

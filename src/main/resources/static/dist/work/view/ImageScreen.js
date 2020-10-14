@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 40);
+/******/ 	return __webpack_require__(__webpack_require__.s = 41);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -68,100 +68,54 @@
 /***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Access;
-    (function (Access) {
-        // dot으로 구분된 프로퍼티 읽어오기
-        function read(p, obj) {
-            var names = typeof p === 'string' ? p.split('.') : p, length = names.length, i = 0;
-            for (; i < length; i++) {
-                if ((obj = obj[names[i]]) == null)
-                    return null;
-            }
-            return obj;
-        }
-        Access.read = read;
-        Access.primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
-            return function (val) {
-                if (typeof val === 'string' && val.length > 0) {
-                    if (r_string.test(val))
-                        return val.replace(r_string_replace, '');
-                    if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
-                    if (r_date.test(val))
-                        return new Date(val);
-                }
-                return val;
-            };
-        })();
-        var r_a = /\./;
-        function access(target, _props, val, force) {
-            if (target == null || _props == null || _props === '')
-                return target;
-            var props = _props.split(r_a), len = props.length - 1, obj = target, temp, i = 0;
-            for (; obj != null && i < len; i++) {
-                temp = obj[props[i]];
-                if (temp == null && force)
-                    temp = obj[props[i]] = {};
-                obj = temp;
-            }
-            // [1] getter
-            if (arguments.length === 2)
-                return obj != null ? obj[props[i]] : obj;
-            // [2] setter
-            obj != null && (obj[props[i]] = val);
-            return target;
-        }
-        Access.access = access;
-    })(Access = exports.Access || (exports.Access = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 2:
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Arrays;
     (function (Arrays) {
-        var indexOf = Array.prototype.indexOf;
+        var _a = Array.prototype, indexOf = _a.indexOf, slice = _a.slice;
         // 배열을 테이블화 시켜서 순회한다. 행이 존재함
         // 콜백함수 (원소, 전체인덱스, 열넘버, 행넘버) ==>  false 반환시 루프 멈춤
-        function cols(array, col, callback) {
+        function __cols(array, col, callback) {
             var limit = array.length, i = 0, colNum, row = -1;
             if (col < 1)
                 throw new Error('열 수는 1 이상이어야  합니다 :: input Value ==> ' + col);
             for (; i < limit; i++) {
                 if ((colNum = i % col) === 0)
                     row++;
-                if (callback.call(array, array[i], i, i % col, row) === false)
+                if (callback.call(array, array[i], i, colNum, row) === false)
                     return;
             }
         }
-        Arrays.cols = cols;
-        function slice(array, col, callback) {
+        Arrays.__cols = __cols;
+        /*
+         *   ( [1, 2, 3, 4, 5, 6, 7, 8, 9], 3) ==> [[1, 4, 7], [2, 5, 8], [3, 6, 9]]
+         *   1 2 3
+         *   4 5 6
+         *   7 8 9
+         */
+        function __colsR(values, col) {
+            var result = __loop(col, function (r, i) { return r[i] = []; }, []);
+            __cols(values, col, function (v, index, colNum, rowNum) {
+                result[colNum][rowNum] = v;
+            });
+            return result;
+        }
+        Arrays.__colsR = __colsR;
+        function __slice(array, col, callback) {
             var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
             for (; i < len; i++) {
                 result[i] = callback.call(array, array.slice(c, c = (i + 1) * col), i);
             }
             return result;
         }
-        Arrays.slice = slice;
+        Arrays.__slice = __slice;
         /*
          *  DataTransferItemList 때문에 만든 함수
          *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
          *  *사용법은 로직 참고
          */
-        function promiseMap(array, handler) {
+        function __promiseMap(array, handler) {
             return new Promise(function (resolve, _) {
                 var check, len = check = array.length, result = [];
                 var _loop_1 = function () {
@@ -176,19 +130,19 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
             });
         }
-        Arrays.promiseMap = promiseMap;
+        Arrays.__promiseMap = __promiseMap;
         // 숫자배열을 만들어준다.
         // 시작넘버부터 객수
-        function rangeBySize(start, size) {
+        function __rangeBySize(start, size) {
             var array = [];
             for (var i = 0, l = start + size; start < l; start++) {
                 array[i++] = start;
             }
             return array;
         }
-        Arrays.rangeBySize = rangeBySize;
+        Arrays.__rangeBySize = __rangeBySize;
         // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
-        function range_atob(start, lastNum) {
+        function __range_atob(start, lastNum) {
             var reverse = start > lastNum ? true : false, array = [];
             /*
              *  start와 lastNum이 반대로 들어오면 ?    (5, 1)   ==>  [5,4,3,2,1]
@@ -204,18 +158,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return reverse ? array.reverse() : array;
         }
-        Arrays.range_atob = range_atob;
+        Arrays.__range_atob = __range_atob;
         // drive 배열의 원소만큼 루프를 돌린다.
         // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
-        function _with(drive, driven, callback) {
+        function __with(drive, driven, callback) {
             if (drive == null)
                 return;
             for (var i = 0; i < drive.length; i++) {
                 callback.call(drive, drive[i], driven, i);
             }
         }
-        Arrays._with = _with;
-        function fill(length, v) {
+        Arrays.__with = __with;
+        function __fill(length, v) {
             if (v === void 0) { v = null; }
             var i = 0, array = [], handler = v;
             if (typeof v !== 'function')
@@ -225,10 +179,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return array;
         }
-        Arrays.fill = fill;
+        Arrays.__fill = __fill;
         // 배열을 length의 갯수만큼 나눈다.
         // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
-        function split(target, length) {
+        function __split(target, length) {
             var result = [], temp, pos;
             for (var i = 0, l = target.length; i < l; i++) {
                 pos = i % length;
@@ -238,9 +192,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return result;
         }
-        Arrays.split = split;
+        Arrays.__split = __split;
         // target의 앞부터 다 맞으면 오케이
-        function startWith(key, target) {
+        function __startWith(key, target) {
             var i = 0, l = key.length;
             if (target.length < l)
                 return false;
@@ -250,8 +204,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.startWith = startWith;
-        function endWith(key, target) {
+        Arrays.__startWith = __startWith;
+        function __endWith(key, target) {
             var i = 0, l = key.length, r = target.length - l;
             if (r < 0)
                 return false;
@@ -261,9 +215,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.endWith = endWith;
+        Arrays.__endWith = __endWith;
         // 값 비교
-        function equals(a, b, valueMatch) {
+        function __equals(a, b, valueMatch) {
             if (valueMatch === void 0) { valueMatch = false; }
             if (a === b)
                 return true;
@@ -288,12 +242,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.equals = equals;
+        Arrays.__equals = __equals;
         /*
          *   [1,2,3,4,5];
          *   ::  (1,2)  (2,3)  (3,4)  (4,5)
          */
-        function _zipper(array, handler, r) {
+        function __zipper(array, handler, r) {
             var length = array.length;
             if (length < 2)
                 return;
@@ -303,19 +257,22 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return r;
         }
-        Arrays._zipper = _zipper;
-        function _indexOf(obj, v) {
+        Arrays.__zipper = __zipper;
+        function __indexOf(obj, v) {
             return indexOf.call(obj, v);
         }
-        Arrays._indexOf = _indexOf;
-        function _range(i, l, handler, t) {
-            for (; i < l; i++)
-                handler(i, t);
-            return t;
+        Arrays.__indexOf = __indexOf;
+        // (1,1) => [1]    //   (1,4) => [1,2,3,4]
+        function __range(start, end) {
+            var result = [], pos = 0;
+            end++;
+            for (; start < end; start++)
+                result[pos++] = start;
+            return result;
         }
-        Arrays._range = _range;
+        Arrays.__range = __range;
         // index 위치에 있는 원소를 move 위치로 옮기기
-        function _move(obj, index, move) {
+        function __move(obj, index, move) {
             var r = [], i = 0, l = obj.length;
             r[move] = obj[index];
             // 역방향 이동
@@ -346,23 +303,43 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return r;
         }
-        Arrays._move = _move;
-        function _makeArray(obj) {
-            var r = [], l = obj.length;
-            while (l-- > 0)
-                r[l] = obj[l];
+        Arrays.__move = __move;
+        function __concat() {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            var r = [], pos = 0;
+            args.forEach(function (v) {
+                if (Array.isArray(v))
+                    v.forEach(function (v) { return r[pos++] = v; });
+                else
+                    r[pos++] = v;
+            });
             return r;
         }
-        Arrays._makeArray = _makeArray;
-        function _filter(obj, filter) {
+        Arrays.__concat = __concat;
+        function __flapMap(obj, handler) {
+            var i = 0, l = obj.length, r = [];
+            for (; i < l; i++) {
+                r.concat(handler(obj[i], i));
+            }
+            return r;
+        }
+        Arrays.__flapMap = __flapMap;
+        function __makeArray(obj) {
+            return slice.call(obj);
+        }
+        Arrays.__makeArray = __makeArray;
+        function __filter(obj, filter) {
             var r = [], i = 0, l = obj.length, pos = 0;
             for (; i < l; i++)
                 if (filter(obj[i], i))
                     r[pos++] = obj[i];
             return r;
         }
-        Arrays._filter = _filter;
-        function _forEach(obj, h) {
+        Arrays.__filter = __filter;
+        function __forEach(obj, h) {
             var i = 0, l = obj.length;
             while (i < l) {
                 if (h(obj[i], i++) === false)
@@ -370,8 +347,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return obj;
         }
-        Arrays._forEach = _forEach;
-        function _selector(obj, h) {
+        Arrays.__forEach = __forEach;
+        function __selector(obj, h) {
             var i = 0, l = obj.length, v;
             while (i < l) {
                 if (h(v = obj[i], i++))
@@ -379,8 +356,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return undefined;
         }
-        Arrays._selector = _selector;
-        function _forEachReverse(obj, h) {
+        Arrays.__selector = __selector;
+        function __forEachR(obj, h) {
             var i = obj.length;
             while (i-- > 0) {
                 if (h(obj[i], i) === false)
@@ -388,45 +365,45 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return obj;
         }
-        Arrays._forEachReverse = _forEachReverse;
-        function _loopMap(i, h) {
+        Arrays.__forEachR = __forEachR;
+        function __loopMap(i, h) {
             var dr = [], p = 0;
             for (; p < i; p++)
                 dr[p] = h(p);
             return dr;
         }
-        Arrays._loopMap = _loopMap;
-        function _loop(i, h, t) {
+        Arrays.__loopMap = __loopMap;
+        function __loop(i, h, t) {
             for (var p = 0; p < i; p++)
                 h(t, p);
             return t;
         }
-        Arrays._loop = _loop;
-        function _reduce(obj, h, r) {
+        Arrays.__loop = __loop;
+        function __reduce(obj, h, r) {
             var i = 0, l = obj.length;
             while (i < l) {
                 r = h(r, obj[i], i++);
             }
             return r;
         }
-        Arrays._reduce = _reduce;
-        function _reduceN(obj, h, r) {
+        Arrays.__reduce = __reduce;
+        function __reduceN(obj, h, r) {
             var i = 0, l = obj.length;
             while (i < l) {
                 h(r, obj[i], i++);
             }
             return r;
         }
-        Arrays._reduceN = _reduceN;
-        function _map(obj, h) {
+        Arrays.__reduceN = __reduceN;
+        function __map(obj, h) {
             var r = [], i = 0, l = obj.length;
             while (i < l) {
                 r[i] = h(obj[i], i++);
             }
             return r;
         }
-        Arrays._map = _map;
-        function _colMap(values, size, handler) {
+        Arrays.__map = __map;
+        function __colMap(values, size, handler) {
             var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
             while (index < l) {
                 if (index % size === 0) {
@@ -439,8 +416,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             v && (r[rIndex] = handler(v, rIndex++));
             return r;
         }
-        Arrays._colMap = _colMap;
-        function _colReduce(values, size, handler, r) {
+        Arrays.__colMap = __colMap;
+        function __colReduce(values, size, handler, r) {
             var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
             while (index < l) {
                 if (index % size === 0) {
@@ -453,8 +430,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             v && (r = handler(r, v, rIndex++));
             return r;
         }
-        Arrays._colReduce = _colReduce;
-        function _in(obj, filter, r) {
+        Arrays.__colReduce = __colReduce;
+        function __in(obj, filter, r) {
             var i = 0, l = obj.length;
             while (i < l) {
                 if (filter(obj[i], i++) === r)
@@ -463,15 +440,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return !r;
         }
         // true가 하나라도 있으면
-        function _inTrue(obj, filter) {
-            return _in(obj, filter, true);
+        function __inTrue(obj, filter) {
+            return __in(obj, filter, true);
         }
-        Arrays._inTrue = _inTrue;
-        function _inFalse(obj, filter) {
-            return _in(obj, filter, false);
+        Arrays.__inTrue = __inTrue;
+        function __inFalse(obj, filter) {
+            return __in(obj, filter, false);
         }
-        Arrays._inFalse = _inFalse;
-        function _everyTrue(obj, filter) {
+        Arrays.__inFalse = __inFalse;
+        function __everyTrue(obj, filter) {
             var i = 0, l = obj.length;
             while (i < l) {
                 if (filter(obj[i], i++) === false)
@@ -479,8 +456,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays._everyTrue = _everyTrue;
-        function _everyFalse(obj, filter) {
+        Arrays.__everyTrue = __everyTrue;
+        function __everyFalse(obj, filter) {
             var i = 0, l = obj.length;
             while (i < l) {
                 if (filter(obj[i], i++) === true)
@@ -488,9 +465,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays._everyFalse = _everyFalse;
+        Arrays.__everyFalse = __everyFalse;
         // sort 순서까지 맞아야하는지
-        function _contains(source, target, sort) {
+        function __contains(source, target, sort) {
             if (sort === void 0) { sort = true; }
             var limit = source.length, i = target.length;
             if (limit < i)
@@ -509,8 +486,66 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays._contains = _contains;
+        Arrays.__contains = __contains;
     })(Arrays = exports.Arrays || (exports.Arrays = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var Access;
+    (function (Access) {
+        // dot으로 구분된 프로퍼티 읽어오기
+        function __read(p, obj) {
+            var names = typeof p === 'string' ? p.split('.') : p, length = names.length, i = 0;
+            for (; i < length; i++) {
+                if ((obj = obj[names[i]]) == null)
+                    return null;
+            }
+            return obj;
+        }
+        Access.__read = __read;
+        Access.__primitive = (function () {
+            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            return function (val) {
+                if (typeof val === 'string' && val) {
+                    if (r_string.test(val))
+                        return val.slice(1, -1);
+                    if (number_1.r_number.test(val))
+                        return parseInt(val);
+                    if (r_boolean.test(val))
+                        return val === 'true';
+                }
+                return val;
+            };
+        })();
+        var r_a = /\./;
+        function __access(target, _props, val, force) {
+            if (target == null || _props == null || _props === '')
+                return target;
+            var props = _props.split(r_a), len = props.length - 1, obj = target, temp, i = 0;
+            for (; obj != null && i < len; i++) {
+                temp = obj[props[i]];
+                if (temp == null && force)
+                    temp = obj[props[i]] = {};
+                obj = temp;
+            }
+            // [1] getter
+            if (arguments.length === 2)
+                return obj != null ? obj[props[i]] : obj;
+            // [2] setter
+            obj != null && (obj[props[i]] = val);
+            return target;
+        }
+        Access.__access = __access;
+    })(Access = exports.Access || (exports.Access = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -524,10 +559,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // n이 N이 되기 위한 비율
-    exports._rate = function (N, n) { return (N - n) / n; }, exports._adjust = function (W, H, w, h) {
-        var height = h + (exports._rate(W, w) * h);
+    exports.__rate = function (N, n) { return (N - n) / n; }, exports._adjust = function (W, H, w, h) {
+        var height = h + (exports.__rate(W, w) * h);
         if (height > H)
-            return { w: w + (exports._rate(H, h) * w), h: H };
+            return { w: w + (exports.__rate(H, h) * w), h: H };
         return { w: W, h: height };
     }, exports.__tilt = function (rotate, r) {
         if (r === void 0) { r = Math.abs(rotate % 360); }
@@ -596,11 +631,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }, 
     // 가로 사이즈에 딱 맞추기
     exports.__adjustWidth = function (W, H, w, h) {
-        return { w: W, h: h + Math.round(exports._rate(W, w) * h) };
+        return { w: W, h: h + Math.round(exports.__rate(W, w) * h) };
     }, 
     // 세로사이즈에 딱 맞추기
     exports.__adjustHeigth = function (W, H, w, h) {
-        return { w: w + Math.round(exports._rate(H, h) * w), h: H };
+        return { w: w + Math.round(exports.__rate(H, h) * w), h: H };
     }, 
     // 가운데 맞춤
     exports.__center = function (W, H, w, h) {
@@ -684,7 +719,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 40:
+/***/ 41:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
@@ -697,7 +732,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(41)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(42)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageScreen = /** @class */ (function (_super) {
@@ -739,10 +774,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 /***/ }),
 
-/***/ 41:
+/***/ 42:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, events_1, _image_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _image_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ImageController = /** @class */ (function () {
@@ -755,7 +790,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     _this.wheelZoom(e);
                 }
             };
-            this.events = new events_1.EventsGroup().off()
+            this.events = new _events_1.EventsGroup().off()
                 .register(document, 'mousedown', function (e) {
                 if (_this.element.contains(e.target) && _this.imager) {
                     handler = _this.move(e);
@@ -947,7 +982,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 5:
+/***/ 6:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -963,7 +998,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(7), __webpack_require__(2), __webpack_require__(0), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, Arrays_1, access_1, __returnTrue_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(0), __webpack_require__(1), __webpack_require__(8), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, _array_1, _access_1, _noop_1, _core_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Events = /** @class */ (function () {
@@ -1072,10 +1107,8 @@ var __extends = (this && this.__extends) || (function () {
     }());
     exports.TargetEvent = TargetEvent;
     (function (Events) {
-        var primitive = access_1.Access.primitive;
-        var _makeArray = Arrays_1.Arrays._makeArray;
-        function noop(e) {
-        }
+        var _makeArray = _array_1.Arrays.__makeArray;
+        var __primitive = _access_1.Access.__primitive;
         function closest(target, selector, ele) {
             var list = target.querySelectorAll(selector), l = list.length;
             while (l-- > 0)
@@ -1083,14 +1116,14 @@ var __extends = (this && this.__extends) || (function () {
                     return list[l];
             return null;
         }
-        function mine(target, type, handler) {
+        function __$mine(target, type, handler) {
             return new Events(target, type, function (e) {
                 if (e.target === target)
                     return handler.call(this, e);
             });
         }
-        Events.mine = mine;
-        function bind(target, type, selector, handler) {
+        Events.__$mine = __$mine;
+        function __$bind(target, type, selector, handler) {
             if (handler)
                 return new Events(target, type, function (e) {
                     var t = closest(target, selector, e.target);
@@ -1100,15 +1133,15 @@ var __extends = (this && this.__extends) || (function () {
             else
                 return new Events(target, type, selector);
         }
-        Events.bind = bind;
-        function map(target, map) {
+        Events.__$bind = __$bind;
+        function __$map(target, map) {
             var group = new EventsGroup(), p;
             for (p in map)
                 typeof map[p] === 'function' && group.register(target, p, map[p].bind(map));
             return group;
         }
-        Events.map = map;
-        function keydown(ele, handler) {
+        Events.__$map = __$map;
+        function __$keydown(ele, handler) {
             var key;
             return new EventsGroup()
                 .register(ele, 'keyup', function () { return key = null; })
@@ -1120,9 +1153,9 @@ var __extends = (this && this.__extends) || (function () {
                 }
             });
         }
-        Events.keydown = keydown;
+        Events.__$keydown = __$keydown;
         // noDuplicationd : 같은 문자열 입력은 무시
-        function acceptKeys(target, handler, noDuplication) {
+        function __$acceptKeys(target, handler, noDuplication) {
             if (noDuplication === void 0) { noDuplication = true; }
             var key = null;
             return new Events(target, 'keyup', function (e) {
@@ -1133,11 +1166,11 @@ var __extends = (this && this.__extends) || (function () {
                 }
             });
         }
-        Events.acceptKeys = acceptKeys;
+        Events.__$acceptKeys = __$acceptKeys;
         /*
          *  키 입력에 따라 핸들러 호출
          */
-        Events.catchKey = (function () {
+        Events.__$catchKey = (function () {
             var KeyEvents = /** @class */ (function (_super) {
                 __extends(KeyEvents, _super);
                 function KeyEvents(element, keys, handler, upHandler) {
@@ -1190,7 +1223,7 @@ var __extends = (this && this.__extends) || (function () {
                     if (keys.indexOf(keyCode) === -1)
                         keys.push(keyCode);
                     keyListener.forEach(function (v) {
-                        if (hovers.indexOf(v.target) !== -1 && Arrays_1.Arrays.equals(v.keys, keys))
+                        if (hovers.indexOf(v.target) !== -1 && _array_1.Arrays.__equals(v.keys, keys))
                             v.down();
                     });
                 })
@@ -1205,12 +1238,12 @@ var __extends = (this && this.__extends) || (function () {
             })();
             // on/off 컨트롤러를 반환한다.
             return function (element, keys, handler, upHandler) {
-                if (upHandler === void 0) { upHandler = noop; }
+                if (upHandler === void 0) { upHandler = _noop_1.__noop; }
                 return new KeyEvents(element, keys, handler, upHandler);
             };
         })();
         // 해당 횟수만큼 이벤트를 리스닝한다.
-        function count(element, type, handler, count) {
+        function __$count(element, type, handler, count) {
             if (count === void 0) { count = 1; }
             if (count < 1)
                 return;
@@ -1226,16 +1259,16 @@ var __extends = (this && this.__extends) || (function () {
             };
             element.addEventListener(type, dispatcher);
         }
-        Events.count = count;
-        function listener(element, type, handler) {
+        Events.__$count = __$count;
+        function __$listener(element, type, handler) {
             return new Events(element, type, handler);
         }
-        Events.listener = listener;
+        Events.__$listener = __$listener;
         function listenGroup() {
             return new EventsGroup();
         }
         Events.listenGroup = listenGroup;
-        function trigger(target, type, bubbles, cancelable) {
+        function __$trigger(target, type, bubbles, cancelable) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
             if (typeof target[type] === 'function')
@@ -1247,16 +1280,16 @@ var __extends = (this && this.__extends) || (function () {
                 setTimeout(function () { return target.dispatchEvent(e_1); }, 0);
             }
         }
-        Events.trigger = trigger;
-        function custom(target, type, detail, bubbles, cancelable) {
+        Events.__$trigger = __$trigger;
+        function __$custom(target, type, detail, bubbles, cancelable) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
             var e = document.createEvent('CustomEvent');
             e.initCustomEvent(type, bubbles, cancelable, detail);
             setTimeout(function () { return target.dispatchEvent(e); }, 0);
         }
-        Events.custom = custom;
-        function eventWorks(element, type, handlers, attrName) {
+        Events.__$custom = __$custom;
+        function __$eventWorks(element, type, handlers, attrName) {
             if (attrName === void 0) { attrName = 'data-handler'; }
             var target, vName = attrName + '-value', isFun = typeof handlers === 'function' ? handlers : null;
             return new Events(element, type, function (e) {
@@ -1274,86 +1307,118 @@ var __extends = (this && this.__extends) || (function () {
                 }
             });
         }
-        Events.eventWorks = eventWorks;
+        Events.__$eventWorks = __$eventWorks;
         /*
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
          */
-        var r_read_split = /,\s*/;
-        function eventProperty(target, obj) {
+        var r_read_split = /,\s*/, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
+        function __builder(target, obj) {
             var v;
             // target 자체를
-            if (v = target.getAttribute('data-element')) {
-                obj[v] = target;
+            if ((v = target.getAttribute('data-element')) != null) {
+                __setter(obj, v || 'element', target);
             }
-            // property 이름
-            if ((v = target.getAttribute('data-value')) && v.indexOf(':') !== -1) {
-                var array = v.split(r_read_split), l = array.length;
-                while (l-- > 0) {
-                    var _a = array[l].split(':'), k = _a[0], v_1 = _a[1];
-                    obj[k] = primitive(v_1);
-                }
+            /*
+             * ① data-value="name:this"
+             *    obj[name] = <element>  (=: data-element="name")
+             *
+             * ② data-value="name:val"
+             *    obj[name] = __primitive('텍스트')
+             *
+             * ③ data-value="name"
+             *    obj[name] = __primitive(element.getAttribute('data-name'))
+             *
+             * ④ data-value="name:[attr]"
+             *    obj[name] = __primitive(element.getAttribute('attr'))
+             *
+             */
+            if ((v = target.getAttribute('data-value'))) {
+                v.split(r_read_split).forEach(function (prop) {
+                    var _a = prop.split(':'), p = _a[0], v = _a[1];
+                    if (obj[p] === undefined) {
+                        if (!v)
+                            obj[p] = __primitive(target.getAttribute('data-' + p));
+                        else if (v === 'this')
+                            obj[p] = target;
+                        else if (v[0] === '[')
+                            obj[p] = __primitive(target.getAttribute(v.slice(1, v.length - 1)));
+                        else
+                            obj[p] = __primitive(v);
+                    }
+                });
+            }
+            // data-json='{"name":"johnson", "old":42}'
+            // data-json='"name":"johnson", "old":42'
+            if ((v = target.getAttribute('data-json'))) {
+                if (v[0] !== '{')
+                    v = '{' + v + '}';
+                v = JSON.parse(v);
+                for (var p in v)
+                    obj[p] === undefined && (obj[p] = v[p]);
             }
             return obj;
         }
         function getObject() {
             return {};
         }
-        function dataEvent(element, type, attr, getObj, dispatcher, directive) {
+        function __$dataEvent(element, type, attr, provider, directive) {
             // arguments : 4
-            if (!dispatcher) {
-                directive = getObj;
-                getObj = getObject;
-                dispatcher = __returnTrue_1.__returnTrue;
-            }
-            // arguments : 5
-            else if (!directive) {
-                directive = dispatcher;
-                dispatcher = __returnTrue_1.__returnTrue;
+            if (!directive) {
+                directive = provider;
+                provider = false;
             }
             return new Events(element, type, function (e) {
-                var target = e.target, attrValue = target.getAttribute(attr), dir = directive[target.getAttribute(attr)];
-                if (dir) {
-                    var obj = getObj(e, attrValue), limit = element, h = dispatcher;
-                    obj['event'] = e;
-                    while (target && (limit !== target)) {
-                        eventProperty(target, obj);
-                        if (h(target, obj, attrValue, e) === 'break')
-                            break;
-                        target = target.parentElement;
+                var target = e.target, attrValue, dir;
+                // 등록된 객체가 있는지 확인
+                do {
+                    if (attrValue = target.getAttribute(attr)) {
+                        dir = directive[attrValue];
+                        break;
                     }
+                } while ((target = target.parentElement) && target !== element);
+                if (dir) {
+                    var obj = { event: e }, limit = element, node = e.target;
+                    while (node && (limit !== node)) {
+                        __builder(node, obj);
+                        node = node.parentElement;
+                    }
+                    if (provider)
+                        obj = _core_1.__extend(provider(target, e), obj);
+                    dir['$init'] && dir['$init'](obj);
                     dir.call(directive, obj);
                 }
             });
         }
-        Events.dataEvent = dataEvent;
-        function bubbleEvent(element, type, attr, directive) {
-            return new Events(element, type, function (e) {
-                var target = e.target, prop, handler, obj;
+        Events.__$dataEvent = __$dataEvent;
+        /*export function __$bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
+    
+            return new Events(element, type, (e) => {
+    
+                let target = <HTMLElement>e.target, prop: string, handler, obj;
                 do {
                     if (!obj) {
                         if (target.hasAttribute(attr)) {
                             prop = target.getAttribute(attr);
                             handler = directive[prop];
-                            if (handler)
-                                obj = { target: target };
+                            if (handler) obj = {target: target};
                         }
                     }
-                    obj && eventProperty(target, obj);
+                    obj && __builder(target, obj);
                     target = target.parentElement;
                 } while (target && target !== element);
+    
                 if (obj) {
                     directive['*'] && directive['*'](obj, e);
                     handler.call(directive, obj, e);
                 }
             });
-        }
-        Events.bubbleEvent = bubbleEvent;
+        }*/
         /*
          *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
          *
          */
-        Events.onFocus = (function () {
+        Events.__$onFocus = (function () {
             var elements = [], index = 0;
             document.addEventListener('click', function (e) {
                 if (!index)
@@ -1400,7 +1465,7 @@ var __extends = (this && this.__extends) || (function () {
                 };
             };
         })();
-        function simpleTrigger(target, type, bubbles, cancelable, data) {
+        function __$simpleTrigger(target, type, bubbles, cancelable, data) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
             var e = document.createEvent('Event');
@@ -1408,7 +1473,7 @@ var __extends = (this && this.__extends) || (function () {
             e['data'] = data;
             return target.dispatchEvent(e);
         }
-        Events.simpleTrigger = simpleTrigger;
+        Events.__$simpleTrigger = __$simpleTrigger;
     })(Events = exports.Events || (exports.Events = {}));
     exports.Events = Events;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
@@ -1420,7 +1485,191 @@ var __extends = (this && this.__extends) || (function () {
 /***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, Arrays_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
+ * Created by hellofunc on 2017-03-22.
+ */
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
+    objStr = class2type.toString(); // [object Object]
+    exports.ownNames = Object.getOwnPropertyNames;
+    function __toString(v) {
+        return toString.call(v);
+    }
+    exports.__toString = __toString;
+    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
+    function __isObjectType(obj) {
+        return toString.call(obj) === objStr;
+    }
+    exports.__isObjectType = __isObjectType;
+    function __isPlainObject(obj) {
+        var proto, Ctor;
+        // Detect obvious negatives
+        // Use toString instead of jQuery.type to catch host objects
+        if (!obj || toString.call(obj) !== "[object Object]") {
+            return false;
+        }
+        proto = getProto(obj);
+        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
+        if (!proto) {
+            return true;
+        }
+        // Objects with prototype are plain iff they were constructed by a global Object function
+        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
+        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
+    }
+    exports.__isPlainObject = __isPlainObject;
+    function __isEmptyObject(obj) {
+        var name;
+        for (name in obj) {
+            return false;
+        }
+        return true;
+    }
+    exports.__isEmptyObject = __isEmptyObject;
+    function __isArrayLike(item) {
+        return Array.isArray(item) ||
+            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
+    }
+    exports.__isArrayLike = __isArrayLike;
+    var r_fn = /^function\s*([^\s(]+)/;
+    function __getFunctionName(func) {
+        return func.name ? func.name : func.toString().match(r_fn)[1];
+    }
+    exports.__getFunctionName = __getFunctionName;
+    exports.__isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    /*
+     *  일종의 객체 Decode/Encode
+     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
+     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
+     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
+     */
+    var dummy = {}, converts = {
+        number: function (a) { return a ? parseInt(a) : 0; },
+    };
+    function extend() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        var handler = __extend, i = 0, len, temp;
+        if (typeof args[0] === 'boolean') {
+            if (args[0])
+                handler = __deepExtend;
+            i = 1;
+        }
+        temp = args[i++];
+        len = args.length;
+        for (; i < len; i++) {
+            temp = handler(temp, args[i]);
+        }
+        return temp;
+    }
+    exports.extend = extend;
+    function __extend(dest, source) {
+        if (source == null)
+            return dest;
+        if (__isArrayLike(source)) {
+            var i = 0, l = source.length;
+            for (; i < l; i++) {
+                dest[i] = source[i];
+            }
+        }
+        else {
+            var p = void 0;
+            for (p in source) {
+                dest[p] = source[p];
+            }
+        }
+        return dest;
+    }
+    exports.__extend = __extend;
+    function __deepExtend(dest, source) {
+        if (__isArrayLike(source)) {
+            var i = 0, l = source.length, d = void 0, s = void 0;
+            for (; i < l; i++) {
+                s = source[i];
+                d = dest[i];
+                if (__isArrayLike(s))
+                    dest[i] = __deepExtend(__isArrayLike(d) ? d : [], s);
+                else if (__isPlainObject(s))
+                    dest[i] = __deepExtend(__isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        else {
+            var i = void 0, s = void 0, d = void 0;
+            for (i in source) {
+                s = source[i];
+                d = dest[i];
+                if (__isArrayLike(s))
+                    dest[i] = __deepExtend(__isArrayLike(d) ? d : [], s);
+                else if (__isPlainObject(s))
+                    dest[i] = __deepExtend(__isPlainObject(d) ? d : {}, s);
+                else
+                    dest[i] = s;
+            }
+        }
+        return dest;
+    }
+    exports.__deepExtend = __deepExtend;
+    function $extend(target, source, converts) {
+        if (converts === void 0) { converts = dummy; }
+        // undefined값이 올때만 패스한다.
+        // null이 들어오면 모든 프로퍼티가 null이 된다.
+        if (source === void 0)
+            return target;
+        var p, v, f;
+        // source가 단순 값일 경우!
+        if (source === null) {
+            for (p in target) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
+                    target[p] = source;
+            }
+        }
+        // source가 객체 혹은 valueMap일 경우
+        else {
+            for (p in source) {
+                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
+                    if (typeof f === 'function') {
+                        v = f.call(target, source[p], target);
+                        if (v !== void 0)
+                            target[p] = v;
+                    }
+                    else
+                        target[p] = v;
+            }
+        }
+        return target;
+    }
+    exports.$extend = $extend;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 8:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function __noop(a) {
+    }
+    exports.__noop = __noop;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
@@ -1434,7 +1683,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var map = this.map, _a = name.split(/\./), key = _a[0], args = _a.slice(1), list = map[key];
             if (!list)
                 return [];
-            return list.filter(function (v) { return Arrays_1.Arrays.startWith(args, v.names); }).map(function (v) { return v.data; });
+            return list.filter(function (v) { return _array_1.Arrays.__startWith(args, v.names); }).map(function (v) { return v.data; });
         };
         NameMap.prototype.add = function (name, data) {
             if (this.datas.indexOf(data) === -1) {
@@ -1448,7 +1697,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var _a = this, map = _a.map, datas = _a.datas, _b = name.split(/\./), key = _b[0], args = _b.slice(1), list = map[key];
             if (list) {
                 map[key] = list.filter(function (v) {
-                    if (Arrays_1.Arrays.startWith(args, v.names)) {
+                    if (_array_1.Arrays.__startWith(args, v.names)) {
                         datas.splice(datas.indexOf(v.data), 1);
                         return false;
                     }
@@ -1460,22 +1709,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         return NameMap;
     }());
     exports.NameMap = NameMap;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 8:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function __returnTrue(a) {
-        return true;
-    }
-    exports.__returnTrue = __returnTrue;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

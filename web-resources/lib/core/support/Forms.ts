@@ -1,15 +1,15 @@
 import {r_number} from "../_regexp/number";
-import {_remap} from "../_util/_remap";
+import {__remap} from "../_util/_remap";
 import {r_inputs} from "../_regexp/inputs";
 import {Calendar} from "./Calendar";
-import {Access} from "../access";
-import {Events} from "../events";
-import simpleTrigger = Events.simpleTrigger;
-import {Formats} from "./Formats";
-import toDate = Formats.toDate;
-import date = Formats.date;
-import datetime = Formats.datetime;
-import {__noop} from "../_snippet/__noop";
+import {Access} from "../_access";
+import {Events} from "../_events";
+import simpleTrigger = Events.__$simpleTrigger;
+import {Formats} from "../_format";
+import toDate = Formats.__toDate;
+import date = Formats.__date;
+import datetime = Formats.__datetime;
+import {__noop} from "../_snippet/_noop";
 
 type INPUT_MAP = { [index: string]: INPUTS[] }
 
@@ -51,7 +51,7 @@ let
      *  input에서 null이 나올리 없으므로
      *  null 반환시 최종 결과객체에 제외된다.
      */
-    DEFAULT_GETTER = _remap({
+    DEFAULT_GETTER = __remap({
 
         file(input: HTMLInputElement) {
             if (input.value) {
@@ -121,7 +121,7 @@ let
     }),
 
     // <input>값을 셋팅한다.
-    DEFAULT_SETTER = _remap({
+    DEFAULT_SETTER = __remap({
 
         select(input: HTMLSelectElement, val) {
         },
@@ -374,7 +374,7 @@ export class FormGroups {
 
 export namespace Forms {
 
-    import access = Access.access;
+    import access = Access.__access;
 
     let
         /*
@@ -382,7 +382,7 @@ export namespace Forms {
          *  ② attr.type
          *  ③ attr
          */
-        input_valid: INPUT_MAP = _remap({
+        input_valid: INPUT_MAP = __remap({
 
             // 두번째 인자값은 해당 어트리뷰트의 값
             required(target, v: string) {
@@ -446,7 +446,7 @@ export namespace Forms {
             }
         }),
 
-        group_valid: GROUP_MAP = _remap({
+        group_valid: GROUP_MAP = __remap({
             min(ele: HTMLElement, val: string) {
             },
             max(ele: HTMLElement, val: string) {

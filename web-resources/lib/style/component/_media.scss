@@ -1,0 +1,193 @@
+@import "variable";
+@import "tree";
+
+body, input, textarea, pre {
+  font-family: "Roboto", "Nanum Gothic";
+}
+
+
+@mixin fixed($t: 0, $r: 0, $b: 0, $l: 0, $z: 1041) {
+  position: fixed;
+  top: $t;
+  right: $r;
+  bottom: $b;
+  left: $l;
+  z-index: $z;
+  @content;
+}
+
+body {
+  overflow-y: scroll;
+  padding: {
+    top: $nav-height;
+    left: $aside-width;
+  }
+  background-color: #333;
+}
+
+nav, aside {
+  display: flex;
+  position: fixed;
+  left: 0;
+}
+
+nav {
+
+  align-items: center;
+
+  z-index: 1041;
+  top: 0;
+  right: 0;
+  height: $nav-height;
+  background-color: #222;
+  border-bottom: 1px solid #181818;
+}
+
+aside {
+  z-index: 1040;
+  overflow: scroll;
+  top: $nav-height;
+  bottom: 0;
+  width: $aside-width;
+  background-color: #222;
+}
+
+.tree {
+  @include createTree($tree-color, $tree-open-color, $tree-active-color);
+}
+
+.media {
+
+  &-container {
+
+    margin-top: 2rem;
+    background-color: #252525;
+
+    &.media-screen {
+
+      @include fixed($z: 1051);
+      background-color: #111;
+
+      .view-screen {
+        display: block;
+      }
+    }
+
+    .view-screen, .media-count {
+      display: none;
+    }
+
+    &.media-on {
+      .media-count {
+        display: block;
+      }
+    }
+  }
+
+  &-header {
+    height: 2rem;
+    background-color: #111;
+
+    .media-screen > & {
+      @include fixed();
+      height: 50px;
+    }
+  }
+
+  &-body {
+    overflow: hidden;
+    height: 10rem;
+    > img, > video {
+      position: relative;
+      outline: 0;
+    }
+
+    .media-screen > & {
+      @include fixed($t:$media-header-height, $r: $media-side-width, $b: $media-meta-height);
+      height: auto;
+      opacity: 1 !important;
+      > img {
+        cursor: move;
+      }
+    }
+  }
+
+
+  &-side {
+    @include fixed($t: $media-header-height, $b: $media-meta-height, $l: auto, $z: 1051);
+    width: $media-side-width;
+    background-color: #222;
+    display: none;
+
+    .media-on & {
+      display: block;
+    }
+
+    color: #585858;
+
+    > ul {
+
+      &, > li {
+        margin: 0;
+        padding: 0;
+      }
+
+      > li {
+        padding-left: .5rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        cursor: pointer;
+
+        &:hover {
+          background-color: #1b1b1b;
+        }
+        &.active {
+          color: #bfbfbf;
+        }
+      }
+    }
+  }
+
+  &-meta {
+
+    @include fixed($t: auto);
+    height: $media-meta-height;
+
+    display: none;
+    z-index: 1052;
+    align-items: center;
+    background-color: #2f2f2f;
+    border-top: 1px solid #3e3e3e;
+    color: #ddd;
+
+    &-info {
+      margin: 0 auto;
+    }
+
+    &-count {
+    }
+
+    .media-on & {
+      display: flex;
+    }
+  }
+}
+
+.video {
+
+  display: none;
+  align-items: center;
+
+  [media-type="video"] & {
+    display: flex;
+  }
+
+  > div {
+    & + div {
+      margin-left: 1rem;
+    }
+  }
+
+}

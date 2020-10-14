@@ -1,8 +1,9 @@
 <div class="todo" data-mapper="todo">
 
+
     <div class="hide" data-ignore>
         <script data-template="list" type="text/html">
-            <div class="todo-list-item" data-modifier-target="list" data-dismiss="false">
+            <div class="todo-list-item" data-modifier-target="list" data-dismiss="false" data-value="type:list,target:this">
                 <pre data-directive="value"></pre>
                 <span class="todo-list-item-datetime"
                       data-directive="datetime | datetime : 'yyyy-MM-dd(E) HH:mm'"></span>
@@ -19,9 +20,19 @@
         </script>
     </div>
 
+
+    <!--
+
+     if (ele.hasAttribute('data-modifier-target')) {
+        data.target = ele;
+        data.type = ele.getAttribute('data-modifier-target');
+        data.templateSelector = ele.getAttribute('data-template-target');
+    }
+
+     -->
     <div class="todo-add"
          data-template-target=".todo-list" data-mapping="" data-modifier-pos="-1"
-         data-modifier-creator data-modifier-target="list">
+         data-modifier-creator data-modifier-target="list" data-value="type:list,target:this,templateSelector:[data-template-target]">
         <input type="hidden" name="datetime" data-type="date" data-default="now">
         <textarea name="value" required></textarea>
         <span data-modifier="create">등록</span>

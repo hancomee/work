@@ -624,7 +624,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         DateManager.prototype.durationYear = function (target) {
             return target.getFullYear() - this.getFullYear();
         };
-        DateManager.prototype.equals = function (data) {
+        DateManager.prototype.__equals = function (data) {
             var _a = this, year = _a.year, month = _a.month, date = _a.date;
             if (year !== data.getFullYear())
                 return false;
@@ -814,7 +814,7 @@ var __extends = (this && this.__extends) || (function () {
             return this;
         };
         // 하위 엘리먼트에 의해 트리거되는 이벤트는 trigger가 작동하지 않는다.
-        $Bind.prototype.trigger = function () {
+        $Bind.prototype.__$trigger = function () {
             if (!this.isSelector && this.isActive)
                 $trigger(this.type, this.element);
             return this;
@@ -2312,12 +2312,12 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
                         // 반드시 애니메이션을 설정해야 한다.
                         Promise.all([
                             // 닫기 에니메이션
-                            animation_1.animation(_beforeContainer, function (e) { return e.className = 'spa-animate spa-hide spa-hide-' + prefix; }, function (e) { return $body.removeChild(e); }),
+                            animation_1.animation(_beforeContainer, function (e) { return e.__className = 'spa-animate spa-hide spa-hide-' + prefix; }, function (e) { return $body.removeChild(e); }),
                             // 열기 에니메이션
                             animation_1.animation(currentContainer, function (e) {
-                                e.className = 'spa-animate spa-show spa-show-' + prefix;
+                                e.__className = 'spa-animate spa-show spa-show-' + prefix;
                             }, function (e) {
-                                e.className = '';
+                                e.__className = '';
                                 module.init();
                             }),
                         ]).then(function () { return resolve(); });

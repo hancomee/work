@@ -1,7 +1,7 @@
-import {getFunctionName} from "../core";
-import {DOM} from "../_dom/DOM";
-import {Arrays} from "../support/Arrays";
+import {__getFunctionName} from "../_core";
+import {Arrays} from "../_array";
 import {HTML} from "./html_";
+import {__attrMap, __createHTML} from "../_dom/_commons";
 
 
 type WatchAll = () => void
@@ -34,7 +34,7 @@ function $changeNames(snapshot, newSnapshot) {
         if (Array.isArray(o)) {
             if (!Array.isArray(n))
                 result.push(p);
-            else if (!Arrays.equals(o, n))
+            else if (!Arrays.__equals(o, n))
                 result.push(p);
         }
         else if (o !== n)
@@ -171,7 +171,7 @@ export namespace Template {
 
                 // HTML 템플릿 가지고 오기
                 if (selector[0] === '=') selector = document.querySelector(selector.slice(1)).innerHTML.trim();
-                if (selector[0] === '<') element = DOM.createHTML(selector);
+                if (selector[0] === '<') element = __createHTML(selector);
                 else element = <HTMLElement>document.querySelector(selector);
 
                 r = obj[PRIVATE_KEY] = new TemplateObject(element, watcher);
@@ -208,7 +208,7 @@ export namespace Template {
         // arguments
         if (typeof selector !== 'string') {
             if (selector) directives = selector;
-            selector = getFunctionName(cons);
+            selector = __getFunctionName(cons);
             selector = '=#' + selector[0].toLowerCase() + selector.slice(1) + '-template';
         }
 
@@ -254,7 +254,7 @@ export namespace Template {
         if (element.nodeType !== 1) return;
 
         let
-            attrs = DOM.attrMap(element),
+            attrs = __attrMap(element),
             {children, attributes} = element,
             len = attributes.length;
 
@@ -271,7 +271,7 @@ export namespace Template {
         if (element.nodeType !== 1 || element.hasAttribute('data-template-compile')) return;
 
         let
-            attrs = DOM.attrMap(element),
+            attrs = __attrMap(element),
             func = directive[unCamelCase(element.tagName.toLowerCase())];
 
         // tag명이 일치하면 순회중지
@@ -314,7 +314,7 @@ export namespace Template {
         }
 
         let watchMode = data instanceof Watcher,
-            attrs = DOM.attrMap(element);
+            attrs = __attrMap(element);
 
         // ① 디렉티브 순회 전
         if (typeof directive['$'] === 'function') {

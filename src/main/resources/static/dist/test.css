@@ -1,0 +1,63 @@
+body {
+  font-family: sans-serif; }
+
+.magic {
+  float: left;
+  width: 500px; }
+
+.focus-panel {
+  display: none;
+  position: absolute;
+  margin: 1rem;
+  width: 10rem;
+  height: 10rem;
+  background-color: white;
+  border: 1px solid #ddd; }
+
+.focus-in > .focus-panel {
+  display: block; }
+
+.target {
+  overflow: scroll;
+  position: absolute;
+  width: 15rem;
+  height: 4rem;
+  top: 1500px;
+  left: 500px;
+  background-color: #f9f9f9;
+  border: 1px solid red; }
+
+main {
+  display: block; }
+
+.box {
+  position: absolute;
+  width: 4rem;
+  height: 4rem;
+  background-color: red; }
+
+.tree, .tree ul, .tree li {
+  list-style: none;
+  padding: 0;
+  margin: 0; }
+
+.tree ul {
+  padding-left: 1rem; }
+
+.tree > li > span, .tree > li > i, .tree ul > li > span, .tree ul > li > i {
+  cursor: pointer; }
+
+.tree > li > ul, .tree ul > li > ul {
+  display: none; }
+
+.tree > li.open > ul, .tree ul > li.open > ul {
+  display: block; }
+
+.tree > li.open > span, .tree > li.open > i, .tree ul > li.open > span, .tree ul > li.open > i {
+  color: blue; }
+
+.tree > li.open > i, .tree ul > li.open > i {
+  transform: rotate(90deg); }
+
+.tree > li.active > span, .tree > li.active > i, .tree ul > li.active > span, .tree ul > li.active > i {
+  color: red; }

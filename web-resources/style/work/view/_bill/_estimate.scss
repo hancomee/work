@@ -1,0 +1,80 @@
+// 각 포지션 구획
+#estimate {
+
+  padding: 0 15mm 10mm;
+  width: 210mm;
+  min-height: 297mm;
+
+
+  .recipient {
+    margin-bottom: 1.5mm;
+    > span {
+      vertical-align: text-bottom;
+    }
+    > strong {
+      font-size: 14pt;
+      letter-spacing: -1px;
+    }
+  }
+
+  // 합계금액
+  .sum {
+    .price, .vat, .total {
+      .value {
+        padding: 0;
+        width: 1%;
+        text-align: right;
+        white-space: nowrap;
+        line-height: 1;
+      }
+    }
+
+    // 하기와 같이
+    .memo {
+      font-size: 10.5pt;
+    }
+    // 원
+    .unit {
+      padding: 0 2mm 0 1mm;
+      width: 1px;
+    }
+
+    .price {
+      .value {
+        font-size: 16pt;
+      }
+    }
+    .vat {
+      .value {
+        font-size: 13pt;
+      }
+
+    }
+    .total {
+      .value {
+        padding-bottom: 3mm;
+        font-size: 22pt;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .items {
+    margin-top: 9mm;
+  }
+
+  .bill-work-text {
+    min-height: 15mm;
+    > pre {
+      margin: 0;
+      padding: 3mm 5mm;
+      font-size: 9.5pt;
+    }
+  }
+
+  .bill-title {
+    margin-top: 7mm;
+    font-weight: bold;
+    font-size: 9pt;
+  }
+}

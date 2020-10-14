@@ -33,8 +33,9 @@ public class TTEST {
     @Test
     public void copy() throws Exception {
 
-        List<String> lines = Files.readAllLines(Paths.get("d:/dbip.txt"));
-        out(lines.get(0));
+        String url = "https://blogattach.naver.net/c356df6c7f2127fbd43859695cbac0bd194bb557f7/MjAyMDA3MTdfMTYw/MDAxNTk0OTUzNDI5MTY0.Nwm6udpYu96oEsomtt7g4X6aGlA_4eCSdAt8V6kohGQg.D0Jp6KrcoSUBZHU0fkFjQH7sPpM8cikvVkzejyJzgGAg.JPEG/스크린샷_노군꼬치.jpg?type=attachment";
+        int pos = url.lastIndexOf("/");
+        out(url.substring(pos));
 
     }
 

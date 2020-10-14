@@ -1,23 +1,16 @@
 import {Work} from "./_core/Work";
-import {Mapping} from "../../lib/core/support/Mapping";
-import {DOM} from "../../lib/core/_dom/DOM";
-import {
-    getElementById,
-    getElementsByAttr,
-    getElementsByClassName,
-    getElementsByTagName,
-    querySelector
-} from "../../lib/core/_dom/selector";
-import {selectAll} from "../../lib/core/_dom/_select";
+import {Mapping} from "../../lib/core/_dom/Mapping";
+import {__find, __findByClass, __findById, __findByTag, getElementsByAttr} from "../../lib/core/_dom/_selector";
+import {__selectA} from "../../lib/core/_dom/_select";
 import {WorkCreator} from "./list/WorkCreator";
 import {Pager} from "../../lib/core/component/Pager";
-import className = DOM.className;
 import {Search} from "../../lib/core/support/Search";
-import {Arrays} from "../../lib/core/support/Arrays";
-import _range = Arrays._range;
-import _forEach = Arrays._forEach;
-import _everyTrue = Arrays._everyTrue;
-import {_replaceHTML} from "../../lib/core/_html/_compile";
+import {Arrays} from "../../lib/core/_array";
+import {__replaceHTML} from "../../lib/core/_html/_compile";
+import {__className} from "../../lib/core/_dom/_commons";
+import __range = Arrays.__range;
+import _forEach = Arrays.__forEach;
+import _everyTrue = Arrays.__everyTrue;
 
 class ListManager extends Search {
 
@@ -48,7 +41,7 @@ class ListManager extends Search {
 
 
 let
-    main = getElementsByTagName(document.body, 'main', 0),
+    main = __findByTag(document.body, 'main', 0),
 
     $alert: Array<(manager: ListManager, query: string) => void> = [],
     $resetIndex = 0,
@@ -59,7 +52,7 @@ let
         draft(ele: HTMLAnchorElement, work: Work) {
             let {uuid} = work;
             Work.getDraft(work.id).then(v => {
-                if(v && v.save_name) {
+                if (v && v.save_name) {
                     let path = Work.toPath(uuid);
                     ele.style.backgroundImage = 'url("/workdata/' +
                         path + v.save_name + '.' + v.filetype + '")'
@@ -82,17 +75,17 @@ let
 
         // 각 work-list에 state 선택용 드랍다운 만들어달기
         state: ((stateObj) => {
-            let ff = _replaceHTML(document.getElementById('stateList').innerText);
+            let ff = __replaceHTML(document.getElementById('stateList').innerText);
 
             return (ele: HTMLElement, work: Work) => {
-                selectAll(ele,
-                    ['sel="[data-toggle="dropdown"]"', 'tag="ul"[0]'],
+                __selectA(ele,
+                    ['([data-toggle="dropdown"])', '<ul>[0]'],
                     (btn: HTMLElement, ul: HTMLUListElement) => {
                         btn.textContent = stateObj[work.state];
-                        ul.innerHTML = _range(0, 7, (v, r) => {
+                        ul.innerHTML = __range(0, 6).map((v, r) => {
                             stateObj.index = v;
-                            r[v] = ff(work, stateObj);
-                        }, []).join('')
+                            return ff(work, stateObj);
+                        }).join('')
                     })
             }
         })(((s) => s.reduce((r, v, i) => (r[i] = v, r), {index: -1}))(Work.$state)),
@@ -116,8 +109,7 @@ let
                 if (limit) {
                     limit--;
                     $manager.run({page: $manager.page - 1});
-                }
-                else $manager.run({page: 1});
+                } else $manager.run({page: 1});
                 return;
             }
 
@@ -147,14 +139,14 @@ let
                     // [data-load-match]를 우선시한다.
                     let match = e.getAttribute('data-load-match') || e.getAttribute('data-load'),
                         r = _everyTrue(match.split("&"), (v) => query.indexOf(v) !== -1);
-                    className(e, cName, r);
+                    __className(e, cName, r);
                 });
             };
         },
 
         // 작업 추가
         create(ele: HTMLElement) {
-            let create = new WorkCreator(getElementById('work-creator'));
+            let create = new WorkCreator(__findById('work-creator'));
             ele.addEventListener('click', () => {
                 create.on();
             })
@@ -200,7 +192,7 @@ let
                     ref: '참고파일명',
                 },
 
-                input = <HTMLInputElement>getElementsByTagName(ele, 'input', 0),
+                input = <HTMLInputElement>__findByTag(ele, 'input', 0),
 
                 // 위의 searchTypes 따라 직접 dropdown 리스트를 만든다.
                 menus = ((dropdown: HTMLElement) => {
@@ -209,9 +201,9 @@ let
                         html.push('<div data-dismiss="' + p + '">' + searchTypes[p] + '</div>');
                     dropdown.innerHTML = html.join('');
                     return dropdown.querySelectorAll('[data-dismiss]');
-                })(getElementsByClassName(ele, 'dropdown-menu', 0)),
+                })(__findByClass(ele, 'dropdown-menu', 0)),
 
-                btn = querySelector(ele, '[data-toggle="dropdown"]');
+                btn = __find(ele, '[data-toggle="dropdown"]');
 
             ele.addEventListener('click', (e) => {
                 let target = <HTMLElement>e.target, type;
@@ -241,7 +233,7 @@ let
                 btn.textContent = searchTypes[searchType];
                 input.value = $manager.search || '';
                 _forEach(menus, (e) => {
-                    className(e, ['active'], e.getAttribute('data-dismiss') === searchType);
+                    __className(e, ['active'], e.getAttribute('data-dismiss') === searchType);
                 });
             };
         },

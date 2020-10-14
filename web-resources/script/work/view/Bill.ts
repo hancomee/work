@@ -1,18 +1,19 @@
-import {Mapping} from "../../../lib/core/support/Mapping";
+import {Mapping} from "../../../lib/core/_dom/Mapping";
 import {Work} from "../_core/Work";
-import {getElementById, getElementsByClassName} from "../../../lib/core/_dom/selector";
-import {Events} from "../../../lib/core/events";
-import {Formats} from "../../../lib/core/support/Formats";
-import datetime = Formats.datetime;
+import {__findById, __findByClass} from "../../../lib/core/_dom/_selector";
+import {Events} from "../../../lib/core/_events";
+import {Formats} from "../../../lib/core/_format";
+import datetime = Formats.__datetime;
 
 let
-    element = getElementById('bill'),
+    element = __findById('bill'),
     {classList} = element,
-    types = getElementsByClassName(element, 'bill',
-        (e, i, r) => {
-            element.removeChild(e);
-            r[e.id] = e
-        }, {}),
+    types = __findByClass(element, 'bill').reduce((r, e, i,) => {
+        element.removeChild(e);
+        r[e.id] = e;
+        return r;
+    }, {}),
+
 
     hancome = {
         name: '한컴기획',
@@ -58,7 +59,7 @@ let
 
     date = datetime(new Date(), 'yyyy-MM-dd(E) HH:mm'),
     $mapping = new Mapping()
-        .addTemplate(getElementById('bill-template'))
+        .addTemplate(__findById('bill-template'))
         .addDirective({
             // 공급자, 공급받는자 구분
             check(e: HTMLElement, v) {
@@ -78,8 +79,7 @@ let
             sign(e: HTMLImageElement, own: any) {
                 if (own.sign) {
                     e.src = '/imgs/' + own.sign;
-                }
-                else
+                } else
                     e.parentElement.removeChild(e);
             }
         });
@@ -93,8 +93,7 @@ element.addEventListener('click',
             element.classList.remove('on');
             element.textContent = '';
             document.body.classList.remove('scroll-lock');
-        }
-        else if (target.hasAttribute('data-switch-type')) {
+        } else if (target.hasAttribute('data-switch-type')) {
             element.setAttribute('data-switch', target.getAttribute('data-switch-type'))
         }
     })

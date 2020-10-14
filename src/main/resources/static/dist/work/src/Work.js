@@ -107,7 +107,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function _toString(v) {
         return toString.call(v);
     }
-    exports._toString = _toString;
+    exports.__toString = _toString;
     function __noop(a) {
         return a;
     }
@@ -124,7 +124,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function isObjectType(obj) {
         return toString.call(obj) === objStr;
     }
-    exports.isObjectType = isObjectType;
+    exports.__isObjectType = isObjectType;
     function isPlainObject(obj) {
         var proto, Ctor;
         // Detect obvious negatives
@@ -141,7 +141,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
         return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
     }
-    exports.isPlainObject = isPlainObject;
+    exports.__isPlainObject = isPlainObject;
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
@@ -149,18 +149,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return true;
     }
-    exports.isEmptyObject = isEmptyObject;
+    exports.__isEmptyObject = isEmptyObject;
     function isArrayLike(item) {
         return Array.isArray(item) ||
             (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
     }
-    exports.isArrayLike = isArrayLike;
+    exports.__isArrayLike = isArrayLike;
     var r_fn = /^function\s*([^\s(]+)/;
     function getFunctionName(func) {
         return func.name ? func.name : func.toString().match(r_fn)[1];
     }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    exports.__getFunctionName = getFunctionName;
+    exports.__isObject = function (val) { return toString.call(val) === "[object Object]"; };
     /*
      *  일종의 객체 Decode/Encode
      *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
@@ -206,7 +206,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._extend = _extend;
+    exports.__extend = _extend;
     function _deepExtend(dest, source) {
         if (isArrayLike(source)) {
             var i = 0, l = source.length, d = void 0, s = void 0;
@@ -236,7 +236,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._deepExtend = _deepExtend;
+    exports.__deepExtend = _deepExtend;
     function $extend(target, source, converts) {
         if (converts === void 0) { converts = dummy; }
         // undefined값이 올때만 패스한다.
@@ -617,7 +617,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
          */
         function WorkItem(work, data) {
             this.work = work;
-            this.count = 0;
+            this.__$count = 0;
             this.detail = '';
             this.memo = '';
             this.price = 0;

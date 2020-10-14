@@ -1,9 +1,8 @@
-import {Events, EventsGroup} from "../../events";
-import {DOM} from "../../_dom/DOM";
+import {EventsGroup} from "../../_events";
+import {__className} from "../../_dom/_commons";
 
 export namespace FormEvent {
 
-    import className = DOM.className;
     let
         {forEach} = Array.prototype,
         placeholder_props = 'text number',
@@ -33,7 +32,7 @@ export namespace FormEvent {
         let isActive: boolean,
             handler = () => {
                 if (isActive = !input.value) input.value = val;
-                className(input, 'empty', isActive);
+                __className(input, 'empty', isActive);
             }
 
         handler();

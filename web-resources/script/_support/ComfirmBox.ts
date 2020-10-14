@@ -1,8 +1,7 @@
-import {EventsGroup} from "../../lib/core/events";
-import {DOM} from "../../lib/core/_dom/DOM";
-import className = DOM.className;
+import {EventsGroup} from "../../lib/core/_events";
 import {Forms} from "../../lib/core/support/Forms";
 import set = Forms.set;
+import {__className} from "../../lib/core/_dom/_commons";
 
 let cName = ['confirm-active'];
 
@@ -43,7 +42,7 @@ export class ConfirmBox {
 
         if (this.handler) this.done(false);
         this.handler = handler;
-        className(this.eventTarget = eventTarget, cName, true);
+        __className(this.eventTarget = eventTarget, cName, true);
 
         // flip
         if(innerWidth < x + offsetWidth) {
@@ -58,7 +57,7 @@ export class ConfirmBox {
     }
 
     done(flag: boolean) {
-        className(this.eventTarget, cName, false);
+        __className(this.eventTarget, cName, false);
         this.handler(flag);
         this.eventTarget = null;
         return this;

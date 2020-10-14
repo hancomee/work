@@ -1,13 +1,13 @@
 import {StringBuffer} from "../support/StringBuffer";
 import "../component/toggle";
-import {Formats} from "../support/Formats";
-import {Arrays} from "../support/Arrays";
-import _forEach = Arrays._forEach;
-import {Access} from "../access";
-import primitive = Access.primitive;
-import read = Access.read;
+import {Formats} from "../_format";
+import {Arrays} from "../_array";
+import _forEach = Arrays.__forEach;
+import {Access} from "../_access";
+import primitive = Access.__primitive;
+import read = Access.__read;
 import {r_number} from "../_regexp/number";
-import {_newApply} from "../_util/newApply";
+import {__newApply} from "../_util/newApply";
 
 let dummy = {},
     r = /{{(.*?)}}/g,
@@ -15,7 +15,7 @@ let dummy = {},
     r_filter_split = / \| | : /,
     r_script = /script/i,
     r_template = /template/i,
-    defaultFilter = Formats.getDirective();
+    defaultFilter = Formats.__getDirective();
 
 function $setText(ele: HTMLElement, val) {
 
@@ -562,7 +562,7 @@ export namespace HTML {
             for (; i < l; i++) {
                 args[pos++] = select(clone, $select[i]);
             }
-            return _newApply(clazz, args);
+            return __newApply(clazz, args);
         }
     }
 

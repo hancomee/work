@@ -1,6 +1,6 @@
-import {Formats} from "../../../lib/core/support/Formats";
-import datetime = Formats.datetime;
-import number = Formats.number;
+import {Formats} from "../../../lib/core/_format";
+import datetime = Formats.__datetime;
+import number = Formats.__number;
 
 
 export class Receivable implements iDataTable {

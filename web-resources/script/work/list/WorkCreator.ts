@@ -1,8 +1,8 @@
-import {Events} from "../../../lib/core/events";
+import {Events} from "../../../lib/core/_events";
 import {Customer, Work} from "../_core/Work";
-import {Arrays} from "../../../lib/core/support/Arrays";
-import acceptKeys = Events.acceptKeys;
-import _forEach = Arrays._forEach;
+import {Arrays} from "../../../lib/core/_array";
+import acceptKeys = Events.__$acceptKeys;
+import _forEach = Arrays.__forEach;
 
 
 export class WorkCreator {

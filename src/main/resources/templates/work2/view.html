@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Unknown</title>
+    <link rel="stylesheet" href="/dist/work2/view.css">
+
+
+</head>
+<body>
+
+<div class="container">
+    <div id="view" data-element="" data-template="work" data-access="work.id:[data-id]">
+        <div class="info">
+            <span class="info-date" data-access='$datetime("work.datetime")'></span>
+            <h1 data-access="work.title" data-access="work.datetime?date|yyyy-mm"></h1>
+        </div>
+        <div class="customer" data-element data-template="customer" data-access="customer.id:[data-id]">
+            <table class="table table-bordered">
+                <tr>
+                    <th>상호</th>
+                    <td data-access="customer.name"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="items">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>품목</th>
+                    <th>규격</th>
+                    <th>수량</th>
+                    <th>단가</th>
+                    <th>금액</th>
+                    <th>부가세</th>
+                    <th>비고</th>
+                    <th>...</th>
+                </tr>
+                </thead>
+                <tbody data-element="itemContainer">
+                <tr data-element="" data-template="?item" data-access="item.id:[data-id]">
+                    <td data-access="item.subject"></td>
+                    <td data-access="item.detail"></td>
+                    <td data-access="item.count"></td>
+                    <td data-access="item.price"></td>
+                    <td data-access="item.total"></td>
+                    <td data-access="item.vat"></td>
+                    <td data-access="item.memo"></td>
+                    <td>
+                        <span class="btn btn-info btn-sm" data-event="modifyItem">수정</span>
+                        <span class="btn btn-danger btn-sm" data-event="removeItem">삭제</span>
+                    </td>
+                </tr>
+                <tr class="d-form" data-element="" data-template="?itemForm" data-access="item.id:[data-id]">
+                    <td><input class="form-control" name="subject" data-access="data.item.subject:value"></td>
+                    <td><input class="form-control" name="detail" data-access="data.item.detail:value"></td>
+                    <td><input class="form-control" name="count" data-type="number" data-access="data.item.count:value"></td>
+                    <td><input class="form-control" name="price" data-type="number" data-access="data.item.price:value"></td>
+                    <td><input class="form-control" name="total" data-type="number" data-access="data.item.total:value"></td>
+                    <td><input class="form-control" name="vat" data-type="number" data-access="data.item.vat:value"></td>
+                    <td><input class="form-control" name="memo" data-access="data.item.memo:value"></td>
+                    <td>
+                        <span data-event="updateItem">수정</span>
+                        <span data-event="saveItem" data-access='$class({"hide":"item.id"})'>등록</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="/lib/js/es6-promise.js"></script>
+<script src="/dist/work2/view.js"></script>
+</body>
+</html>

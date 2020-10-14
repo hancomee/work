@@ -1,4 +1,4 @@
-import {Arrays} from "./Arrays";
+import {Arrays} from "../_array";
 
 type WatchAll<T> = (nTarget: T, oTarget?:T) => void
 type Watch<T> = (this: T, newVal, oldVal, obj: T) => void
@@ -15,7 +15,7 @@ function $equals(o, n) {
     if (Array.isArray(o)) {
         if (!Array.isArray(n))
             return false;
-        else if (!Arrays.equals(o, n))
+        else if (!Arrays.__equals(o, n))
             return false;
     }
     else if (o !== n)

@@ -1,10 +1,9 @@
 // 시안 창
 import {WorkFile, WorkItem} from "../_core/Work";
-import {EventsGroup} from "../../../lib/core/events";
-import {Mapping} from "../../../lib/core/support/Mapping";
-import {DOM} from "../../../lib/core/_dom/DOM";
-import className = DOM.className;
+import {EventsGroup} from "../../../lib/core/_events";
+import {Mapping} from "../../../lib/core/_dom/Mapping";
 import {Calendar} from "../../../lib/core/support/Calendar";
+import {__className} from "../../../lib/core/_dom/_commons";
 
 let directive = {
     datetime(ele: HTMLElement, v: WorkFile) {
@@ -71,7 +70,7 @@ export class Screen extends Mapping {
             this.img = null;
             this.index = -1;
             this.current = this.total = 0;
-            className(element, 'has-image', false);
+            __className(element, 'has-image', false);
         }
 
         // 파일이 있을때
@@ -84,7 +83,7 @@ export class Screen extends Mapping {
             this.img = draft[index];
             this.current = index + 1;
             this.total = l;
-            className(element, 'has-image', true);
+            __className(element, 'has-image', true);
         }
 
         super.$render(element);

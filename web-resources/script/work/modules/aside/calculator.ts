@@ -1,16 +1,16 @@
-import {getElementsByAttr, querySelector} from "../../../../lib/core/_dom/selector";
-import {Formats} from "../../../../lib/core/support/Formats";
-import number = Formats.number;
+import {getElementsByAttr, __find} from "../../../../lib/core/_dom/_selector";
+import {Formats} from "../../../../lib/core/_format";
+import number = Formats.__number;
 
 
 let program = {
     m3(ele: HTMLElement) {
         let
             r_num = /^\d+$/,
-            price = <HTMLInputElement>querySelector(ele, '#m3-price'),
-            width = <HTMLInputElement>querySelector(ele, '#m3-width'),
-            height = <HTMLInputElement>querySelector(ele, '#m3-height'),
-            result = querySelector(ele, '#m3-result'),
+            price = <HTMLInputElement>__find(ele, '#m3-price'),
+            width = <HTMLInputElement>__find(ele, '#m3-width'),
+            height = <HTMLInputElement>__find(ele, '#m3-height'),
+            result = __find(ele, '#m3-result'),
 
             compute = () => {
                 let pVal = price.value.trim(),

@@ -144,14 +144,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 return l;
         return -1;
     }
-    exports._indexOf = _indexOf;
+    exports.__indexOf = _indexOf;
     function _makeArray(obj) {
         var r = [], l = obj.length;
         while (l-- > 0)
             r[l] = obj[l];
         return r;
     }
-    exports._makeArray = _makeArray;
+    exports.__makeArray = _makeArray;
     function _forEach(obj, h) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -160,7 +160,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return obj;
     }
-    exports._forEach = _forEach;
+    exports.__forEach = _forEach;
     function _selector(obj, h) {
         var i = 0, l = obj.length, v;
         while (i < l) {
@@ -169,7 +169,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return undefined;
     }
-    exports._selector = _selector;
+    exports.__selector = _selector;
     function _forEachReverse(obj, h) {
         var i = obj.length;
         while (i-- > 0) {
@@ -178,7 +178,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return obj;
     }
-    exports._forEachReverse = _forEachReverse;
+    exports.__forEachR = _forEachReverse;
     function _reduce(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -186,7 +186,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._reduce = _reduce;
+    exports.__reduce = _reduce;
     function _reduceN(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -194,7 +194,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._reduceN = _reduceN;
+    exports.__reduceN = _reduceN;
     function _map(obj, h) {
         var r = [], i = 0, l = obj.length;
         while (i < l) {
@@ -202,7 +202,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._map = _map;
+    exports.__map = _map;
     function _colMap(values, size, handler) {
         var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
         while (index < l) {
@@ -216,7 +216,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         v && (r[rIndex] = handler(v, rIndex++));
         return r;
     }
-    exports._colMap = _colMap;
+    exports.__colMap = _colMap;
     function _colReduce(values, size, handler, r) {
         var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
         while (index < l) {
@@ -230,7 +230,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         v && (r = handler(r, v, rIndex++));
         return r;
     }
-    exports._colReduce = _colReduce;
+    exports.__colReduce = _colReduce;
     function _in(obj, filter, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -243,11 +243,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     function _inTrue(obj, filter) {
         return _in(obj, filter, true);
     }
-    exports._inTrue = _inTrue;
+    exports.__inTrue = _inTrue;
     function _inFalse(obj, filter) {
         return _in(obj, filter, false);
     }
-    exports._inFalse = _inFalse;
+    exports.__inFalse = _inFalse;
     function _everyTrue(obj, filter) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -256,7 +256,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return true;
     }
-    exports._everyTrue = _everyTrue;
+    exports.__everyTrue = _everyTrue;
     function _everyFalse(obj, filter) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -265,7 +265,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return true;
     }
-    exports._everyFalse = _everyFalse;
+    exports.__everyFalse = _everyFalse;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -313,7 +313,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function _toString(v) {
         return toString.call(v);
     }
-    exports._toString = _toString;
+    exports.__toString = _toString;
     function __noop(a) {
         return a;
     }
@@ -330,7 +330,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function isObjectType(obj) {
         return toString.call(obj) === objStr;
     }
-    exports.isObjectType = isObjectType;
+    exports.__isObjectType = isObjectType;
     function isPlainObject(obj) {
         var proto, Ctor;
         // Detect obvious negatives
@@ -347,7 +347,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
         return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
     }
-    exports.isPlainObject = isPlainObject;
+    exports.__isPlainObject = isPlainObject;
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
@@ -355,18 +355,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return true;
     }
-    exports.isEmptyObject = isEmptyObject;
+    exports.__isEmptyObject = isEmptyObject;
     function isArrayLike(item) {
         return Array.isArray(item) ||
             (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
     }
-    exports.isArrayLike = isArrayLike;
+    exports.__isArrayLike = isArrayLike;
     var r_fn = /^function\s*([^\s(]+)/;
     function getFunctionName(func) {
         return func.name ? func.name : func.toString().match(r_fn)[1];
     }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    exports.__getFunctionName = getFunctionName;
+    exports.__isObject = function (val) { return toString.call(val) === "[object Object]"; };
     /*
      *  일종의 객체 Decode/Encode
      *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
@@ -412,7 +412,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._extend = _extend;
+    exports.__extend = _extend;
     function _deepExtend(dest, source) {
         if (isArrayLike(source)) {
             var i = 0, l = source.length, d = void 0, s = void 0;
@@ -442,7 +442,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._deepExtend = _deepExtend;
+    exports.__deepExtend = _deepExtend;
     function $extend(target, source, converts) {
         if (converts === void 0) { converts = dummy; }
         // undefined값이 올때만 패스한다.
@@ -574,8 +574,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return obj;
         }
-        Access.read = read;
-        Access.primitive = (function () {
+        Access.__read = read;
+        Access.__primitive = (function () {
             var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/, r_date = /^\d{4}-\d{2}-\d{2}$|^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/, r_string_replace = /["']/g;
             return function (val) {
                 if (typeof val === 'string' && val.length > 0) {
@@ -606,7 +606,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             obj != null && (obj[props[i]] = val);
             return target;
         }
-        Access.access = access;
+        Access.__access = access;
     })(Access = exports.Access || (exports.Access = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -693,7 +693,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     return;
             }
         }
-        Arrays.cols = cols;
+        Arrays.__cols = cols;
         function slice(array, col, callback) {
             var c = 0, i = 0, len = Math.ceil(array.length / col), result = [];
             for (; i < len; i++) {
@@ -701,7 +701,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return result;
         }
-        Arrays.slice = slice;
+        Arrays.__slice = slice;
         /*
          *  DataTransferItemList 때문에 만든 함수
          *  map을 이용함에 있어, 비동기식 콜백으로 값을 받아야 하는 지연값이 있을 경우에 쓴다.
@@ -722,7 +722,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 }
             });
         }
-        Arrays.promiseMap = promiseMap;
+        Arrays.__promiseMap = promiseMap;
         // 숫자배열을 만들어준다.
         // 시작넘버부터 객수
         function rangeBySize(start, size) {
@@ -732,7 +732,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return array;
         }
-        Arrays.rangeBySize = rangeBySize;
+        Arrays.__rangeBySize = rangeBySize;
         // 시작숫자부터 마지막 숫자를 포함한 배열을 반환
         function range_atob(start, lastNum) {
             var reverse = start > lastNum ? true : false, array = [];
@@ -750,7 +750,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return reverse ? array.reverse() : array;
         }
-        Arrays.range_atob = range_atob;
+        Arrays.__range_atob = range_atob;
         // drive 배열의 원소만큼 루프를 돌린다.
         // callback함수는  1) drive 배열의 원소와  2) driven배얼, 3) 인덱스를 제공받는다.
         function _with(drive, driven, callback) {
@@ -760,7 +760,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 callback.call(drive, drive[i], driven, i);
             }
         }
-        Arrays._with = _with;
+        Arrays.__with = _with;
         function fill(length, v) {
             if (v === void 0) { v = null; }
             var i = 0, array = [], handler = v;
@@ -771,7 +771,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return array;
         }
-        Arrays.fill = fill;
+        Arrays.__fill = fill;
         // 배열을 length의 갯수만큼 나눈다.
         // [1,2,3,4,5,6], 3  ==>  [1,2,3], [4,5,6]
         function split(target, length) {
@@ -784,7 +784,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return result;
         }
-        Arrays.split = split;
+        Arrays.__split = split;
         // target의 앞부터 다 맞으면 오케이
         function startWith(key, target) {
             var i = 0, l = key.length;
@@ -796,7 +796,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.startWith = startWith;
+        Arrays.__startWith = startWith;
         function endWith(key, target) {
             var i = 0, l = key.length, r = target.length - l;
             if (r < 0)
@@ -807,7 +807,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.endWith = endWith;
+        Arrays.__endWith = endWith;
         // 값 비교
         function equals(a, b) {
             if (a === b)
@@ -824,7 +824,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return true;
         }
-        Arrays.equals = equals;
+        Arrays.__equals = equals;
     })(Arrays = exports.Arrays || (exports.Arrays = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -874,7 +874,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
         CalSearch.prototype.check = function () {
             if (!this.date) {
                 var date = new Date();
-                this.date = date.getFullYear() + '-' + (date.getMonth() + 1);
+                this.__date = date.getFullYear() + '-' + (date.getMonth() + 1);
             }
             if (!this._y) {
                 var _a = this.date.split('-'), y = _a[0], m = _a[1];
@@ -892,7 +892,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
             this.title = '';
             this.body = '';
             if (data instanceof Date)
-                this.date = data;
+                this.__date = data;
             else
                 this.setData(data);
         }
@@ -1050,13 +1050,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
                 // main 엘리먼트 이벤트
                 events_1.Events.propertyMap(main, 'click', {
                     view: function () {
-                        screen.className = 'on';
+                        screen.__className = 'on';
                     }
                 });
                 // 스크린 끄기
                 screen.addEventListener('click', function (e) {
                     if (e.target === screen)
-                        screen.className = '';
+                        screen.__className = '';
                 });
                 var render = new CalendarManager(htmlParser(templates.table));
                 return function (param) {
@@ -1233,7 +1233,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             else
                 return cEach(context.childNodes, nth === 0 ? 1 : nth);
         }
-        HTML.nthChildren = nthChildren;
+        HTML.__nthChildren = nthChildren;
         function select(context, selector) {
             var sChar = selector[0], l = selector.length - 1;
             if (sChar === '!') {
@@ -1628,7 +1628,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 literal(__value.substring(pos, __value.length));
             return result;
         }
-        Formats.replace = replace;
+        Formats.__replace = replace;
         // 숫자 받아서 파일 크기로... (천단위 쉼표)
         // unit은 단위를 덧붙일 것인지
         Formats.fileSize = (function (array) {
@@ -1683,9 +1683,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                     return '';
             });
         }
-        Formats.replaceByObj = replaceByObj;
+        Formats.__replaceByObj = replaceByObj;
         // HTML 이스케이프
-        Formats._htmlEscape = (function () {
+        Formats.__htmlEscape = (function () {
             var escape = /&lt;|&gt;|&nbsp;|&amp;|&quot;|&apos;/g;
             function _change(c) {
                 switch (c) {
@@ -1710,7 +1710,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             };
         })();
         var r_num_replace = /\B(?=(\d{3})+(?!\d))/g;
-        Formats.number = function (val) {
+        Formats.__number = function (val) {
             if (typeof val === 'number')
                 val = val.toString();
             if (typeof val === 'string' && number_1.r_number.test(val))
@@ -1818,7 +1818,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return false;
         }
-        DOM.contains = contains;
+        DOM.__contains = contains;
         function closest(target, handler, limit) {
             if (limit === void 0) { limit = null; }
             var index = 0;
@@ -1828,7 +1828,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             } while ((target = target.parentElement) && target !== limit);
             return target;
         }
-        DOM.closest = closest;
+        DOM.__closest = closest;
         function offset(e, parent, extend) {
             if (parent === void 0) { parent = document.body; }
             if (extend === void 0) { extend = false; }
@@ -1847,7 +1847,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return result;
         }
-        DOM.offset = offset;
+        DOM.__offset = offset;
         function isAssignableFrom(target, parent) {
             do {
                 if (target === parent)
@@ -1896,7 +1896,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             var className = element.className.split(c_r), names = Array.isArray(name) ? name : [name];
             return names.every(function (v) { return className.indexOf(v) !== -1; });
         }
-        DOM.hasClass = hasClass;
+        DOM.__hasClass = hasClass;
         /*
          *  isAdd가 null이면 toggleClass로 작동한다.
          */
@@ -1906,7 +1906,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
          *  원래는 <div> 하나의 객체를 만들어서 재활용하는 형태로 사용했었다.
          *  하지만 그렇게 할 경우 ie에서 버그가 생긴다.
          */
-        DOM.createHTML = (function () {
+        DOM.__createHTML = (function () {
             var r = /^<([^\s>]+)/i;
             function get(parent, html, tag) {
                 var index;
@@ -1969,7 +1969,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             element.className = result.join(' ');
             return element;
         }
-        DOM.className = className;
+        DOM.__className = className;
         function __addClass(array, target) {
             var i = 0, l = target.length;
             for (; i < l; i++) {
@@ -2004,8 +2004,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 if (handler.call(ele, attributes[length].name, attributes[length].value) === false)
                     return;
         }
-        DOM.eachAttrs = eachAttrs;
-        DOM.attrMap = (function (r_data, r_up, fn) {
+        DOM.__eachAttrs = eachAttrs;
+        DOM.__attrMap = (function (r_data, r_up, fn) {
             var rename = function (s) { return s.replace(r_data, '').replace(r_up, fn); };
             return function (element) {
                 var attributes = element.attributes, length = attributes.length, attr, result = {};
@@ -2029,7 +2029,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 return ele;
             }
         }
-        DOM._classList = _classList;
+        DOM.__classList = _classList;
     })(DOM = exports.DOM || (exports.DOM = {}));
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -2210,7 +2210,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             }
             return datetime_1._dateFormat(this.value, str);
         };
-        Calendar.prototype.equals = function (data) {
+        Calendar.prototype.__equals = function (data) {
             var _a = this, year = _a.year, month = _a.month, date = _a.date;
             if (year !== data.getFullYear())
                 return false;
@@ -2336,7 +2336,7 @@ var __extends = (this && this.__extends) || (function () {
     var EventsGroup = /** @class */ (function () {
         function EventsGroup() {
             this.isActive = true;
-            this.map = new NameMap_1.NameMap();
+            this.__$map = new NameMap_1.NameMap();
         }
         EventsGroup.prototype.register = function (element, type, handler) {
             if (typeof type === 'string') {
@@ -2417,7 +2417,7 @@ var __extends = (this && this.__extends) || (function () {
                     return handler.call(this, e);
             });
         }
-        Events.mine = mine;
+        Events.__$mine = mine;
         function bind(target, type, selector, handler) {
             if (handler)
                 return new Events(target, type, function (e) {
@@ -2428,14 +2428,14 @@ var __extends = (this && this.__extends) || (function () {
             else
                 return new Events(target, type, selector);
         }
-        Events.bind = bind;
+        Events.__$bind = bind;
         function map(target, map) {
             var group = new EventsGroup(), p;
             for (p in map)
                 typeof map[p] === 'function' && group.register(target, p, map[p].bind(map));
             return group;
         }
-        Events.map = map;
+        Events.__$map = map;
         /*
          *  키 입력에 따라 핸들러 호출
          */
@@ -2513,11 +2513,11 @@ var __extends = (this && this.__extends) || (function () {
             };
             element.addEventListener(type, dispatcher);
         }
-        Events.count = count;
+        Events.__$count = count;
         function listener(element, type, handler) {
             return new Events(element, type, handler);
         }
-        Events.listener = listener;
+        Events.__$listener = listener;
         function listenGroup() {
             return new EventsGroup();
         }
@@ -2534,7 +2534,7 @@ var __extends = (this && this.__extends) || (function () {
                 setTimeout(function () { return target.dispatchEvent(e_1); }, 0);
             }
         }
-        Events.trigger = trigger;
+        Events.__$trigger = trigger;
         function custom(target, type, detail, bubbles, cancelable) {
             if (bubbles === void 0) { bubbles = true; }
             if (cancelable === void 0) { cancelable = true; }
@@ -2542,7 +2542,7 @@ var __extends = (this && this.__extends) || (function () {
             e.initCustomEvent(type, bubbles, cancelable, detail);
             setTimeout(function () { return target.dispatchEvent(e); }, 0);
         }
-        Events.custom = custom;
+        Events.__$custom = custom;
         function eventWorks(element, type, handlers, attrName) {
             if (attrName === void 0) { attrName = 'data-handler'; }
             var target, vName = attrName + '-value', isFun = typeof handlers === 'function' ? handlers : null;
@@ -2561,7 +2561,7 @@ var __extends = (this && this.__extends) || (function () {
                 }
             });
         }
-        Events.eventWorks = eventWorks;
+        Events.__$eventWorks = eventWorks;
         /*
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
@@ -2624,7 +2624,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     Object.defineProperty(exports, "__esModule", { value: true });
     var NameMap = /** @class */ (function () {
         function NameMap() {
-            this.map = {};
+            this.__$map = {};
             this.datas = []; // 중복방지를 위한 리스트
         }
         NameMap.prototype.get = function (name) {

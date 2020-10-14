@@ -1,8 +1,8 @@
-import {Events} from "../../../lib/core/events";
-import {DOM} from "../../../lib/core/_dom/DOM";
-import {Arrays} from "../../../lib/core/support/Arrays";
-import _selector = Arrays._selector;
-import _map = Arrays._map;
+import {Events} from "../../../lib/core/_events";
+import {Arrays} from "../../../lib/core/_array";
+import _selector = Arrays.__selector;
+import _map = Arrays.__map;
+import {__offset} from "../../../lib/core/_dom/_commons";
 
 class Offset {
     private start: number
@@ -18,7 +18,7 @@ class Offset {
      */
     reset() {
         let {element} = this,
-            s = this.start = DOM.offset(element).top,
+            s = this.start = __offset(element).top,
             h = element.offsetHeight;
 
         this.end = s + element.offsetHeight;

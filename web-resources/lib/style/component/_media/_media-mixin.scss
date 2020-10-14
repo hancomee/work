@@ -1,0 +1,33 @@
+@mixin favorite($disabled-color, $active-color) {
+
+  display: flex;
+  align-items: center;
+
+  > .favorite-unit {
+    color: $active-color;
+    cursor: pointer;
+    vertical-align: middle;
+
+    [data-favorite="0"] & {
+      color: $disabled-color;
+    }
+  }
+
+  @each $i in (1, 2, 3, 4, 5) {
+    & > .favorite-#{$i} ~ .favorite-unit {
+      [data-favorite="#{$i}"] & {
+        color: $disabled-color;
+      }
+    }
+  }
+
+  &[data-favorite="0"] > .favorite-unit {
+    color: $disabled-color;
+  }
+
+  @each $i in (1, 2, 3, 4, 5) {
+    &[data-favorite="#{$i}"] > .favorite-#{$i} ~ .favorite-unit {
+      color: $disabled-color;
+    }
+  }
+}

@@ -1,5 +1,5 @@
-import {Events, EventsGroup} from "../events";
-import simpleTrigger = Events.simpleTrigger;
+import {Events, EventsGroup} from "../_events";
+import simpleTrigger = Events.__$simpleTrigger;
 
 let
     events = ['abort', 'canplay', 'canplaythrough', 'durationchange',

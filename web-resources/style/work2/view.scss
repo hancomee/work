@@ -1,0 +1,7 @@
+
+@import "../../lib/bootstrap5.2/scss/bootstrap";
+
+
+[data-template^="?"], .d-form + * {
+  display: none;
+}

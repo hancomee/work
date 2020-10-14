@@ -1,60 +1,54 @@
 import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./_core/Work";
-import {$extend} from "../../lib/core/core";
+import {$extend} from "../../lib/core/_core";
 import {FileUpload} from "../_support/FileUpload";
 import {Screen} from "./view/Screen";
-import {DOM} from "../../lib/core/_dom/DOM";
-import {Events, EventsGroup, iEvents} from "../../lib/core/events";
-import {Access} from "../../lib/core/access";
+import {Events, EventsGroup} from "../../lib/core/_events";
+import {Access} from "../../lib/core/_access";
 import {FormEvent} from "../../lib/core/support/forms/FormEvent";
 import {_recieveFiles} from "../../lib/core/support/forms/_recieveFiles";
 import {DragSort} from "./view/DragSort";
-import {patseImage} from "../../lib/core/support/patseImage";
 import {ImageScreen} from "./view/ImageScreen";
 import {ModifyForm} from "../_support/ModifyForm";
-import {Mapping} from "../../lib/core/support/Mapping";
+import {Mapping} from "../../lib/core/_dom/Mapping";
 import {ConfirmBox} from "../_support/ComfirmBox";
-import {getElementsByTagName, querySelectorAll} from "../../lib/core/_dom/selector";
+import {__findByTag, __findAll, __findById} from "../../lib/core/_dom/_selector";
 import {$bill} from "./view/Bill";
 import {r_number} from "../../lib/core/_regexp/number";
-import {selectAll} from "../../lib/core/_dom/_select";
-import createHTML = DOM.createHTML;
-import dataEvent = Events.dataEvent;
-import access = Access.access;
-import className = DOM.className;
-import simpleTrigger = Events.simpleTrigger;
-import acceptKeys = Events.acceptKeys;
+import dataEvent = Events.__$dataEvent;
+import access = Access.__access;
+import simpleTrigger = Events.__$simpleTrigger;
+import acceptKeys = Events.__$acceptKeys;
 import {mapperDispatcher} from "../_support/dispatcher";
-import {Formats} from "../../lib/core/support/Formats";
-import number = Formats.number;
+import {Formats} from "../../lib/core/_format";
+import number = Formats.__number;
 import {Calendar} from "../../lib/core/support/Calendar";
-import filesize = Formats.filesize;
-import {Arrays} from "../../lib/core/support/Arrays";
-import _forEach = Arrays._forEach;
-import _makeArray = Arrays._makeArray;
-import _move = Arrays._move;
-import _filter = Arrays._filter;
-import {_replaceHTML} from "../../lib/core/_html/_compile";
-import _reduce = Arrays._reduce;
-import _map = Arrays._map;
+import filesize = Formats.__filesize;
+import {Arrays} from "../../lib/core/_array";
+import _forEach = Arrays.__forEach;
+import _makeArray = Arrays.__makeArray;
+import _move = Arrays.__move;
+import _filter = Arrays.__filter;
+import {__replaceHTML} from "../../lib/core/_html/_compile";
+import _reduce = Arrays.__reduce;
+import _map = Arrays.__map;
 import {__adjustTo} from "../../lib/core/_calcurator/_image";
+import {__selectA} from "../../lib/core/_dom/_select";
+import {__className, __createHTML} from "../../lib/core/_dom/_commons";
+import {__pasteImage} from "../../lib/core/support/patseImage";
+import DATA_EVENT_DIRECTIVE = Events.DATA_EVENT_DIRECTIVE;
 
 class EventObject {
-
-    static $dispatcher = (e: MouseEvent) => new EventObject(e);
-
 
     index: number
     type: string
     mapper: HTMLElement
     target: HTMLElement
-    eventTarget: HTMLElement
     print: HTMLElement
     image: HTMLImageElement
     name: string                    // 이벤트시 CURD를 찾기 위한 key
-    mapping: string
+    mapping = ''
 
-    constructor(public e: MouseEvent) {
-        this.eventTarget = <HTMLElement>e.target;
+    constructor(public eventTarget: HTMLElement, public e: MouseEvent) {
     }
 }
 
@@ -71,8 +65,8 @@ function $init($uuid: string, $path: string, $work: Work) {
 
     let
         {body} = document,
-        element = <HTMLElement>document.getElementById('view'),
-        nav = getElementsByTagName(document.body, 'nav', 0),
+        $container = <HTMLElement>document.getElementById('view'),
+        nav = __findByTag(document.body, 'nav', 0),
 
         $uploadProgress = new FileUpload(document.getElementById('file-upload')),
         $screen = new Screen(document.getElementById('screen'), $path),
@@ -182,7 +176,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             state(ele: HTMLElement) {
 
                 let {$state} = Work,
-                    [span, ul] = selectAll(ele, ['tag="span"[0]', 'tag="ul"[0]']),
+                    [span, ul] = __selectA(ele, ['<span>[0]', '<ul>[0]']),
                     current = $work.state.toString(),
                     $active = (i: string) => {
                         span.textContent = $state[current = i];
@@ -231,8 +225,9 @@ function $init($uuid: string, $path: string, $work: Work) {
              */
             compute(tr: HTMLElement) {
                 // [count, price, vat, total]
-                let inputs = querySelectorAll(tr, '[data-compute]', (e, i, a) => {
-                        a[e.getAttribute('data-compute')] = e;
+                let inputs = __findAll(tr, '[data-compute]').reduce((r, v) => {
+                        r[v.getAttribute('data-compute')] = v;
+                        return r;
                     }, []),
                     read = (value: string) => {
                         if (r_number.test(value)) return parseInt(value);
@@ -267,7 +262,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             // 메모 textarea와 버튼을 일원화시키기
             memoForm(ele: HTMLElement) {
                 let textarea = <HTMLTextAreaElement>ele.querySelector('textarea'),
-                    tHandler = () => className(ele, 'active', !!textarea.value);
+                    tHandler = () => __className(ele, 'active', !!textarea.value);
                 textarea.addEventListener('keyup', tHandler);
                 textarea.addEventListener('change', tHandler);
             },
@@ -291,7 +286,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                     },
 
                     endHandler = () => {
-                        target && className(target, ['sort-active'], false);
+                        target && __className(target, ['sort-active'], false);
                         upEvent.off();
                         sort.off();
 
@@ -328,7 +323,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                             target = target.parentElement;
 
                         // ③ <tr class="sort-active">
-                        className(target, ['sort-active'], true);
+                        __className(target, ['sort-active'], true);
 
                         // ④ 현재위치 저장
                         items = $work.items;
@@ -349,7 +344,7 @@ function $init($uuid: string, $path: string, $work: Work) {
              */
             pasteImage(ele: HTMLElement) {
 
-                patseImage(ele, (a) => {
+                __pasteImage(ele, (a) => {
                     let workFileData: UploadObject[];
                     if (a.kind === 'file') workFileData = [fileTo(a.file)];
                     else if (a.kind === 'blob') workFileData = [blobTo(a.blob)];
@@ -393,7 +388,7 @@ function $init($uuid: string, $path: string, $work: Work) {
             // <script data-form="{}"> 순회
             _forEach(list, (e: HTMLScriptElement) => {
                 $forms[e.getAttribute('data-form')] =
-                    new ModifyForm(preProcessor.$attach(createHTML(e.innerText)));
+                    new ModifyForm(preProcessor.$attach(__createHTML(e.innerText)));
             });
             return $forms;
         })(document.head.querySelectorAll('script[data-form]')),
@@ -404,7 +399,7 @@ function $init($uuid: string, $path: string, $work: Work) {
         $$templates = (function (list) {
             let result = {};
             _forEach(list, (e: HTMLScriptElement) => {
-                result[e.getAttribute('data-template')] = _replaceHTML(e.innerText);
+                result[e.getAttribute('data-template')] = __replaceHTML(e.innerText);
             });
             return result;
         })(document.head.querySelectorAll('[data-template]')),
@@ -523,10 +518,15 @@ function $init($uuid: string, $path: string, $work: Work) {
     /*
      *
      */
-    let $dataEvent: iEvents.dataEvent.directive<EventObject> = {
+    let $dataEvent: DATA_EVENT_DIRECTIVE<EventObject> = {
+
+        $init(data) {
+            mapperDispatcher();
+        },
 
         // 수정 버튼 클릭시
         modify({mapper, mapping, name, target}) {
+            console.log('mapping:', mapping, 'name:', name);
             let forms = $viewForms[name].reset(access($work, mapping));
             // mapping이 undefined이거나 null이면 해당 키워드가 문자열로 입력된다. 그럼 문제된다.
             forms.element.setAttribute('data-form-mapping', mapping || '');
@@ -574,6 +574,7 @@ function $init($uuid: string, $path: string, $work: Work) {
         // ************************ ▼ Custom Event ▼ ************************ //
         // 아이템추가하기
         addItem({mapper, name}: EventObject) {
+            console.log(mapper, name);
             let forms = $viewForms[name];
             forms.element.removeAttribute('data-form-mapping');
             forms.reset().appendTo(mapper.querySelector('[data-template]'));
@@ -652,8 +653,7 @@ function $init($uuid: string, $path: string, $work: Work) {
                         if (!item.print.length) {
                             $mapping.$render(target);
                             simpleTrigger(print, 'dropdown-close');
-                        }
-                        else {
+                        } else {
                             // mapping을 갱신해야 하므로, 다시 그린다.
                             $directive.print(print, item);
                         }
@@ -670,10 +670,12 @@ function $init($uuid: string, $path: string, $work: Work) {
     };
 
     //************************************** ▼ Events ▼ **************************************//
-    dataEvent(body, 'click', 'data-event', EventObject.$dispatcher, mapperDispatcher(), $dataEvent);
+    dataEvent($container, 'click', 'data-event',
+        (e, evt) => new EventObject(e, evt),
+        $dataEvent);
     //************************************** ▲ Events ▲ **************************************//
 
-    $mapping.$render(element);
+    $mapping.$render($container);
     $mapping.$render(document.querySelector('nav'));
 
     // 폼 이벤트
@@ -683,7 +685,6 @@ function $init($uuid: string, $path: string, $work: Work) {
 
 Work.get(/([^\/]+)\/*$/.exec(location.pathname)[1]).then($work => {
     if ($work) {
-        console.log($work);
         $init($work.uuid, Work.toPath($work.uuid), $work);
 
         // 견적서 띄우기
@@ -692,7 +693,7 @@ Work.get(/([^\/]+)\/*$/.exec(location.pathname)[1]).then($work => {
                 let type = e.target['getAttribute']('data-bill');
                 if (type) $bill($work, type);
             });
-        })(getElementsByTagName(document.body, 'nav', 0))
+        })(__findByTag(document.body, 'nav', 0))
 
     }
 });

@@ -1,11 +1,10 @@
-import {DOM} from "../_dom/DOM";
-import createHTML = DOM.createHTML;
-import {Arrays} from "../support/Arrays";
-import _forEach = Arrays._forEach;
+import {Arrays} from "../_array";
+import _forEach = Arrays.__forEach;
 import {_pathMap} from "../_util/_pathMap";
+import {__createHTML} from "../_dom/_commons";
 
 let
-    ___createHTML = (tree, html: string[] = [], index = {v: 0}) => {
+    ___$createHTML = (tree, html: string[] = [], index = {v: 0}) => {
         let p, hasChild = '';
         for (p in tree.childs) {
             hasChild = ' class="has-childs"';
@@ -20,17 +19,17 @@ let
         if (hasChild) {
             html[index.v++] = '<ul>';
             for (let p in tree.childs)
-                ___createHTML(tree.childs[p], html, index);
+                ___$createHTML(tree.childs[p], html, index);
             html[index.v++] = '</ul>';
         }
         html[index.v++] = '</li>';
 
         return html;
     },
-    __createHTML = (tree, html: string[] = [], index = {v: 0}) => {
+    __$createHTML = (tree, html: string[] = [], index = {v: 0}) => {
         html[index.v++] = '<ul class="tree">';
         for (let p in tree) {
-            ___createHTML(tree[p], html, index);
+            ___$createHTML(tree[p], html, index);
         }
         html[index.v++] = '</ul>'
         return html.join('');
@@ -45,7 +44,7 @@ export class PathTree {
     private _onClick
 
     constructor(paths: string[]) {
-        this.element = createHTML(__createHTML(_pathMap(paths)), true);
+        this.element = __createHTML(__$createHTML(_pathMap(paths)), true);
         this.trees = this.element.querySelectorAll('[data-tree]');
 
         this.element.addEventListener('click', (e) => {

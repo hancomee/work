@@ -25,7 +25,7 @@
 
     <!------------------  ▼ [data-template] ▼  -------------------->
     <script type="text/html" data-template="items">
-        <tr data-element="target" data-form-enter="true">
+        <tr data-element="target" data-form-enter="true" data-value="mapping:[data-mapping]">
             <td data-directive="subject"></td>
             <td data-directive="detail"></td>
             <td data-directive="count" class="text-right"></td>
@@ -57,7 +57,7 @@
 
 
     <script type="text/html" data-template="memo">
-        <div class="work-memo-list-item" data-element="target">
+        <div class="work-memo-list-item" data-element="target" data-value="mapping">
             <pre data-directive="value"></pre>
             <span class="work-memo-list-item-datetime" data-directive="datetime | datetime"></span>
             <div class="view-btns">
@@ -68,7 +68,7 @@
     </script>
 
     <script type="text/html" data-template="refs">
-        <div class="work-refs-list" data-element="target">
+        <div class="work-refs-list" data-element="target" data-value="mapping">
             <span class="work-refs-remove" data-event="remove">×</span>
             <a class="work-refs-thumb file-icon" data-directive=" | refThumb"></a>
             <div class="work-refs-name" data-directive="original_name"></div>
@@ -208,7 +208,7 @@
 
     <span class="page-name">작업상세</span>
 
-    <div class="nav-btns" data-mapper="info" data-follow="items,memo,refs">
+    <div class="nav-btns" data-mapper="info" data-follow="items,memo,refs" data-value="mapper:this,name:info">
         <span class="active nav-resource">작업수<b data-directive="item_len | len"></b></span>
         <span class="nav-resource">작업메모<b data-directive="memo_len | len"></b></span>
         <span class="nav-resource">참고파일<b data-directive="file_len | len"></b></span>
@@ -239,7 +239,7 @@
             <div class="view-meta-remove" data-pre-processor="remove">×작업삭제</div>
         </div>
 
-        <div class="view-row" data-mapper="title">
+        <div class="view-row" data-mapper="title" data-value="mapper:this,name:title">
 
             <div class="view-container">
                 <div class="view-content text-center work-title">
@@ -264,8 +264,8 @@
             </div>
 
             <div class="view-container">
-                <div class="view-content" data-mapper="customer">
-                    <div class="work-customer" data-mapping="customer" data-element="target">
+                <div class="view-content" data-mapper="customer"  data-value="mapper:this,name:customer">
+                    <div class="work-customer" data-mapping="customer" data-element="target" data-value="mapping">
                         <div class="view-btns">
                             <span class=" view-btn" data-event="modify">수정</span>
                         </div>
@@ -352,7 +352,7 @@
             </div>
         </div>
 
-        <div class="view-row" data-mapping="items"
+        <div class="view-row" data-mapping="items"  data-value="mapper:this,mapping,name:items"
              data-mapper="items" data-pre-processor="itemSort">
 
             <div class="view-header">
@@ -385,7 +385,7 @@
         </div>
 
 
-        <div class="view-row" data-mapper="text">
+        <div class="view-row" data-mapper="text" data-value="mapper:this,name:text">
 
             <div data-element="target">
                 <div class="view-header">
@@ -405,7 +405,7 @@
         </div>
 
 
-        <div class="view-row" data-mapping="memo" data-mapper="memo">
+        <div class="view-row" data-mapping="memo" data-mapper="memo"  data-value="mapper:this,name:memo,mapping">
 
             <div class="view-header">
                 <span class="view-header-subject">작업메모</span>
@@ -424,7 +424,7 @@
         </div>
 
 
-        <div class="view-row" data-mapper="refs">
+        <div class="view-row" data-mapper="refs" data-value="mapper:this,name:refs">
 
             <div class="view-header">
                 <span class="view-header-subject">작업파일</span>
@@ -433,7 +433,7 @@
                 </span>
             </div>
 
-            <div class="view-container" data-mapping="refs">
+            <div class="view-container" data-mapping="refs" data-value="mapping">
                 <div class="view-content work-refs" data-template="refs" data-pre-processor="imageScreen">
                 </div>
             </div>
@@ -444,7 +444,7 @@
 </main>
 
 
-<div id="screen" data-mapper="screen">
+<div id="screen" data-mapper="screen" data-value="mapper:this,name:screen">
     <div class="screen-nav">
         <div class="screen-nav-left">
             <div class="screen-upload-btn" data-event="screenFile" data-value="type:draft">시안 업로드</div>

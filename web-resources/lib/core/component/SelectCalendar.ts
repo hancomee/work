@@ -1,7 +1,7 @@
 import {Calendar, Month} from "../support/Calendar";
-import {_compile} from "../_html/_compile";
+import {__compileHTML} from "../_html/_compile";
 
-let $html = _compile(require("./SelectCalendar.html"));
+let $html = __compileHTML(require("./SelectCalendar.html"));
 
 
 export class SelectCalendar {

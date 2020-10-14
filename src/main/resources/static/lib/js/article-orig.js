@@ -57,7 +57,7 @@ define(["require", "exports", "../editor", "../components/pager"], function (req
                     return alert('대표 게시물은 2개만 설정할 수 있습니다 :)');
                 $http.post('/servlet/ajax/article/headers/intro/' + header.id, null).then(function () { return $refresh(); });
             };
-            $scope.read = function (id) {
+            $scope.__read = function (id) {
                 $http.get('/servlet/ajax/article/read/' + id).then(function (response) {
                     editor.setData(response.data.article);
                 });

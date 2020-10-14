@@ -1,4 +1,4 @@
-import {_extend} from "../core";
+import {__extend} from "../_core";
 import {Search, URLManager} from "../support/Search";
 import {HTML} from "./html_";
 
@@ -28,7 +28,7 @@ class Provider {
 
     param(p?) {
         let param = this.module.getParam();
-        if (p) param = _extend(p, param);
+        if (p) param = __extend(p, param);
         return param;
     }
 

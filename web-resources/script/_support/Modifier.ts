@@ -1,11 +1,12 @@
-import {Events} from "../../lib/core/events";
+import {Events} from "../../lib/core/_events";
 import {Forms} from "../../lib/core/support/Forms";
-import {getElementsByAttr, querySelector} from "../../lib/core/_dom/selector";
-import {DOM} from "../../lib/core/_dom/DOM";
-import dataEvent = Events.dataEvent;
-import createHTML = DOM.createHTML;
+import {__find, getElementsByAttr} from "../../lib/core/_dom/_selector";
 import {mapperDispatcher} from "./dispatcher";
 import {AbstractUtilClass} from "./_AbstractUtilClass";
+import {__createHTML} from "../../lib/core/_dom/_commons";
+import __$dataEvent = Events.__$dataEvent;
+import {Access} from "../../lib/core/_access";
+import __primitive = Access.__primitive;
 
 export interface ModifierEventObject extends iMapperObject {
     event: MouseEvent
@@ -72,9 +73,9 @@ export class Modifier extends AbstractUtilClass<Modifier> {
 
     constructor(public element: HTMLElement, private $mapping: any /* iMapping */) {
         super();
-        dataEvent(this.element, 'click', 'data-modifier',
-            (e) => ({event: e, eventTarget: e.target}),
-            mapperDispatcher(__dispatcher), <any>this);
+        __$dataEvent(this.element, 'click', 'data-modifier',
+            (e, evt) => ({event: evt, eventTarget: evt.target}),
+            <any>this);
 
         Modifier.setCreators(element, this);
     }
@@ -111,11 +112,10 @@ export class Modifier extends AbstractUtilClass<Modifier> {
             forms[key] = f;
             config[key] = curd;
             f.element.setAttribute('data-modifier-target', key);
-        }
-        else if (f) {
+        } else if (f) {
             getElementsByAttr(key, 'data-form', (_, e, v) => {
                 if (f[v]) {
-                    let form = f[v].createForms(createHTML(e.innerText));
+                    let form = f[v].createForms(__createHTML(e.innerText));
                     form.element.setAttribute('data-modifier-target', v);
                     forms[v] = form;
                     config[v] = f[v].curd;
@@ -204,9 +204,7 @@ export class Modifier extends AbstractUtilClass<Modifier> {
                     $mapping.$render(<HTMLElement>nextElementSibling);
                     forms.detach();
                 });
-        }
-
-        else {
+        } else {
             this.$create(type, forms, parentElement, mapping,
                 parseInt(target.getAttribute('data-modifier-pos')));
         }
@@ -266,8 +264,8 @@ export namespace Modifier {
             type = ele.getAttribute('data-modifier-target'),
             mapping = ele.getAttribute('data-mapping') || '',
             pos = parseInt(ele.getAttribute('data-modifier-pos')) || -1,
-            target = querySelector(modifier.element, ele.getAttribute('data-template-target')),
-            btn = querySelector(ele, '[data-modifier="create"'),
+            target = __find(modifier.element, ele.getAttribute('data-template-target')),
+            btn = __find(ele, '[data-modifier="create"'),
             forms = new Forms(ele),
             validHandler = () => {
                 if (forms.valid()) classList.remove('form-error');

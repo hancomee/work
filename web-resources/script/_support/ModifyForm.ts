@@ -1,10 +1,9 @@
 import {Forms} from "../../lib/core/support/Forms";
-import {DOM} from "../../lib/core/_dom/DOM";
-import className = DOM.className;
+import {__className} from "../../lib/core/_dom/_commons";
 
 
 let vf_className = ['form-error'],
-    validHandler = (valid, input, g, f) => className(input, vf_className, !valid);
+    validHandler = (valid, input, g, f) => __className(input, vf_className, !valid);
 
 
 export class ModifyForm extends Forms {
@@ -13,7 +12,7 @@ export class ModifyForm extends Forms {
 
     constructor(ele: HTMLElement) {
         super(ele);
-        let handler = this._handler = () => className(ele, vf_className, !this.valid(validHandler))
+        let handler = this._handler = () => __className(ele, vf_className, !this.valid(validHandler))
 
         ele.addEventListener('keyup', handler);
         ele.addEventListener('change', handler);

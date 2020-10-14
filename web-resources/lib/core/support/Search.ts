@@ -2,9 +2,9 @@
  * Created by hellofunc on 2017-05-06.
  */
 
-import {isPlainObject, isEmptyObject, extend, $extend} from "../core";
-import {Access} from "../access";
-import {Formats} from "./Formats";
+import {__isPlainObject, __isEmptyObject, extend, $extend} from "../_core";
+import {Access} from "../_access";
+import {Formats} from "../_format";
 
 let hasOwn = {}.hasOwnProperty,
     hasOwnProperty = (obj, value: string) => hasOwn.call(obj, value),
@@ -101,8 +101,8 @@ export abstract class HashManager<T extends Search> {
 
 export namespace Search {
 
-    import primitive = Access.primitive;
-    import datetime = Formats.datetime;
+    import primitive = Access.__primitive;
+    import datetime = Formats.__datetime;
     let r_n = /&/
 
 
@@ -129,14 +129,14 @@ export namespace Search {
     // Object  ====>  querystring
     export function toSearch(obj: Object, prefix = '') {
 
-        if (isEmptyObject(obj)) return '';
+        if (__isEmptyObject(obj)) return '';
 
         let array: string[] = [], value;
 
         for (let key in obj) {
             value = obj[key];
             if (key[0] === '_' || key[0] === '$' || value == null || typeof value === 'function' || !hasOwnProperty(obj, key)) continue;
-            if (isPlainObject(value)) {
+            if (__isPlainObject(value)) {
                 array.push(toSearch(value, prefix + key + '.'));
             }
             // ie는 encodeURIComponent를 안해주면 ajax 에러가 난다.
@@ -168,7 +168,7 @@ export namespace Search {
             .filter(a => a && a.indexOf('=') !== -1)
             .forEach(v => {
                 let [key, _value] = v.split(r_2),
-                    value = Access.access(obj, key);
+                    value = Access.__access(obj, key);
 
                 // decoding
                 _value = primitive(decodeURIComponent(_value));
@@ -179,7 +179,7 @@ export namespace Search {
                     value.push(_value);
                 } else value = _value;
 
-                Access.access(obj, key, value, true);
+                Access.__access(obj, key, value, true);
             });
 
         if (dest)
@@ -250,7 +250,7 @@ export namespace URLManager {
             URL = url.split(/\//).reduce((r, v) => {
 
                 if (v[0] === ':' && (v = v.slice(1))) {
-                    let value = Access.access(obj, v);
+                    let value = Access.__access(obj, v);
                     value != null && r.push(value);
                 }
                 else r.push(v);
@@ -265,7 +265,7 @@ export namespace URLManager {
 
                 let [prop, value] = v.split(/\=/);
                 if (value[0] === ':' && (value = value.slice(1))) {
-                    let u = Access.access(obj, value);
+                    let u = Access.__access(obj, value);
                     u != null && r.push(prop + '=' + u);
                 }
                 else r.push(v);

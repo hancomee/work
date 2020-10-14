@@ -1,4 +1,4 @@
-import {EventsGroup} from "../events";
+import {EventsGroup} from "../_events";
 import {__transform} from "../_calcurator/_image";
 
 

@@ -1,6 +1,6 @@
-export function _orders(s: string, type: boolean): string
-export function _orders(s: string): [string, string]
-export function _orders(s: string, type?) {
+export function __orders(s: string, type: boolean): string
+export function __orders(s: string): [string, string]
+export function __orders(s: string, type?) {
 
     if (typeof type === 'boolean') {
         return type ? s : '<' + s;

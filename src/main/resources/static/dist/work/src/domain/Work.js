@@ -107,7 +107,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function _toString(v) {
         return toString.call(v);
     }
-    exports._toString = _toString;
+    exports.__toString = _toString;
     function __noop(a) {
         return a;
     }
@@ -124,7 +124,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
     function isObjectType(obj) {
         return toString.call(obj) === objStr;
     }
-    exports.isObjectType = isObjectType;
+    exports.__isObjectType = isObjectType;
     function isPlainObject(obj) {
         var proto, Ctor;
         // Detect obvious negatives
@@ -141,7 +141,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
         return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
     }
-    exports.isPlainObject = isPlainObject;
+    exports.__isPlainObject = isPlainObject;
     function isEmptyObject(obj) {
         var name;
         for (name in obj) {
@@ -149,18 +149,18 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return true;
     }
-    exports.isEmptyObject = isEmptyObject;
+    exports.__isEmptyObject = isEmptyObject;
     function isArrayLike(item) {
         return Array.isArray(item) ||
             (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
     }
-    exports.isArrayLike = isArrayLike;
+    exports.__isArrayLike = isArrayLike;
     var r_fn = /^function\s*([^\s(]+)/;
     function getFunctionName(func) {
         return func.name ? func.name : func.toString().match(r_fn)[1];
     }
-    exports.getFunctionName = getFunctionName;
-    exports.isObject = function (val) { return toString.call(val) === "[object Object]"; };
+    exports.__getFunctionName = getFunctionName;
+    exports.__isObject = function (val) { return toString.call(val) === "[object Object]"; };
     /*
      *  일종의 객체 Decode/Encode
      *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
@@ -206,7 +206,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._extend = _extend;
+    exports.__extend = _extend;
     function _deepExtend(dest, source) {
         if (isArrayLike(source)) {
             var i = 0, l = source.length, d = void 0, s = void 0;
@@ -236,7 +236,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         }
         return dest;
     }
-    exports._deepExtend = _deepExtend;
+    exports.__deepExtend = _deepExtend;
     function $extend(target, source, converts) {
         if (converts === void 0) { converts = dummy; }
         // undefined값이 올때만 패스한다.
@@ -366,14 +366,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 return l;
         return -1;
     }
-    exports._indexOf = _indexOf;
+    exports.__indexOf = _indexOf;
     function _makeArray(obj) {
         var r = [], l = obj.length;
         while (l-- > 0)
             r[l] = obj[l];
         return r;
     }
-    exports._makeArray = _makeArray;
+    exports.__makeArray = _makeArray;
     function _forEach(obj, h) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -382,7 +382,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return obj;
     }
-    exports._forEach = _forEach;
+    exports.__forEach = _forEach;
     function _selector(obj, h) {
         var i = 0, l = obj.length, v;
         while (i < l) {
@@ -391,7 +391,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return undefined;
     }
-    exports._selector = _selector;
+    exports.__selector = _selector;
     function _forEachReverse(obj, h) {
         var i = obj.length;
         while (i-- > 0) {
@@ -400,7 +400,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return obj;
     }
-    exports._forEachReverse = _forEachReverse;
+    exports.__forEachR = _forEachReverse;
     function _reduce(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -408,7 +408,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._reduce = _reduce;
+    exports.__reduce = _reduce;
     function _reduceN(obj, h, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -416,7 +416,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._reduceN = _reduceN;
+    exports.__reduceN = _reduceN;
     function _map(obj, h) {
         var r = [], i = 0, l = obj.length;
         while (i < l) {
@@ -424,7 +424,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return r;
     }
-    exports._map = _map;
+    exports.__map = _map;
     function _colMap(values, size, handler) {
         var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
         while (index < l) {
@@ -438,7 +438,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         v && (r[rIndex] = handler(v, rIndex++));
         return r;
     }
-    exports._colMap = _colMap;
+    exports.__colMap = _colMap;
     function _colReduce(values, size, handler, r) {
         var v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
         while (index < l) {
@@ -452,7 +452,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         v && (r = handler(r, v, rIndex++));
         return r;
     }
-    exports._colReduce = _colReduce;
+    exports.__colReduce = _colReduce;
     function _in(obj, filter, r) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -465,11 +465,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     function _inTrue(obj, filter) {
         return _in(obj, filter, true);
     }
-    exports._inTrue = _inTrue;
+    exports.__inTrue = _inTrue;
     function _inFalse(obj, filter) {
         return _in(obj, filter, false);
     }
-    exports._inFalse = _inFalse;
+    exports.__inFalse = _inFalse;
     function _everyTrue(obj, filter) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -478,7 +478,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return true;
     }
-    exports._everyTrue = _everyTrue;
+    exports.__everyTrue = _everyTrue;
     function _everyFalse(obj, filter) {
         var i = 0, l = obj.length;
         while (i < l) {
@@ -487,7 +487,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         return true;
     }
-    exports._everyFalse = _everyFalse;
+    exports.__everyFalse = _everyFalse;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -686,7 +686,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     //********************** 작업 세부내역 **********************//
     var WorkItem = /** @class */ (function () {
         function WorkItem(data) {
-            this.count = 0;
+            this.__$count = 0;
             this.detail = '';
             this.memo = '';
             this.price = 0;
