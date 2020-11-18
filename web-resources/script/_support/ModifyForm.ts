@@ -1,4 +1,4 @@
-import {Forms} from "../../lib/core/support/Forms";
+import {Forms} from "../../lib/core/_forms";
 import {__className} from "../../lib/core/_dom/_commons";
 
 

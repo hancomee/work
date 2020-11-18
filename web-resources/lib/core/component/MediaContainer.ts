@@ -65,7 +65,7 @@ export class MediaContainer<T extends MediaData> extends Mapping {
         let $self = this,
             wheelEventHandler = (e: MouseWheelEvent) => {
                 if (e.target !== this.content.media.element) {
-                    this.onScreen(this.index + (e.wheelDelta < 0 ? 1 : -1));
+                    this.onScreen(this.index + (e['wheelDelta'] < 0 ? 1 : -1));
                 }
             }
 

@@ -1,0 +1,244 @@
+<div id="bill" :template="bill" class="screen v-screen" :access="type:[data-type]">
+
+    <div data-element="container">
+        <!-- 공통-->
+        <div :template="?pFooter">
+            <div class="bill-footer">
+                <div class="bill-footer-panel">
+                    <span class="label">계좌안내</span>
+                    <span class="value">[농협] <strong>352-1401-2143-63</strong> 예금주 / 고정철</span>
+                </div>
+                <div class="bill-footer-panel">
+                    <span class="label">견적</span>
+                    <span class="value">010-3403-8259</span>
+                </div>
+                <div class="bill-footer-panel">
+                    <span class="label">디자인·편집</span>
+                    <span class="value">010-6570-8259</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- 견적서 -->
+        <div class="bill estimate" data-type="estimate">
+
+            <div class="bill-header n_2">
+                <strong class="y_0">견적서</strong>
+                <span>(공급받는자 보관용)</span>
+            </div>
+            <div class="recipient n_2">
+                <span>제목 : </span>
+                <strong :access="work.title"></strong>
+            </div>
+
+            <div class="bill-container div-2">
+                <div :access='$template("company", "company", 1)'>
+                    <table class="company-info table-border" :template="company">
+                        <tbody>
+                        <tr>
+                            <th rowspan="4">공<br>급<br>자</th>
+                            <th>등록번호</th>
+                            <td :access="biz_num" colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>상호</th>
+                            <td :access="name"></td>
+                            <th>대표자</th>
+                            <td class="sign">
+                                <span :access="owner"></span>
+                                <img src="/imgs/sign2.png">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>소재지</th>
+                            <td :access="address" colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>업태</th>
+                            <td :access="biz_con"></td>
+                            <th>종목</th>
+                            <td :access="biz_type"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div :access='$template("customer", "bCustomer", 1)'>
+                    <table class="company-info table-border" :template="bCustomer">
+                        <tbody>
+                        <tr>
+                            <th rowspan="4">공<br>급<br>받<br>는<br>자</th>
+                            <th>등록번호</th>
+                            <td :access="biz_num" colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>상호</th>
+                            <td :access="name"></td>
+                            <th>대표자</th>
+                            <td class="sign">
+                                <span :access="owner"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>소재지</th>
+                            <td :access="address" colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>업태</th>
+                            <td :access="biz_con"></td>
+                            <th>종목</th>
+                            <td :access="biz_type"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div>
+                <div class="bill-title">▲품목 세부</div>
+                <div class="bill-container" :access='$template("_items", 1)'>
+                    <table class="item-list table-border" :template="_items">
+                        <thead>
+                        <tr>
+                            <th>품명</th>
+                            <th>규격</th>
+                            <th>수량</th>
+                            <th>단가</th>
+                            <th>금액</th>
+                            <th>부가세</th>
+                            <th>적요</th>
+                        </tr>
+                        </thead>
+                        <tbody :access='$template("items", "bItem")'>
+                        <tr :template="?bItem">
+                            <td :access="subject"></td>
+                            <td :access="detail"></td>
+                            <td :access="count" class="text-center white-nowrap"></td>
+                            <td :access="price?number" class="text-right white-nowrap"></td>
+                            <td :access="total?number" class="text-right white-nowrap"></td>
+                            <td :access="vat?number" class="text-right white-nowrap"></td>
+                            <td :access="memo"></td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="3">합계</th>
+                            <th class="text-right" :access="work.price?number"></th>
+                            <th class="text-right" :access="work.total?number"></th>
+                            <th class="text-right" :access="work.vat?number"></th>
+                            <th></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="bill-text" :access='$toggle("d-none", "", "work.text")'>
+                <div class="bill-title">▲참고사항</div>
+                <div class="bill-container bill-work-text">
+                    <pre :access="work.text"></pre>
+                </div>
+            </div>
+
+            <div :access='$copy("pFooter", 1)'></div>
+
+        </div>
+
+
+        <!-- 거래명세표 -->
+        <div class="bill account" data-type="account">
+
+            <div class="bill-header">
+                <strong>거래명세표</strong>
+                <span>(공급받는자 보관용)</span>
+            </div>
+
+            <div class="bill-container div-2">
+                <div :access='$template("company", "company", 1)'></div>
+                <div :access='$template("customer", "bCustomer", 2)'></div>
+            </div>
+
+            <div class="bill-container" :access='$template("_items", 1)'></div>
+
+            <div class="bill-container">
+                <table class="table-border total-table">
+                    <tbody>
+                    <tr>
+                        <th>금액</th>
+                        <td class="white-nowrap" :access="work.price?number">600,000</td>
+                        <th>합계</th>
+                        <td class="white-nowrap" :access="work.total?number">660,000</td>
+                        <th>세액</th>
+                        <td class="white-nowrap" :access="work.vat?number">60,000</td>
+                        <th>인수자</th>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div :access='$copy("pFooter", 1)'></div>
+        </div>
+
+
+        <!-- 간이영수증 -->
+        <div class="bill receipt" data-type="receipt">
+
+            <div class="bill-header">
+                <strong>간이영수증</strong>
+                <span>(공급받는자용)</span>
+            </div>
+            <div class="recipient">
+                <strong :access="customer.name"></strong>
+                <span>귀하</span>
+            </div>
+
+            <div class="bill-container">
+                <div :access='$template("company", "company", 1)'></div>
+            </div>
+
+            <div class="bill-container">
+                <table class="table-border">
+                    <thead>
+                    <tr>
+                        <th>품명</th>
+                        <th>수량</th>
+                        <th>단가</th>
+                        <th>금액</th>
+                        <th>부가세</th>
+                    </tr>
+                    </thead>
+                    <tbody :access='$template("items", "pItem")'>
+                    <tr :template="?pItem">
+                        <td :access="subject"></td>
+                        <td :access="count" class="text-center white-nowrap"></td>
+                        <td :access="price?number" class="text-right white-nowrap"></td>
+                        <td :access="total?number" class="text-right white-nowrap"></td>
+                        <td :access="vat?number" class="text-right white-nowrap"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bill-container">
+                <table class="table-border total-table">
+                    <tbody>
+                    <tr>
+                        <th class="label">금액</th>
+                        <td class="white-nowrap" :access="work.price?number"></td>
+                        <th class="label">세액</th>
+                        <td class="white-nowrap" :access="work.vat?number"></td>
+                        <th class="label">합계</th>
+                        <td class="white-nowrap" :access="work.total?number"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div :access='$copy("pFooter", 1)'></div>
+        </div>
+    </div>
+
+</div>

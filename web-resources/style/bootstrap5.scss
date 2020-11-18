@@ -1,0 +1,211 @@
+@import "../lib/style/mixins";
+@import "../lib/bootstrap5.2/scss/functions";
+@import "../lib/bootstrap5.2/scss/variables";
+@import "../lib/bootstrap5.2/scss/mixins";
+@import "../lib/bootstrap5.2/scss/utilities";
+
+$body-color: $gray-600;
+$table-color: $gray-600;
+$table-cell-vertical-align: middle;
+
+$table-striped-bg: $gray-100;
+$table-active-bg: $gray-100;
+$table-hover-bg: darken($gray-100, 2%);
+@import "./../lib/bootstrap5.2/scss/bootstrap";
+
+/*@import "./../lib/bootstrap5.2/scss/reboot";
+@import "./../lib/bootstrap5.2/scss/type";
+@import "./../lib/bootstrap5.2/scss/images";
+@import "./../lib/bootstrap5.2/scss/containers";
+@import "./../lib/bootstrap5.2/scss/grid";
+@import "./../lib/bootstrap5.2/scss/tables";
+@import "./../lib/bootstrap5.2/scss/forms";
+@import "./../lib/bootstrap5.2/scss/buttons";
+@import "./../lib/bootstrap5.2/scss/transitions";
+@import "./../lib/bootstrap5.2/scss/dropdown";
+@import "./../lib/bootstrap5.2/scss/button-group";
+@import "./../lib/bootstrap5.2/scss/nav";
+@import "./../lib/bootstrap5.2/scss/navbar";
+@import "./../lib/bootstrap5.2/scss/card";
+@import "./../lib/bootstrap5.2/scss/breadcrumb";
+@import "./../lib/bootstrap5.2/scss/pagination";
+@import "./../lib/bootstrap5.2/scss/badge";
+@import "./../lib/bootstrap5.2/scss/alert";
+@import "./../lib/bootstrap5.2/scss/progress";
+@import "./../lib/bootstrap5.2/scss/list-group";
+@import "./../lib/bootstrap5.2/scss/close";
+@import "./../lib/bootstrap5.2/scss/toasts";
+@import "./../lib/bootstrap5.2/scss/modal";
+@import "./../lib/bootstrap5.2/scss/tooltip";
+@import "./../lib/bootstrap5.2/scss/popover";
+@import "./../lib/bootstrap5.2/scss/carousel";
+@import "./../lib/bootstrap5.2/scss/spinners";
+
+// Helpers
+@import "./../lib/bootstrap5.2/scss/helpers";*/
+
+@import "./_fonts/roboto";
+@import "./_fonts/NanumGothic";
+
+body, input, textarea, pre {
+  font-family: "Roboto", "Nanum Gothic";
+}
+
+[data-template^="?"], .next-hide + * {
+  display: none;
+}
+
+input[data-type="number"] {
+  text-align: right;
+}
+
+.no-drag {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+[data-event] {
+  cursor: pointer;
+  @extend .no-drag;
+}
+
+/* setup tooltips */
+[data-tooltip] {
+  position: relative;
+  &:before {
+    display: block;
+    position: absolute;
+    padding: 6px 10px;
+    margin: {
+      left: 50%;
+      top: -10%;
+    }
+
+    content: attr(data-tooltip);
+
+    border-radius: 2px;
+    color: #fff;
+    font-size: .8rem;
+
+    white-space: nowrap;
+    opacity: 0;
+    background: rgba(0,0,0,.60);
+    pointer-events: none;
+
+    transform: translate(-50%, -50%);
+    transition: all .15s ease-in-out;
+  }
+
+  &:hover:before {
+    opacity: 1;
+    transform: translate(-50%, -90%);
+  }
+
+}
+
+
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+}
+
+.dropdown {
+
+  &.dropdown-open {
+    position: relative;
+  }
+
+  &-menu {
+    display: none;
+    z-index: -1;
+    transform: translateY(5px);
+
+    @extend .shadow;
+
+    [x-placement="right"] & {
+      right: 0;
+      left: auto !important;
+    }
+
+    &.dropdown-open, .dropdown-open & {
+      display: block;
+      left: 0;
+      z-index: 1041;
+      animation: fadein .21s;
+      animation-fill-mode: both;
+    }
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.b-btn {
+  display: flex;
+  align-items: center;
+  font-size: .8rem;
+  height: 1.6rem;
+  padding: 0 .6rem;
+  border-radius: .8rem;
+  color: $gray-600;
+  border: 1px solid $gray-400;
+
+  .b-badge {
+    display: inline-block;
+    margin-left: .2rem;
+    padding: 0 .3rem;
+    height: 1.8em;
+
+    background-color: $gray-600;
+    color: $gray-100;
+    border-radius: .6rem;
+    font-size: .5rem;
+  }
+}
+
+
+@keyframes pop {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+.h-pop {
+  & + * {
+    position: absolute;
+    display: none;
+    top: -100%;
+    &:hover {
+      display: none !important;
+    }
+  }
+
+  &:hover {
+    & + * {
+      display: block;
+      animation: pop .3s;
+    }
+  }
+}

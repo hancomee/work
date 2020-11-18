@@ -125,3 +125,30 @@ export function __selectA(element: Element, arg, handler?) {
     }
     return handler ? handler.apply(element, args) : args;
 };
+
+
+export function __attrMap(target: HTMLElement, attrName: string, names: string[]): HTMLElement[]
+export function __attrMap(target: HTMLElement, attrName: string): {[index: string]: HTMLElement}
+export function __attrMap(target: HTMLElement, attrName: string, names?) {
+
+    let values = target.querySelectorAll('[' + attrName + ']'),
+        l = values.length;
+
+    if(names) {
+        let r = [], s, i;
+        while(l-- > 0) {
+            s = values[l].getAttribute(attrName);
+            i = names.indexOf(s);
+            if(i !== -1) r[i] = values[l];
+        }
+        return r;
+    }
+
+    else {
+        let map = {};
+        while(l-- > 0)
+            map[values[l].getAttribute(attrName)] = values[l];
+        return map;
+    }
+
+}

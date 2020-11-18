@@ -36,12 +36,32 @@
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -59,8 +79,9 @@
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 41);
+/******/ 	return __webpack_require__(__webpack_require__.s = 38);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -68,9 +89,71 @@
 /***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
 
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Access = void 0;
+    var Access;
+    (function (Access) {
+        // dot으로 구분된 프로퍼티 읽어오기
+        function __read(p, obj) {
+            if (!p)
+                return obj;
+            var names = typeof p === 'string' ? p.split('.') : p, length = names.length, i = 0;
+            for (; i < length; i++) {
+                if ((obj = obj[names[i]]) == null)
+                    return null;
+            }
+            return obj;
+        }
+        Access.__read = __read;
+        Access.__primitive = (function () {
+            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            return function (val) {
+                if (typeof val === 'string' && val) {
+                    if (r_string.test(val))
+                        return val.slice(1, -1);
+                    if (number_1.r_number.test(val))
+                        return parseInt(val);
+                    if (r_boolean.test(val))
+                        return val === 'true';
+                }
+                return val;
+            };
+        })();
+        var r_a = /\./;
+        function __access(target, _props, val, force) {
+            if (target == null || _props == null || _props === '')
+                return target;
+            var props = _props.split(r_a), len = props.length - 1, obj = target, temp, i = 0;
+            for (; obj != null && i < len; i++) {
+                temp = obj[props[i]];
+                if (temp == null && force)
+                    temp = obj[props[i]] = {};
+                obj = temp;
+            }
+            // [1] getter
+            if (arguments.length === 2)
+                return obj != null ? obj[props[i]] : obj;
+            // [2] setter
+            obj != null && (obj[props[i]] = val);
+            return target;
+        }
+        Access.__access = __access;
+    })(Access = exports.Access || (exports.Access = {}));
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 1:
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Arrays = void 0;
     var Arrays;
     (function (Arrays) {
         var _a = Array.prototype, indexOf = _a.indexOf, slice = _a.slice;
@@ -494,70 +577,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 1:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, number_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Access;
-    (function (Access) {
-        // dot으로 구분된 프로퍼티 읽어오기
-        function __read(p, obj) {
-            var names = typeof p === 'string' ? p.split('.') : p, length = names.length, i = 0;
-            for (; i < length; i++) {
-                if ((obj = obj[names[i]]) == null)
-                    return null;
-            }
-            return obj;
-        }
-        Access.__read = __read;
-        Access.__primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
-            return function (val) {
-                if (typeof val === 'string' && val) {
-                    if (r_string.test(val))
-                        return val.slice(1, -1);
-                    if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
-                }
-                return val;
-            };
-        })();
-        var r_a = /\./;
-        function __access(target, _props, val, force) {
-            if (target == null || _props == null || _props === '')
-                return target;
-            var props = _props.split(r_a), len = props.length - 1, obj = target, temp, i = 0;
-            for (; obj != null && i < len; i++) {
-                temp = obj[props[i]];
-                if (temp == null && force)
-                    temp = obj[props[i]] = {};
-                obj = temp;
-            }
-            // [1] getter
-            if (arguments.length === 2)
-                return obj != null ? obj[props[i]] : obj;
-            // [2] setter
-            obj != null && (obj[props[i]] = val);
-            return target;
-        }
-        Access.__access = __access;
-    })(Access = exports.Access || (exports.Access = {}));
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
 /***/ 22:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.__puzzleTune = exports.__puzzle = exports.__transform = exports.__center = exports.__adjustHeigth = exports.__adjustWidth = exports.__resize = exports.__alignment = exports.__alignmentTo = exports.__adjust = exports.__adjustTo = exports.__ratio = exports.__tilt = exports._adjust = exports.__rate = void 0;
     // n이 N이 되기 위한 비율
     exports.__rate = function (N, n) { return (N - n) / n; }, exports._adjust = function (W, H, w, h) {
         var height = h + (exports.__rate(W, w) * h);
@@ -570,8 +596,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }, exports.__ratio = function (num1, num1c, num2) {
         return num2 + (num2 * ((num1c - num1) / num1));
     }, exports.__adjustTo = function (parent, image, forceSize) {
-        if (forceSize === void 0) { forceSize = true; }
         var _a;
+        if (forceSize === void 0) { forceSize = true; }
         var style = image.style, w = (_a = exports.__adjust(parent.offsetWidth, parent.offsetHeight, image.naturalWidth, image.naturalHeight, forceSize), _a.w), h = _a.h, x = _a.x, y = _a.y;
         style.width = w + 'px';
         style.height = h + 'px';
@@ -706,35 +732,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.r_number = /^[+-]?\d+$/;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 41:
+/***/ 38:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(42)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(39)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ImageScreen = void 0;
     var ImageScreen = /** @class */ (function (_super) {
         __extends(ImageScreen, _super);
         function ImageScreen(ele) {
@@ -774,12 +791,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = 
 
 /***/ }),
 
-/***/ 42:
+/***/ 39:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(6), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _image_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _image_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Imager = exports.ImageController = void 0;
     var ImageController = /** @class */ (function () {
         function ImageController() {
             var _this = this;
@@ -834,7 +852,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         // 이미지 줌
         ImageController.prototype.wheelZoom = function (e) {
-            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e.wheelDelta < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
+            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e['wheelDelta'] < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
             if (width + widthAdd < 300)
                 img.setWidth(300);
             else
@@ -872,7 +890,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.zIndex = v.toString();
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "left", {
@@ -882,7 +900,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.left = v + 'px';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "top", {
@@ -892,7 +910,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.top = v + 'px';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "width", {
@@ -902,7 +920,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.width = v + 'px';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "height", {
@@ -912,7 +930,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.height = v + 'px';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "rotate", {
@@ -922,7 +940,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.transform = 'rotate(' + v + 'deg)';
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Object.defineProperty(Imager.prototype, "position", {
@@ -932,7 +950,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             set: function (v) {
                 this.CSSStyle.position = v;
             },
-            enumerable: true,
+            enumerable: false,
             configurable: true
         });
         Imager.prototype.setSize = function (_a) {
@@ -982,25 +1000,29 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 6:
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
  * Created by hellofunc on 2017-02-28.
  */
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(0), __webpack_require__(1), __webpack_require__(8), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, _array_1, _access_1, _noop_1, _core_1) {
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(8), __webpack_require__(1), __webpack_require__(0), __webpack_require__(7)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, NameMap_1, _array_1, _access_1, _noop_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.TargetEvent = exports.EventsGroup = exports.Events = void 0;
     var Events = /** @class */ (function () {
         function Events(target, type, handler) {
             this.target = target;
@@ -1312,55 +1334,91 @@ var __extends = (this && this.__extends) || (function () {
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
          */
-        var r_read_split = /,\s*/, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
-        function __builder(target, obj) {
+        var r_read_split = /;\s*/, r_data = /^data-/, r_data_pre = /-./g, r_fun = function (v) { return v[1].toUpperCase(); }, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
+        /*
+         * ① :evt="name:textContent"
+         *    obj[name] = __primitive(element[textContent])
+         *
+         * ② :evt="name:this"
+         *    obj[name] = <element>  (=: data-element="name")
+         *
+         * ③ :evt="name"
+         *    obj[name] = __primitive(element.getAttribute('data-name'))
+         *
+         * ④ :evt="name:[attr]"
+         *    obj[name] = __primitive(element.getAttribute('attr'))
+         *
+         * ⑤ :evt="name:{val}"
+         *    obj[name] = __primitive(val);
+         *
+         * ⑥ 함수호출
+         *    :evt="name("val")"
+         *    obj[name](element, ...args)
+         *
+         */
+        function __parse(target, prop, obj, names, idx) {
+            var p = prop, v, i;
+            // 모든
+            if (p === '*') {
+                var v_1 = target.attributes, l = v_1.length, n = void 0;
+                while (l-- > 0) {
+                    if (r_data.test(n = v_1[l].name)) {
+                        n = n.slice(5).replace(r_data_pre, r_fun);
+                        if (names.indexOf(n) === -1) {
+                            obj = __primitive(v_1[l].value);
+                            names[idx++] = n;
+                        }
+                    }
+                }
+                return idx;
+            }
+            // 함수는 중복 호출된다.
+            if ((i = prop.indexOf('(')) !== -1) {
+                p = prop.slice(0, i++);
+                if (typeof obj[p] === 'function') {
+                    v = prop.slice(i, -1);
+                    if (v)
+                        obj[p].apply(obj, [target].concat(JSON.parse('[' + v + ']')));
+                    else
+                        obj[p](target);
+                }
+            }
+            // 프로퍼티
+            else if ((i = prop.indexOf(':')) !== -1) {
+                p = prop.slice(0, i++);
+                if (names.indexOf(p) === -1) {
+                    v = prop.slice(i);
+                    if (v === 'this')
+                        obj[p] = target;
+                    else if (v[0] === '[')
+                        obj[p] = __primitive(target.getAttribute(v.slice(1, -1)));
+                    else if (v[0] === '{')
+                        obj[p] = __primitive(v.slice(1, -1));
+                    else
+                        obj[p] = __primitive(target[v]);
+                    names[idx++] = p;
+                }
+            }
+            else {
+                if (names.indexOf(p) === -1) {
+                    obj[p] = __primitive(target.getAttribute('data-' + p));
+                }
+            }
+            names[idx++] = p;
+            return idx;
+        }
+        function __builder(target, obj, names, idx) {
             var v;
             // target 자체를
             if ((v = target.getAttribute('data-element')) != null) {
                 __setter(obj, v || 'element', target);
             }
-            /*
-             * ① data-value="name:this"
-             *    obj[name] = <element>  (=: data-element="name")
-             *
-             * ② data-value="name:val"
-             *    obj[name] = __primitive('텍스트')
-             *
-             * ③ data-value="name"
-             *    obj[name] = __primitive(element.getAttribute('data-name'))
-             *
-             * ④ data-value="name:[attr]"
-             *    obj[name] = __primitive(element.getAttribute('attr'))
-             *
-             */
-            if ((v = target.getAttribute('data-value'))) {
-                v.split(r_read_split).forEach(function (prop) {
-                    var _a = prop.split(':'), p = _a[0], v = _a[1];
-                    if (obj[p] === undefined) {
-                        if (!v)
-                            obj[p] = __primitive(target.getAttribute('data-' + p));
-                        else if (v === 'this')
-                            obj[p] = target;
-                        else if (v[0] === '[')
-                            obj[p] = __primitive(target.getAttribute(v.slice(1, v.length - 1)));
-                        else
-                            obj[p] = __primitive(v);
-                    }
-                });
+            if ((v = target.getAttribute('evt') || '*')) {
+                var array = v.split(r_read_split), l = array.length;
+                while (l-- > 0)
+                    idx = __parse(target, array[l], obj, names, idx);
             }
-            // data-json='{"name":"johnson", "old":42}'
-            // data-json='"name":"johnson", "old":42'
-            if ((v = target.getAttribute('data-json'))) {
-                if (v[0] !== '{')
-                    v = '{' + v + '}';
-                v = JSON.parse(v);
-                for (var p in v)
-                    obj[p] === undefined && (obj[p] = v[p]);
-            }
-            return obj;
-        }
-        function getObject() {
-            return {};
+            return idx;
         }
         function __$dataEvent(element, type, attr, provider, directive) {
             // arguments : 4
@@ -1378,14 +1436,13 @@ var __extends = (this && this.__extends) || (function () {
                     }
                 } while ((target = target.parentElement) && target !== element);
                 if (dir) {
-                    var obj = { event: e }, limit = element, node = e.target;
+                    var obj = provider ? new provider(e, target) : { event: e }, limit = element, node = e.target, exists = [], i = 0;
                     while (node && (limit !== node)) {
-                        __builder(node, obj);
+                        i = __builder(node, obj, exists, i);
                         node = node.parentElement;
                     }
-                    if (provider)
-                        obj = _core_1.__extend(provider(target, e), obj);
-                    dir['$init'] && dir['$init'](obj);
+                    __builder(limit, obj, exists, i);
+                    obj['init'] && obj['init']();
                     dir.call(directive, obj);
                 }
             });
@@ -1395,23 +1452,23 @@ var __extends = (this && this.__extends) || (function () {
     
             return new Events(element, type, (e) => {
     
-                let target = <HTMLElement>e.target, prop: string, handler, obj;
-                do {
-                    if (!obj) {
-                        if (target.hasAttribute(attr)) {
-                            prop = target.getAttribute(attr);
-                            handler = directive[prop];
-                            if (handler) obj = {target: target};
-                        }
-                    }
-                    obj && __builder(target, obj);
-                    target = target.parentElement;
-                } while (target && target !== element);
-    
-                if (obj) {
-                    directive['*'] && directive['*'](obj, e);
-                    handler.call(directive, obj, e);
+            let target = <HTMLElement>e.target, prop: string, handler, obj;
+            do {
+                if (!obj) {
+                if (target.hasAttribute(attr)) {
+                    prop = target.getAttribute(attr);
+                    handler = directive[prop];
+                    if (handler) obj = {target: target};
                 }
+                }
+                obj && __builder(target, obj);
+                target = target.parentElement;
+            } while (target && target !== element);
+    
+            if (obj) {
+                directive['*'] && directive['*'](obj, e);
+                handler.call(directive, obj, e);
+            }
             });
         }*/
         /*
@@ -1482,181 +1539,27 @@ var __extends = (this && this.__extends) || (function () {
 
 /***/ }),
 
-/***/ 7:
+/***/ 6:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
- * Created by hellofunc on 2017-03-22.
- */
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var class2type = {}, toString = class2type.toString, getProto = Object.getPrototypeOf, hasOwn = class2type.hasOwnProperty, fnToString = hasOwn.toString, ObjectFunctionString = fnToString.call(Object), // function Object() { [native code] }
-    objStr = class2type.toString(); // [object Object]
-    exports.ownNames = Object.getOwnPropertyNames;
-    function __toString(v) {
-        return toString.call(v);
-    }
-    exports.__toString = __toString;
-    // isPlainOjbect와 다르게 ①Object Map과 ②Class 객체를 골라준다.
-    function __isObjectType(obj) {
-        return toString.call(obj) === objStr;
-    }
-    exports.__isObjectType = __isObjectType;
-    function __isPlainObject(obj) {
-        var proto, Ctor;
-        // Detect obvious negatives
-        // Use toString instead of jQuery.type to catch host objects
-        if (!obj || toString.call(obj) !== "[object Object]") {
-            return false;
-        }
-        proto = getProto(obj);
-        // Objects with no prototype (e.g., `Object.newInstance( null )`) are plain
-        if (!proto) {
-            return true;
-        }
-        // Objects with prototype are plain iff they were constructed by a global Object function
-        Ctor = hasOwn.call(proto, "constructor") && proto.constructor;
-        return typeof Ctor === "function" && fnToString.call(Ctor) === ObjectFunctionString;
-    }
-    exports.__isPlainObject = __isPlainObject;
-    function __isEmptyObject(obj) {
-        var name;
-        for (name in obj) {
-            return false;
-        }
-        return true;
-    }
-    exports.__isEmptyObject = __isEmptyObject;
-    function __isArrayLike(item) {
-        return Array.isArray(item) ||
-            (item && typeof item === "object" && typeof (item.length) === "number" && (item.length - 1) in item);
-    }
-    exports.__isArrayLike = __isArrayLike;
-    var r_fn = /^function\s*([^\s(]+)/;
-    function __getFunctionName(func) {
-        return func.name ? func.name : func.toString().match(r_fn)[1];
-    }
-    exports.__getFunctionName = __getFunctionName;
-    exports.__isObject = function (val) { return toString.call(val) === "[object Object]"; };
-    /*
-     *  일종의 객체 Decode/Encode
-     *  세번째 인자에 해당 프로퍼티를 가공할 함수를 넣어주면, 객체를 복사하면서 값을 처리한다.
-     *  이때 함수가 1) 반환값을 가지면, 그 값을 프로퍼티에 입력하고, 2) 반환값이 없으면 그냥 넘어간다.
-     *  2)번의 경우는 직접 함수내에서 값 설정을 한다고 가정한다.
-     */
-    var dummy = {}, converts = {
-        number: function (a) { return a ? parseInt(a) : 0; },
-    };
-    function extend() {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        var handler = __extend, i = 0, len, temp;
-        if (typeof args[0] === 'boolean') {
-            if (args[0])
-                handler = __deepExtend;
-            i = 1;
-        }
-        temp = args[i++];
-        len = args.length;
-        for (; i < len; i++) {
-            temp = handler(temp, args[i]);
-        }
-        return temp;
-    }
-    exports.extend = extend;
-    function __extend(dest, source) {
-        if (source == null)
-            return dest;
-        if (__isArrayLike(source)) {
-            var i = 0, l = source.length;
-            for (; i < l; i++) {
-                dest[i] = source[i];
-            }
-        }
-        else {
-            var p = void 0;
-            for (p in source) {
-                dest[p] = source[p];
-            }
-        }
-        return dest;
-    }
-    exports.__extend = __extend;
-    function __deepExtend(dest, source) {
-        if (__isArrayLike(source)) {
-            var i = 0, l = source.length, d = void 0, s = void 0;
-            for (; i < l; i++) {
-                s = source[i];
-                d = dest[i];
-                if (__isArrayLike(s))
-                    dest[i] = __deepExtend(__isArrayLike(d) ? d : [], s);
-                else if (__isPlainObject(s))
-                    dest[i] = __deepExtend(__isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        else {
-            var i = void 0, s = void 0, d = void 0;
-            for (i in source) {
-                s = source[i];
-                d = dest[i];
-                if (__isArrayLike(s))
-                    dest[i] = __deepExtend(__isArrayLike(d) ? d : [], s);
-                else if (__isPlainObject(s))
-                    dest[i] = __deepExtend(__isPlainObject(d) ? d : {}, s);
-                else
-                    dest[i] = s;
-            }
-        }
-        return dest;
-    }
-    exports.__deepExtend = __deepExtend;
-    function $extend(target, source, converts) {
-        if (converts === void 0) { converts = dummy; }
-        // undefined값이 올때만 패스한다.
-        // null이 들어오면 모든 프로퍼티가 null이 된다.
-        if (source === void 0)
-            return target;
-        var p, v, f;
-        // source가 단순 값일 경우!
-        if (source === null) {
-            for (p in target) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = target[p]) !== 'function')
-                    target[p] = source;
-            }
-        }
-        // source가 객체 혹은 valueMap일 경우
-        else {
-            for (p in source) {
-                if (p[0] !== '_' && p[0] !== '$' && typeof (v = source[p]) !== 'function' && (f = converts[p]) !== false)
-                    if (typeof f === 'function') {
-                        v = f.call(target, source[p], target);
-                        if (v !== void 0)
-                            target[p] = v;
-                    }
-                    else
-                        target[p] = v;
-            }
-        }
-        return target;
-    }
-    exports.$extend = $extend;
+    exports.r_number = void 0;
+    exports.r_number = /^[+-]?\d+$/;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 
 /***/ }),
 
-/***/ 8:
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.__noop = void 0;
     function __noop(a) {
     }
     exports.__noop = __noop;
@@ -1666,12 +1569,13 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 9:
+/***/ 8:
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    exports.NameMap = void 0;
     var NameMap = /** @class */ (function () {
         function NameMap() {
             this.map = {};

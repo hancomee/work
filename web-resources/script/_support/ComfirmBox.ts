@@ -1,10 +1,7 @@
 import {EventsGroup} from "../../lib/core/_events";
-import {Forms} from "../../lib/core/support/Forms";
-import set = Forms.set;
 import {__className} from "../../lib/core/_dom/_commons";
 
 let cName = ['confirm-active'];
-
 export class ConfirmBox {
 
     eventTarget: HTMLElement

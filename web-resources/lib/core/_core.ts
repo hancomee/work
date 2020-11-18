@@ -103,8 +103,8 @@ export function extend(...args: any[]) {
 }
 
 export function __extend<T>(dest: ArrayLike<T>, source: ArrayLike<T>): ArrayLike<T>
-export function __extend<T>(dest: {}, source: T): T
-export function __extend(dest, source): any {
+export function __extend<T>(dest: {}, source: T, defaultValues?): T
+export function __extend(dest, source, defaultValues?): any {
 
     if(source == null) return dest;
 
@@ -118,6 +118,7 @@ export function __extend(dest, source): any {
         let p;
         for (p in source) {
             dest[p] = source[p];
+            if(dest[p] === undefined) dest[p] = defaultValues[p];
         }
     }
 

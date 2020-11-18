@@ -4,8 +4,6 @@ import {FileUpload} from "../_support/FileUpload";
 import {Screen} from "./view/Screen";
 import {Events, EventsGroup} from "../../lib/core/_events";
 import {Access} from "../../lib/core/_access";
-import {FormEvent} from "../../lib/core/support/forms/FormEvent";
-import {_recieveFiles} from "../../lib/core/support/forms/_recieveFiles";
 import {DragSort} from "./view/DragSort";
 import {ImageScreen} from "./view/ImageScreen";
 import {ModifyForm} from "../_support/ModifyForm";
@@ -36,6 +34,8 @@ import {__selectA} from "../../lib/core/_dom/_select";
 import {__className, __createHTML} from "../../lib/core/_dom/_commons";
 import {__pasteImage} from "../../lib/core/support/patseImage";
 import DATA_EVENT_DIRECTIVE = Events.DATA_EVENT_DIRECTIVE;
+import {FormEvent} from "../../lib/core/_form/_formEvents";
+import {_recieveFiles} from "../../lib/core/_form/_recieveFiles";
 
 class EventObject {
 
@@ -48,7 +48,7 @@ class EventObject {
     name: string                    // 이벤트시 CURD를 찾기 위한 key
     mapping = ''
 
-    constructor(public eventTarget: HTMLElement, public e: MouseEvent) {
+    constructor(public e: MouseEvent, public eventTarget: HTMLElement) {
     }
 }
 
@@ -574,7 +574,6 @@ function $init($uuid: string, $path: string, $work: Work) {
         // ************************ ▼ Custom Event ▼ ************************ //
         // 아이템추가하기
         addItem({mapper, name}: EventObject) {
-            console.log(mapper, name);
             let forms = $viewForms[name];
             forms.element.removeAttribute('data-form-mapping');
             forms.reset().appendTo(mapper.querySelector('[data-template]'));
@@ -670,9 +669,7 @@ function $init($uuid: string, $path: string, $work: Work) {
     };
 
     //************************************** ▼ Events ▼ **************************************//
-    dataEvent($container, 'click', 'data-event',
-        (e, evt) => new EventObject(e, evt),
-        $dataEvent);
+    dataEvent($container, 'click', 'data-event', EventObject, $dataEvent);
     //************************************** ▲ Events ▲ **************************************//
 
     $mapping.$render($container);

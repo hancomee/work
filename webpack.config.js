@@ -2,7 +2,7 @@ var
 
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     ExtractTextPlugin = require('extract-text-webpack-plugin'),
-    UglifyJSPlugin = require('uglifyjs-webpack-plugin'),
+    UglifyJsPlugin = require('uglifyjs-webpack-plugin'),
     fs = require('fs'),
     extractSass = new ExtractTextPlugin({
         filename: "[name].css",
@@ -29,9 +29,9 @@ function tour(rootPath, subPath, obj) {
             obj[subPath + fName.replace(/\.ts$/, '') + '.js'] = path + fName;
         }
 
-        /*else if (/scss$/.test(fName)) {
-            obj[subPath + fName.replace(/\.scss$/, '') + '.css'] = path + fName;
-        }*/
+            /*else if (/scss$/.test(fName)) {
+                obj[subPath + fName.replace(/\.scss$/, '') + '.css'] = path + fName;
+            }*/
 
         // ② 폴더일 경우 순회한다.
         else if (fs.statSync(path + fName).isDirectory()) {
@@ -47,6 +47,21 @@ console.log('\n----------------------------\n', entries, '\n--------------------
 
 module.exports = {
     entry: entries,
+
+
+    optimization: {
+        minimize: false, // <---- disables uglify.
+        /*minimizer: [
+            new UglifyJsPlugin({
+                uglifyOptions: {
+                    mangle: false, // Note `mangle.properties` is `false` by default.
+                    keep_fnames: true,
+                },
+            }),
+        ],*/
+    },
+
+
     output: {
         path: __root + 'src/main/resources/static/dist/',
         filename: '[name]'
@@ -56,7 +71,18 @@ module.exports = {
         extensions: ['.js', '.ts', '.tsx']
     },
 
+
     module: {
+
+        /*loaders: [
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ['es2015']
+                }
+            }
+        ],*/
 
         rules: [
             {
@@ -81,7 +107,6 @@ module.exports = {
         ],
 
     },
-
 
 
     plugins: [

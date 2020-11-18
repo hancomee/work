@@ -10,6 +10,7 @@ export namespace Access {
     export function __read(p: string, obj)
     export function __read(p: string[], obj)
     export function __read(p, obj) {
+        if(!p) return obj;
         let names = typeof p === 'string' ? p.split('.') : p,
             {length} = names, i = 0;
         for (; i < length; i++) {

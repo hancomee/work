@@ -1,18 +1,22 @@
 import {Events} from "../../lib/core/_events";
-import {Forms} from "../../lib/core/support/Forms";
 import {__find, getElementsByAttr} from "../../lib/core/_dom/_selector";
-import {mapperDispatcher} from "./dispatcher";
 import {AbstractUtilClass} from "./_AbstractUtilClass";
 import {__createHTML} from "../../lib/core/_dom/_commons";
 import __$dataEvent = Events.__$dataEvent;
-import {Access} from "../../lib/core/_access";
-import __primitive = Access.__primitive;
+import {Forms} from "../../lib/core/_forms";
 
-export interface ModifierEventObject extends iMapperObject {
+export class ModifierEventObject implements iMapperObject{
+    name: string
+    mapping: string
+    mapper: HTMLElement
+
     event: MouseEvent
     type: string                // data-template 값
     target: HTMLElement         // data-template-index 를 가진 엘리먼트
     templateSelector: string    // data-template-target 값   append/prepend 시 사용
+
+    constructor(event: MouseEvent, eventTarget: HTMLElement) {
+    }
 }
 
 type RemoveConfirmHandler = (e: ModifierEventObject, handler: (flag: boolean) => void) => void
@@ -74,7 +78,7 @@ export class Modifier extends AbstractUtilClass<Modifier> {
     constructor(public element: HTMLElement, private $mapping: any /* iMapping */) {
         super();
         __$dataEvent(this.element, 'click', 'data-modifier',
-            (e, evt) => ({event: evt, eventTarget: evt.target}),
+            ModifierEventObject, //(e, evt) => ({event: evt, eventTarget: evt.target}),
             <any>this);
 
         Modifier.setCreators(element, this);

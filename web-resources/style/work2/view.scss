@@ -1,7 +1,367 @@
+@import "../bootstrap5";
+@import "bill";
 
-@import "../../lib/bootstrap5.2/scss/bootstrap";
+$navbar-height: 50px;
+$work-header-height: 100px;
+$customer-width: 300px;
+
+$main-color: #3c768c;
+$lighten-bg: #d8e3ec;
+
+html {
+  font-size: 15px;
+}
+
+body {
+  overflow-y: scroll;
+  padding: {
+    top: $navbar-height + $work-header-height;
+    left: $customer-width;
+    bottom: $navbar-height;
+  }
+  background-color: $gray-100;
+}
+
+#work-header, nav, #customer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 1041;
+}
+
+#spinner {
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px;
+
+  &.on {
+    z-index: 9999;
+  }
+
+  @extend .no-drag;
+}
+
+nav {
+  top: 0;
+  height: $navbar-height;
+  border-bottom: 2px solid $gray-800;
+  background-color: $gray-700;
+}
+
+#customer {
+  top: $navbar-height + $work-header-height;
+  bottom: 0;
+  width: $customer-width;
+
+  background-color: $gray-300;
+  border-right: 1px solid $gray-400;
+}
+
+.customer-info {
+  padding: 1.5rem;
+
+  strong {
+    font-size: .8rem;
+  }
+
+  table {
+    > tbody {
+      > tr {
+        > th {
+          text-align: center;
+        }
+
+        > th, > td {
+          padding: .5rem .5rem .3rem;
+          vertical-align: top;
+        }
+
+        & + tr {
+          > th, > td {
+            border-top: 1px solid darken($gray-300, 5%);
+          }
+        }
+      }
+    }
+  }
+}
+
+.customer-form {
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transform: translateX(-$customer-width);
+  width: $customer-width;
+  background-color: white;
+  transition: .45s ease transform;
+
+  &.on {
+    transform: translateX(-1px);
+  }
+}
 
 
-[data-template^="?"], .d-form + * {
-  display: none;
+#work-header {
+  top: $navbar-height;
+  height: $work-header-height;
+  border-bottom: 1px solid $gray-800;
+  background-color: $gray-600;
+  color: $gray-300;
+
+  .header {
+    flex: 0 0 $customer-width;
+  }
+
+  .bill-btn {
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .duration {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5rem;
+    height: 2rem;
+
+    border-radius: 1rem;
+    background-color: #dee2e6;
+    font-size: .9rem;
+    font-weight: bold;
+    color: #6c757d;
+  }
+}
+
+
+.money-info {
+  flex: 1 0 auto;
+  width: 11rem;
+  padding: .7rem 1rem 0 1rem;
+  margin: .5rem;
+
+  background-color: $lighten-bg;
+  border-radius: .5rem;
+  color: $gray-600;
+}
+
+.dash-box {
+  $radius: .75rem;
+  margin-top: $grid-gutter-width;
+  padding: $grid-gutter-width;
+  border-radius: $radius;
+  background-color: white;
+  border: 1px solid $gray-600;
+  // box-shadow: 0 7px 14px 0 rgba(59,65,94,.1), 0 3px 6px 0 rgba(0,0,0,.07);
+
+  &-header {
+    display: flex;
+    align-items: center;
+    margin: {
+      top: -$grid-gutter-width;
+      left: -$grid-gutter-width;
+      right: -$grid-gutter-width;
+      bottom: $grid-gutter-width;
+    }
+    padding: {
+      left: $grid-gutter-width;
+      right: $grid-gutter-width;
+    }
+    height: 2.6rem;
+
+    border-bottom: 1px solid $gray-300;
+    border-top-left-radius: $radius;
+    border-top-right-radius: $radius;
+    background-color: $gray-100;
+    transition: .2s ease background-color;
+
+    &:hover {
+      background-color: $gray-200;
+    }
+  }
+}
+
+.d-input {
+  width: 100%;
+  height: 2rem;
+
+  border: {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 1px solid $gray-500;
+  }
+  color: $gray-600;
+  background-color: transparent;
+  transition: .2s ease color, .2s ease border-bottom-color;
+
+  &:focus {
+    outline: 0;
+    border-color: $gray-600;
+    color: $gray-700;
+  }
+}
+
+
+.items {
+}
+
+.item-table {
+
+  table-layout: fixed;
+
+  > thead {
+    > tr {
+      background-color: $gray-600;
+
+      > th {
+        // 품목 상세 수량 단가 세금 총액 비고 파일 버튼
+        @include table-col(19, 18, 7, 9, 10, 9, 17, 5, 3, 3);
+        color: $gray-200;
+      }
+    }
+  }
+
+  > tbody {
+    > tr {
+
+      transition: .3s ease background-color;
+
+      &:hover {
+        background-color: $gray-100;
+      }
+
+      &.delete {
+        background-color: $gray-200;
+        text-decoration: line-through;
+        color: $gray-500;
+      }
+
+      &.drag-on {
+        outline: 4px solid #80a5c5;
+        background-color: #f1f8ff;
+      }
+
+      > td {
+        padding: {
+          left: .6rem;
+          right: .6rem;
+        }
+        height: 3.4rem;
+
+        .material-icons {
+          font-size: 1.2rem;
+          line-height: inherit;
+        }
+      }
+
+      &.d-form {
+        background-color: $gray-200;
+      }
+    }
+  }
+}
+
+
+@keyframes dform {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.d-form-ani {
+  animation: dform 2s linear infinite;
+}
+
+.screen {
+  position: fixed;
+  transition: .2s ease opacity, .1s ease z-index;
+
+  &, > * {
+    opacity: 0;
+  }
+
+  > * {
+    transform: translateY(-20px);
+  }
+
+  &, &:before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  &:before {
+    position: absolute;
+    content: '';
+    background-color: $gray-900;
+    opacity: .9;
+  }
+
+  &.on {
+    z-index: 1050;
+    opacity: 1;
+
+    > * {
+      transition: .2s ease opacity, .3s ease transform;
+      transition-delay: .38s;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.work-state {
+  @for $i from 0 through 6 {
+    &[data-state="#{$i}"] [data-state="#{$i}"] {
+      @extend .dropdown-item.active;
+    }
+  }
+}
+
+
+// 인쇄파일
+.print-pop {
+  padding: 1rem;
+}
+
+.v-screen {
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-box {
+  padding: 1rem;
+}
+
+#uploader {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: 2rem;
+  z-index: 2000;
+
+  width: 500px;
+  height: 300px;
+  background-color: white;
+  border: {
+    top: 1px solid $gray-600;
+    left: 1px solid $gray-600;
+  }
+  transform: translateY(300px);
+  transition: .7s ease transform;
+
+  &.on {
+    transform: translateY(0);
+  }
+
+  .progress-bar {
+    transition: width .1s ease !important;
+  }
 }

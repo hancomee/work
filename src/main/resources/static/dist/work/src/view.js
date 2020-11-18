@@ -3398,11 +3398,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         function Forms(element) {
             this.element = element;
             this.groups = [];
-            this.defaultHandler = dummy;
+            this.inputHandlers = dummy;
             formEach(element, this);
         }
         Forms.prototype.setHandlers = function (handlers) {
-            this.defaultHandler = handlers;
+            this.inputHandlers = handlers;
             return this;
         };
         Forms.prototype.createGroups = function (target) {
@@ -3418,7 +3418,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return this;
         };
         Forms.prototype.values = function (handlers) {
-            if (handlers === void 0) { handlers = this.defaultHandler; }
+            if (handlers === void 0) { handlers = this.inputHandlers; }
             var result = {};
             this.each(function (p, inputs) {
                 if (handlers[p])
@@ -3430,7 +3430,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         };
         Forms.prototype.reset = function (obj, handlers) {
             if (obj === void 0) { obj = dummy; }
-            if (handlers === void 0) { handlers = this.defaultHandler; }
+            if (handlers === void 0) { handlers = this.inputHandlers; }
             var v;
             this.each(function (p, inputs) {
                 v = obj[p];

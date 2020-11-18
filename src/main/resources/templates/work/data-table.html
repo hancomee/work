@@ -39,7 +39,7 @@
     </script>
 
     <script type="text/html" id="table-body-template">
-        <tr data-element="target" data-value="index:{{this.index}}" ::>
+        <tr data-element="target" e="index" data-index="{{this.index}}" ::>
             <td>{{$.total--}}</td>
             <td style="text-align: {{$.headers[this.index].align || 'left'}}" ::>{{_}}</td>
             <td>

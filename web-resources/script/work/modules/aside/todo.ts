@@ -1,4 +1,4 @@
-import {Forms} from "../../../../lib/core/support/Forms";
+import {Forms} from "../../../../lib/core/_forms";
 import {__find, querySelectorCut} from "../../../../lib/core/_dom/_selector";
 import {Mapping} from "../../../../lib/core/_dom/Mapping";
 import {Modifier} from "../../../_support/Modifier";

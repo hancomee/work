@@ -79,7 +79,7 @@ export class ImageController {
             {left: boundingLeft, top: boundingTop} = this.cliendRect,
             {top, left, width, height} = img,
             ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height,
-            zoom = e.wheelDelta < 0 ? -1 : 1,
+            zoom = e['wheelDelta'] < 0 ? -1 : 1,
             widthAdd = (width * .3) * zoom;
 
         if (width + widthAdd < 300) img.setWidth(300);

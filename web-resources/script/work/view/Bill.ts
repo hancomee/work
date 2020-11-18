@@ -1,7 +1,6 @@
 import {Mapping} from "../../../lib/core/_dom/Mapping";
 import {Work} from "../_core/Work";
-import {__findById, __findByClass} from "../../../lib/core/_dom/_selector";
-import {Events} from "../../../lib/core/_events";
+import {__findByClass, __findById} from "../../../lib/core/_dom/_selector";
 import {Formats} from "../../../lib/core/_format";
 import datetime = Formats.__datetime;
 

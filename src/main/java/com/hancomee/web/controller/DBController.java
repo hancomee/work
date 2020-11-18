@@ -4,11 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.*;
-
-import static com.boosteel.nativedb.core.DataConverter.data_by_dType;
 
 
 @Controller

@@ -118,7 +118,7 @@ export class VideoController extends RepeatVideo {
 
         super();
         let mouseWheelHandler = (e: MouseWheelEvent) => {
-            e.wheelDelta < 0 ? -1 : 1
+            e['wheelDelta'] < 0 ? -1 : 1
         }
 
         this.events = new EventsGroup().off()

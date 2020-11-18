@@ -1,0 +1,17 @@
+// 각 포지션 구획
+.receipt {
+
+  padding: 0 5mm 10mm;
+  width: 90mm;
+  min-height: 185mm;
+
+  border: 1px solid $border-color;
+
+  .recipient {
+    margin-bottom: 1mm;
+    > strong {
+      font-size: 10.5pt;
+    }
+  }
+
+}

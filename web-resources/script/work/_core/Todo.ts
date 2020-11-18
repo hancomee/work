@@ -1,4 +1,3 @@
-import {Work} from "./Work";
 import {$extend} from "../../../lib/core/_core";
 import {$delete, $get, $post} from "../../../lib/core/_ajax";
 import {Formats} from "../../../lib/core/_format";

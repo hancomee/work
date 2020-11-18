@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    //"allowJs": true,    // js도 import할 수 있게
+    "allowJs": true,    // js도 import할 수 있게
     "target": "es5",
     "module": "amd",
     "moduleResolution": "classic",

@@ -1,5 +1,6 @@
 import {Access} from "./_access";
 import {r_number} from "./_regexp/number";
+import {__toString} from "./_core";
 
 /**
  * Created by hellofunc on 2017-03-01.
@@ -8,9 +9,13 @@ import {r_number} from "./_regexp/number";
 export namespace Formats {
 
     import primitive = Access.__primitive;
+    import __read = Access.__read;
+    import __primitive = Access.__primitive;
 
     let rr = /:([\w.]+)/g,
-        second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24,
+        rn = /[^\d\.]+/g,
+        today = new Date(),
+        second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day,
         __day = ["일", "월", "화", "수", "목", "금", "토"],
 
         r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi,
@@ -31,32 +36,122 @@ export namespace Formats {
             'mm': (d) => zeroFill(d.getMinutes()),
             'ss': (d) => zeroFill(d.getSeconds()),
             'a/p': (d) => d.getHours() < 12 ? "오전" : "오후",
-        }
+        },
+
+        __DUMMY = {},
+        _DEFAULT_FILTER = {
+
+            filesize: (function (array) {
+
+                let r = /\B(?=(?:\d{3})+(?!\d))/g;
+
+                return (size: number, unit = true) => {
+
+                    let t = typeof size;
+                    if (t !== 'number') {
+                        if (t !== 'string' || !/^\d+$/.test(<any>size)) return '';
+                        size = parseInt(<any>size);
+                    }
+
+                    if (size === 0) return '0 bytes';
+
+                    let result = Math.floor(Math.log(size) / Math.log(1024));
+                    return String(
+                        (size / Math.pow(1024, result)).toFixed(2)
+                        ).replace(r, ',')
+                        + (unit ? " " + array[result] : '');
+                }
+
+            })(['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']),
+
+            moneyKo: (function (hanA, danA) {
+
+                return function (val) {
+
+                    if (typeof val === 'number') val = val.toString();
+                    if (typeof val === 'string' && /^\d+$/.test(val)) {
+
+                        let result = '', han, str, i = 0, l = val.length;
+
+                        for (; i < l; i++) {
+                            str = '';
+                            han = hanA[val[l - (i + 1)]];
+                            if (han != "") str = han + danA[i];
+                            if (i == 4) str += "만";
+                            if (i == 8) str += "억";
+                            result = str + result;
+                        }
+
+                        return result || '';
+                    }
+                    return '';
+                }
+            })(
+                ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십"],
+                ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"]
+            ),
+
+            duration(date, now = today.getTime()) {
+                var duration = now - (typeof date === 'number' ? date : date.getTime());
+                if (duration > year)
+                    return Math.floor(duration / year) + '년 전';
+                if (duration > day)
+                    return Math.floor(duration / day) + '일 전';
+                if (duration > hour)
+                    return Math.floor(duration / hour) + '시간 전';
+                if (duration > minute)
+                    return Math.floor(duration / minute) + '분 전';
+                if (duration > second)
+                    return Math.floor(duration / second) + '초 전';
+            },
+
+            datetime(_date, f?: string) {
+                if (!_date) return '';
+
+                var d = typeof _date === 'number' ? new Date(_date) : _date, temp;
+                if (!f) return __datetimeFull(d);
+
+                return f.replace(r_datetime, ($1) => {
+                    if (temp = _switch[$1]) return temp(d);
+                    else return $1;
+                });
+            },
+            number(val) {
+                if (typeof val === "number") {
+                    return val.toString().replace(r_num_replace, ",")
+                }
+                return '';
+            },
+            separator(val, nums: number[], str: string) {
+                if (typeof val !== 'string' || !val) return '';
+                let r = [], ri = 0, s = 0, e = 0, i = 0, l = nums.length, limit = val.length;
+                for (; i < l; i++) {
+                    e = s + nums[i];
+                    if (e > limit) break;
+                    else r[ri++] = val.slice(s, s = e);
+                }
+                if (e < limit) r[ri] = val.slice(e);
+
+                return r.join(str);
+            },
+            valuesMap(val, values) {
+                return values[val] || '';
+            },
+            log(val, value) {
+                console.log(val, value);
+                return ''
+            }
+        };
+
 
     // 숫자 받아서 파일 크기로... (천단위 쉼표)
     // unit은 단위를 덧붙일 것인지
-    export let __filesize = (function (array) {
+    export let __filesize = _DEFAULT_FILTER.filesize,
+        __moneyKo = _DEFAULT_FILTER.moneyKo,
+        __duration = _DEFAULT_FILTER.duration,
+        __datetime = _DEFAULT_FILTER.datetime,
+        __number = _DEFAULT_FILTER.number;
 
-        let r = /\B(?=(?:\d{3})+(?!\d))/g;
-
-        return (size: number, unit = true) => {
-
-            let t = typeof size;
-            if (t !== 'number') {
-                if (t !== 'string' || !/^\d+$/.test(<any>size)) return '';
-                size = parseInt(<any>size);
-            }
-
-            if (size === 0) return '0 bytes';
-
-            let result = Math.floor(Math.log(size) / Math.log(1024));
-            return String(
-                (size / Math.pow(1024, result)).toFixed(2)
-                ).replace(r, ',')
-                + (unit ? " " + array[result] : '');
-        }
-
-    })(['bytes', 'KB', 'MB', 'GB', 'TB', 'PB']);
 
     // value | number : 'asdf'
     export function __expValParse(s: string) {
@@ -71,8 +166,7 @@ export namespace Formats {
             i = s.indexOf(' : ', i);
             if (i === -1) {
                 r[1] = s;
-            }
-            else {
+            } else {
                 r[1] = s.substring(0, i);
                 r[2] = primitive(s.substring(i + 3, s.length));
             }
@@ -80,57 +174,51 @@ export namespace Formats {
         return r;
     }
 
-    export let __moneyToKor = (function (hanA, danA) {
-
-        return function (val) {
-
-            if (typeof val === 'number') val = val.toString();
-            if (typeof val === 'string' && /^\d+$/.test(val)) {
-
-                let result = '', han, str, i = 0, l = val.length;
-
-                for (; i < l; i++) {
-                    str = '';
-                    han = hanA[val[l - (i + 1)]];
-                    if (han != "") str = han + danA[i];
-                    if (i == 4) str += "만";
-                    if (i == 8) str += "억";
-                    result = str + result;
-                }
-
-                return result || '';
-            }
-            return '';
+    // data.val?func("asdfasf")
+    export function __filterParser(str: string): [string, string, any] {
+        let result = [], i = str.indexOf('?');
+        if (i === -1) result[0] = str;
+        else {
+            let i2;
+            result[0] = str.slice(0, i++);
+            if ((i2 = str.indexOf('(', i)) !== -1) {
+                result[2] = str.slice(i2 + 1, -1);
+                result[1] = str.slice(i, i2);
+            } else result[1] = str.slice(i);
         }
-    })(
-        ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십"],
-        ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"]
-    );
-
-
-    export function __duration(date, now = new Date().getTime()) {
-        var duration = now - (typeof date === 'number' ? date : new Date(date).getTime());
-        if (duration > day)
-            return Math.floor(duration / day) + '일 전';
-        if (duration > hour)
-            return Math.floor(duration / hour) + '시간 전';
-        if (duration > minute)
-            return Math.floor(duration / minute) + '분 전';
-        if (duration > second)
-            return Math.floor(duration / second) + '초 전';
+        return result as any;
     }
 
-    export function __datetime(_date, f?: string) {
-        if (!_date) return '';
 
-        var d = typeof _date === 'number' ? new Date(_date) : _date, temp;
-        if (!f) return __datetimeFull(d);
+    export function __filterApply(str: string, obj, filter: any = __DUMMY) {
+        let i = str.indexOf('?');
+        if (i === -1) obj = __read(str, obj);
+        else {
+            if ((obj = __read(str.slice(0, i), obj)) != null) {
+                let func = str.slice(i + 1), args;
+                if ((i = func.indexOf('(')) !== -1) {
+                    args = JSON.parse('[' + func.slice(i + 1, -1) + ']');
+                    func = func.slice(0, i);
+                }
+                if (filter[func]) {
+                    obj = filter[func].apply(filter, [obj].concat(args));
+                }
+                if (_DEFAULT_FILTER[func]) {
+                    obj = _DEFAULT_FILTER[func].apply(_DEFAULT_FILTER, [obj].concat(args));
+                }
+            }
+        }
+        return obj;
+    }
 
-        return f.replace(r_datetime, ($1) => {
-            if (temp = _switch[$1]) return temp(d);
-            else return $1;
-        });
-    };
+
+    export function __erase_image_str(str: string) {
+        return str && str.replace(/[^\u0000-\uD7FF\uE000-\uFFFF]/g, '');
+    }
+
+    export function __erase_window_ban(str: string, char: string = '') {
+        return str && str.replace(/[\\/:*?"<>|]/g, char);
+    }
 
     let r_full = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2} \d{2}[^\d]\d{2}[^\d]\d{2}/,
         r_simple = /\d{4}[^\d]\d{1,2}[^\d]\d{1,2}/,
@@ -143,8 +231,7 @@ export namespace Formats {
                 return new Date(parseInt(y), parseInt(m) - 1, parseInt(d),
                     parseInt(h), parseInt(mm), parseInt(s));
             }
-        }
-        else {
+        } else {
             if (r_simple.test(str)) {
                 let [y, m, d] = str.split(r_split);
                 return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
@@ -163,7 +250,6 @@ export namespace Formats {
 
     export function __date(val: Date) {
         let m = val.getMonth() + 1, d = val.getDate();
-
         return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d].join('');
     }
 
@@ -233,17 +319,8 @@ export namespace Formats {
         }
     })();
 
-    let r_num_replace = /\B(?=(\d{3})+(?!\d))/g;
-
-    export let __number = (val) => {
-        if (typeof val === 'number') val = val.toString();
-
-        if (typeof val === 'string' && r_number.test(val))
-            return val.replace(r_num_replace, ",");
-        return '0';
-    };
-
-    let r_bg = /('|"|\(|\))/g;
+    let r_num_replace = /\B(?=(\d{3})+(?!\d))/g,
+        r_bg = /('|"|\(|\))/g;
 
     export function __bgURL(s: string) {
         return s.replace(r_bg, '\\$1');
@@ -254,7 +331,7 @@ export namespace Formats {
         datetime: __datetime,
         duration: __duration,
         filesize: __filesize,
-        moneyToKor: __moneyToKor,
+        moneyToKor: __moneyKo,
         bgURL: __bgURL
     };
 

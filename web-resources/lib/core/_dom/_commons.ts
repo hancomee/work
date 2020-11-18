@@ -1,4 +1,3 @@
-
 export function __contains(parent: HTMLElement, target: HTMLElement) {
     let p;
     while (p = target.parentNode) {
@@ -64,26 +63,32 @@ export function __closest(target, selector: string, handler?) {
  *  안 그러면 스크롤이 내려갈수록 body의 scrollTop값이 빠지면서,
  *  element의 offset.top값이 점점 작아진다.
  */
-export function __offset(e: HTMLElement, parent?: HTMLElement, extend?: boolean): { left: number, top: number, width: number, height: number, right: number, bottom: number }
-export function __offset(e: HTMLElement, parent?: HTMLElement): { left: number, top: number }
-export function __offset(e: HTMLElement, parent = document.body, extend = false) {
+export function __offset(e: HTMLElement, parent: HTMLElement = document.body): { left: number, top: number, width: number, height: number, right: number, bottom: number } {
+
     let l = 0, t = 0, target = e;
     do {
         t += target.offsetTop - target.scrollTop;
         l += target.offsetLeft - target.scrollLeft;
     } while ((target = <HTMLElement>target.offsetParent) && target !== parent);
 
-    let result = {left: l, top: t};
+    let result = {left: l, top: t},
+        w = e.offsetWidth, h = e.offsetHeight;
 
-    if (extend === true) {
-        let w = e.offsetWidth, h = e.offsetHeight;
-        result['width'] = w;
-        result['height'] = h;
-        result['right'] = w + l;
-        result['bottom'] = t + h;
-    }
+    result['width'] = w;
+    result['height'] = h;
+    result['right'] = w + l;
+    result['bottom'] = t + h;
 
-    return result;
+    return result as any;
+}
+
+export function __reduceFragment<T>(values: T[], handler: (t: T, i: number) => Element) {
+    let frag = document.createDocumentFragment();
+    values.forEach((v, i) => {
+        v = handler(v, i) as any;
+        if (v) frag.appendChild(v as any);
+    })
+    return frag;
 }
 
 
@@ -163,6 +168,35 @@ export let __createHTML = (function () {
 
 })();
 
+
+export function __removeChild(ele: Element) {
+    let c;
+    while (c = ele.lastChild) ele.removeChild(c);
+    return ele;
+}
+
+// [{false}, {true}]
+export function __toggleClass(flag: boolean, token: DOMTokenList, classes: string[]): DOMTokenList
+export function __toggleClass(flag: boolean, element: Element, classes: string[]): HTMLElement
+export function __toggleClass(flag: boolean, target, classes: string[]) {
+
+    target = target instanceof Element ? target.classList : target;
+
+    if (flag == null) {
+        classes[1] && target.remove(classes[1]);
+        classes[0] && target.remove(classes[0]);
+    } else if (flag) {
+        classes[1] && target.add(classes[1]);
+        classes[0] && target.remove(classes[0]);
+    } else {
+        classes[0] && target.add(classes[0]);
+        classes[1] && target.remove(classes[1]);
+    }
+
+    return target as any;
+
+}
+
 /*
  *  isAdd가 null로 들어오면 toggle로 동작한다.
  */
@@ -183,7 +217,7 @@ export function __className(element, value, isAdd?) {
         let values = typeof value === 'string' ? [value] : value;
 
         // ① ['a', 'u']  ==> ['!a', 'b']  ====>  ['u', 'b'];
-        if (isAdd == null) result = __toggleClass(array, values);
+        if (isAdd == null) result = __toggleC(array, values);
         else if (isAdd === true) result = __addClass(array, values);
         else result = __removeClass(array, values);
     }
@@ -207,7 +241,7 @@ function __removeClass(array, target) {
     return result;
 }
 
-function __toggleClass(array: string[], values: string[]) {
+function __toggleC(array: string[], values: string[]) {
     let l = values.length, i = 0, pos = -1, result = [], v, removal;
     for (; i < l; i++) {
         if (removal = ((v = values[i])[0] === '!')) {
@@ -218,6 +252,7 @@ function __toggleClass(array: string[], values: string[]) {
     }
     return array.concat(result);
 }
+
 
 export function __eachAttrs<T extends Element>(ele: T, handler: (this: T, attrName: string, attrValue: string) => boolean | void) {
     let {attributes, attributes: {length}} = ele;

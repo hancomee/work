@@ -1,4 +1,4 @@
-import "../../../lib/core/component/toggle";
+import "../../../lib/core/_event/_toggle";
 import {__zeroFill} from "../../../lib/core/_util/_zeroFill";
 import {
     getElementsByAttr,
