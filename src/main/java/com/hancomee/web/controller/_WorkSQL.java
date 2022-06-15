@@ -1,7 +1,6 @@
 package com.hancomee.web.controller;
 
 import com.boosteel.nativedb.core.anno.*;
-import com.hancomee.web.controller.support.ReceivableList;
 import com.hancomee.web.controller.support.WorkList;
 
 import java.sql.ResultSet;
@@ -154,7 +153,7 @@ public interface _WorkSQL {
     int deleteAllRef(Statement stmt, @Value("id") Object workId);
 
     // ************************ 작업 아이템 ************************ //
-    @Selector("SELECT COUNT(id) item_len, SUM(price) price, SUM(total) total, SUM(vat) vat " +
+    @Selector("SELECT COUNT(id) item_len, SUM(price) price, (SUM(total) + SUM(vat)) total, SUM(vat) vat " +
             "FROM hancomee_workitem WHERE work_id = :id{i}")
     Map<String, Object> itemValue(Statement stmt, @Value("id") Object workId);
 

@@ -10,7 +10,7 @@ export namespace Access {
     export function __read(p: string, obj)
     export function __read(p: string[], obj)
     export function __read(p, obj) {
-        if(!p) return obj;
+        if (!p) return obj;
         let names = typeof p === 'string' ? p.split('.') : p,
             {length} = names, i = 0;
         for (; i < length; i++) {
@@ -22,14 +22,15 @@ export namespace Access {
 
     export let __primitive = (function () {
         let
-            r_boolean = /^true$|^false$/,
-            r_string = /^['"][^"']+['"]$/;
+            r_string = /^['"]|['"]$/g;
 
         return (val) => {
             if (typeof val === 'string' && val) {
-                if (r_string.test(val)) return val.slice(1, -1);
-                if (r_number.test(val)) return parseInt(val);
-                if (r_boolean.test(val)) return val === 'true';
+                if (r_number.test(val))
+                    return val.indexOf(".") === -1 ? parseInt(val) : parseFloat(val);
+                if (val === 'true') return true;
+                if (val === 'false') return false;
+                //return val.replace(r_string, '');
             }
             return val;
         };

@@ -1,2 +1,2 @@
 
-export let r_number = /^[+-]?\d+$/;
+export let r_number = /^[+-]?[0-9\.]+$/;

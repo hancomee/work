@@ -1,6 +1,6 @@
 import {Work} from "./_core/Work";
 import {Mapping} from "../../lib/core/_dom/Mapping";
-import {__find, __findByClass, __findById, __findByTag, getElementsByAttr} from "../../lib/core/_dom/_selector";
+import {__find, __findByAttr, __findByClass, __findById, __findByTag} from "../../lib/core/_dom/_selector";
 import {__selectA} from "../../lib/core/_dom/_select";
 import {WorkCreator} from "./list/WorkCreator";
 import {Pager} from "../../lib/core/component/Pager";
@@ -154,8 +154,8 @@ let
 
         // 페이지 네비게이션
         pager(ele: HTMLElement) {
-            let pager = new Pager(ele, 10, 5)
-                .setHandler((page) => $manager.run({page: page}));
+            let pager = new Pager(ele, 10, 5);
+                //.setHandler((page) => $manager.run({page: page}));
             /*let cName = ['active'],
                 [prev, btn, next] = selectAll(ele,
                     ['class="ctrl-pager-prev"[0]', 'sel="[data-toggle="dropdown"]"',
@@ -252,7 +252,7 @@ let
     };
 
 
-getElementsByAttr(document.body, 'data-pre-processor', $preProcessor);
+__findByAttr(document.body, 'data-pre-processor', $preProcessor);
 
 document.addEventListener('click', (e) => {
     let target = <HTMLElement>e.target;

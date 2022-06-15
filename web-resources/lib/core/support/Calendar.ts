@@ -44,7 +44,7 @@ export class Month {
 
 export class Calendar {
 
-    private value: Date
+    value: Date
 
     constructor(_value?: Date | number) {
         if (_value == null)
@@ -132,6 +132,7 @@ export class Calendar {
     get isodate() {
         return date(this.value);
     }
+
 
     year_kr(str = '년') {
         return this.year + str;
@@ -249,7 +250,13 @@ export namespace Calendar {
     }
 
     // 달력을 만들기 위한 배열
-    export function toArray(y, m): Calendar[][] {
+    export function toArray(y?, m?): Calendar[][] {
+
+        if (!y) {
+            let date = new Date();
+            y = date.getFullYear();
+            m = date.getMonth();
+        }
 
         var _a = monthInfo(y, m), fd = _a[1], l = _a[2],
             start = new Calendar(new Date(y, m, 1)).$date((fd % 7 * -1) - 1), // 1를 빼는 이유는 일요일도 포함시키기 위함

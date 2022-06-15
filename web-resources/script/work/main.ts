@@ -6,8 +6,8 @@ import {Events} from "../../lib/core/_events";
 import {SelectCalendar} from "../../lib/core/component/SelectCalendar";
 import {Calendar} from "../../lib/core/support/Calendar";
 import {Arrays} from "../../lib/core/_array";
-import __$dataEvent = Events.__$dataEvent;
 import _map = Arrays.__map;
+import __$attrEvent = Events.__$attrEvent;
 
 type H = HTMLElement
 
@@ -75,7 +75,7 @@ type H = HTMLElement
                         } else classList.remove('active');
                     }
                 });
-            __$dataEvent(nav, 'click', 'data-date', dirs);
+            __$attrEvent(nav, 'click', 'data-date', dirs);
             return list;
         })(__findAll(nav, '[data-date]'));
 

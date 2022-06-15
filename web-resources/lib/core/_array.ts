@@ -353,6 +353,15 @@ export namespace Arrays {
         return r;
     }
 
+    export function __toArray<T, R>(obj: {[index: string]: T}, h: (p: string, v: T,  i: number) => R): R[] {
+        let r = [], rr = 0, i = 0, p, rv;
+        for(p in obj) {
+            rv = h(p, obj[p], i++);
+            if(rv !== null) r[rr++] = rv;
+        }
+        return r;
+    }
+
     export function __colMap<T, R>(values: ArrayLike<R>, size: number, handler: (array: R[], i: number) => T): T[] {
         let r = [], v, l = values.length,
             index = 0, rIndex = 0, vIndex = 0;

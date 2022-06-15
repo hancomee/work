@@ -1,5 +1,5 @@
-import {ImageController} from "../ImageController";
-import {VideoController} from "../VideoController";
+import {ImageController} from "../_ImageController";
+import {_VideoController} from "../_VideoController";
 import {__alignment} from "../../_calcurator/_image";
 
 export interface iMediaElement {
@@ -55,7 +55,7 @@ export namespace MediaElement {
     let
 
         $imager = new ImageController(),
-        $video = new VideoController(),
+        $video = new _VideoController(),
         types = [
 
             {

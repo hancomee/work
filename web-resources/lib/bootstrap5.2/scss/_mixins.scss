@@ -1,0 +1,41 @@
+// Toggles
+//
+// Used in conjunction with global variables to enable certain theme features.
+
+// Vendor
+@import "web-resources/lib/bootstrap5.2/scss/vendor/rfs";
+
+// Deprecate
+@import "web-resources/lib/bootstrap5.2/scss/mixins/deprecate";
+
+// Helpers
+@import "web-resources/lib/bootstrap5.2/scss/mixins/breakpoints";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/image";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/resize";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/visually-hidden";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/reset-text";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/text-truncate";
+
+// Utilities
+@import "web-resources/lib/bootstrap5.2/scss/mixins/utilities";
+
+// Components
+@import "web-resources/lib/bootstrap5.2/scss/mixins/alert";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/buttons";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/caret";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/pagination";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/lists";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/list-group";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/forms";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/table-variants";
+
+// Skins
+@import "web-resources/lib/bootstrap5.2/scss/mixins/border-radius";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/box-shadow";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/gradients";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/transition";
+
+// Layout
+@import "web-resources/lib/bootstrap5.2/scss/mixins/clearfix";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/container";
+@import "web-resources/lib/bootstrap5.2/scss/mixins/grid";

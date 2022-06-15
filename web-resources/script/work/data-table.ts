@@ -1,4 +1,4 @@
-import {__findAll, __findByClass, __findById, __findByTag, getElementsByAttr} from "../../lib/core/_dom/_selector";
+import {__findAll, __findByAttr, __findByClass, __findById, __findByTag} from "../../lib/core/_dom/_selector";
 import {$delete, $post, $put} from "../../lib/core/_ajax";
 import {Receivable} from "./data-table/receivable";
 import {Events} from "../../lib/core/_events";
@@ -8,18 +8,18 @@ import {__orders} from "../../lib/core/_util/_orders";
 import {BankAccount} from "./data-table/bankAccount";
 import {Pager} from "../../lib/core/component/Pager";
 import {__selectA} from "../../lib/core/_dom/_select";
-import {ModifyForm} from "../_support/ModifyForm";
-import {ConfirmBox} from "../_support/ComfirmBox";
+import {ModifyForm} from "./_support/ModifyForm";
+import {ConfirmBox} from "./_support/ComfirmBox";
 import {$extend} from "../../lib/core/_core";
 import {__compileHTML} from "../../lib/core/_html/_compile";
 import {Formats} from "../../lib/core/_format";
 import {Search} from "../../lib/core/support/Search";
 import {__remap} from "../../lib/core/_util/_remap";
 import {__className, __createHTML} from "../../lib/core/_dom/_commons";
-import dataEvent = Events.__$dataEvent;
 import numbers = FormEvent.numbers;
 import toDate = Formats.__toDate;
 import {Forms} from "../../lib/core/_forms";
+import __$attrEvent = Events.__$attrEvent;
 
 type H = HTMLElement
 type OnLoadHandler = (values: ServerData<any>, query: DataSearch, key: string) => void
@@ -178,7 +178,7 @@ class DataTable {
 
         this.form = new ModifyForm(__createHTML(formTemple(headers)))
             .$element((element, forms) => {
-                getElementsByAttr(element, 'data-type',
+                __findByAttr(element, 'data-type',
                     (r, e: HTMLInputElement, v) =>
                         inputTypes[v] && !e.readOnly && inputTypes[v](e, item, forms));
             });
@@ -249,8 +249,8 @@ class DataManager {
             values = this.values,
             names = this.names,
             $$onLoad = this._onLoad, i = 0,
-            pager = new Pager(__findByClass('data-ctrl-pager', 0), 5, 5)
-                .setHandler((page) => this.dataTable.run({page: page})),
+            pager = new Pager(__findByClass('data-ctrl-pager', 0), 5, 5),
+                //.setHandler((page) => this.dataTable.run({page: page})),
             tableName: string;
 
         // pager 갱신
@@ -275,7 +275,7 @@ class DataManager {
         })(__findAll(tabsContainer, '[data-table]'))
 
         // dataEvent
-        dataEvent(__findByClass('container-table', 0), 'click', 'data-form', <any>this);
+        __$attrEvent(__findByClass('container-table', 0), 'click', 'data-form', <any>this);
 
         // hashchange
         window.addEventListener('hashchange', () => this.run(location.hash));

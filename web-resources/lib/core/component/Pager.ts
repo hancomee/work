@@ -20,54 +20,44 @@ export class Pager {
     private nextBtn: HTMLElement
     private totalBtn: HTMLElement
 
+    private tablePrevBtn: HTMLElement
+    private tableCurrentBtn: HTMLElement
+    private tableNextBtn: HTMLElement
+
     page: number
     totalPages: number
 
     before = -1
     after = -1
 
-    private _handler
 
-    constructor(public container: HTMLElement, public col: number, public row: number) {
+    constructor(public container: HTMLElement,
+                public col: number,
+                public row: number
+    ) {
 
-        container.classList.add('component-pager');
+        this.prevBtn = __findByClass(container, 'pager-prev', 0);
+        this.currentBtn = __findByClass(container, 'pager-current', 0);
+        this.nextBtn = __findByClass(container, 'pager-next', 0);
+        this.totalBtn = __findByClass(container, 'pager-total', 0);
 
-        this.pagerElement = __findByClass(container, 'component-pager-table', 0);
-        this.currentBtn = __findByClass(container, 'component-pager-current', 0);
-        this.prevBtn = __findByClass(container, 'component-pager-prev', 0);
-        this.nextBtn = __findByClass(container, 'component-pager-next', 0);
-        this.totalBtn = __findByClass(container, 'component-pager-total', 0);
+        // 드랍다운시 펼쳐지는 테이블
+        this.pagerElement = __findByClass(container, 'pager-table', 0);       // pagerElement.innerHTML = 테이블태그
+        this.tablePrevBtn = __findByClass(container, 'pager-table-prev', 0);
+        this.tableCurrentBtn = __findByClass(container, 'pager-table-current', 0);
+        this.tableNextBtn = __findByClass(container, 'pager-table-next', 0);
 
         container.addEventListener('click', (e) => {
-
-            let target = <HTMLElement>e.target,
-                num;
-            if (num = target.getAttribute('data-page')) {
-                this._handler(num = parseInt(num), this);
-                this.render(num);
+            let target = (e.target as HTMLElement).closest('[data-nav]'), num;
+            if (target && (num = target.getAttribute('data-nav'))) {
+                this.createTable(parseInt(num));
             }
-            else if (num = target.getAttribute('data-nav')) {
-                this.$render(this.page, this.totalPages, parseInt(num));
-                e.stopPropagation();
-            }
-            e.preventDefault();
         });
-    }
-
-    on(handler: (page: number, context: this) => void) {
-        this._handler = handler;
-        return this;
-    }
-
-
-    setHandler(handler: (page: number, table: Pager) => void) {
-        this._handler = handler;
-        return this;
     }
 
     render(page: number, totalPages = this.totalPages) {
 
-        let {prevBtn, nextBtn} = this;
+        let {prevBtn, nextBtn, currentBtn, totalBtn} = this;
 
         this.page = page;
         this.totalPages = totalPages;
@@ -90,13 +80,63 @@ export class Pager {
             nextBtn.removeAttribute('data-page');
         }
 
-        this.currentBtn.textContent = <any>page;
-        this.totalBtn.textContent = <any>totalPages;
+        currentBtn.textContent = <any>page;
+        totalBtn && (totalBtn.textContent = <any>totalPages);
 
-        return this.$render(page, totalPages);
+        return this.createTable();
     }
 
-    private $render(page: number, totalPages: number, viewPage?:number) {
+    // write :: 2022-06-06
+    private createTable(viewPage?: number) {
+        let
+            {col, row, page, totalPages, tablePrevBtn, tableCurrentBtn, tableNextBtn} = this,
+            size = col * row,
+
+            tableTotalPage = Math.ceil(totalPages / size),
+            tablePage = viewPage != null ? viewPage - 1 : Math.floor((page - 1) / size),
+
+            start = tablePage * size + 1,
+
+            pos = 0,
+            i = 0,
+            array = [];
+
+        for (let r = 0; r < row; r++) {
+            array[i++] = '<tr>';
+            for (let c = 0; c < col; c++, start++, pos++) {
+                if (start === page)
+                    array[i++] = '<td class="current"><span>' + start + '</span></td>';
+                else if (start > totalPages)
+                    array[i++] = '<td class="disabled"><span>' + start + '</span></td>';
+                else
+                    array[i++] = '<td class="link" data-page="' + start + '"><span data-page="' + start + '">' + start + '</span></td>';
+            }
+            array[i++] = '</tr>';
+        }
+
+        this.pagerElement.innerHTML = '<table><tbody>' + array.join('') + '</tbody></table>';
+
+        if (tablePage === 0) {
+            tablePrevBtn.classList.add('disabled');
+            tablePrevBtn.removeAttribute('data-nav');
+        } else {
+            tablePrevBtn.classList.remove('disabled');
+            tablePrevBtn.setAttribute('data-nav', tablePage.toString());
+        }
+
+        tableCurrentBtn.textContent = (tablePage + 1).toString();
+
+        if (tablePage > (tableTotalPage - 2)) {
+            tableNextBtn.classList.add('disabled');
+            tableNextBtn.removeAttribute('data-nav');
+        } else {
+            tableNextBtn.classList.remove('disabled');
+            tableNextBtn.setAttribute('data-nav', (tablePage + 2).toString());
+        }
+    }
+
+
+    private $render(page: number, totalPages: number, viewPage?: number) {
         this.pagerElement.innerHTML = Pager
             .createTable(page, totalPages, this.col, this.row, viewPage).join('');
         return this;
@@ -113,7 +153,6 @@ export namespace Pager {
 
         let
             size = col * row,
-
 
             tableTotalPage = Math.ceil(totalPages / size),
             tablePage = _p != null ? _p - 1 : Math.floor((page - 1) / size),
@@ -135,10 +174,9 @@ export namespace Pager {
                 else if (start > totalPages)
                     array[i++] = '<td class="disabled"><span>' + start + '</span></td>';
                 else
-                    array[i++] = '<td class="link"><span data-page="' + start + '">' + start + '</span></td>';
+                    array[i++] = '<td class="link" data-page="' + start + '"><span data-page="' + start + '">' + start + '</span></td>';
 
             }
-
             array[i++] = '</tr>';
         }
 

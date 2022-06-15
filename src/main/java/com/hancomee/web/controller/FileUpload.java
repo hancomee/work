@@ -20,6 +20,7 @@ public class FileUpload {
 
     Map<String, Long> progressMap = new HashMap<>();
 
+
     // 고유 아이디값 받기
     @RequestMapping(value = "progress", method = RequestMethod.GET)
     @ResponseBody
@@ -53,6 +54,9 @@ public class FileUpload {
 
         savefile(id, path.resolve(id + "." + filetype), file.getInputStream());
     }
+
+
+
 
     @RequestMapping(value = "file/test", method = RequestMethod.POST)
     @ResponseBody

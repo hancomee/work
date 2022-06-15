@@ -176,7 +176,7 @@ export function __removeChild(ele: Element) {
 }
 
 // [{false}, {true}]
-export function __toggleClass(flag: boolean, token: DOMTokenList, classes: string[]): DOMTokenList
+/*export function __toggleClass(flag: boolean, token: DOMTokenList, classes: string[]): DOMTokenList
 export function __toggleClass(flag: boolean, element: Element, classes: string[]): HTMLElement
 export function __toggleClass(flag: boolean, target, classes: string[]) {
 
@@ -195,7 +195,7 @@ export function __toggleClass(flag: boolean, target, classes: string[]) {
 
     return target as any;
 
-}
+}*/
 
 /*
  *  isAdd가 null로 들어오면 toggle로 동작한다.

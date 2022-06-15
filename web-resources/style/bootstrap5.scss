@@ -45,10 +45,9 @@ $table-hover-bg: darken($gray-100, 2%);
 @import "./../lib/bootstrap5.2/scss/helpers";*/
 
 @import "./_fonts/roboto";
-@import "./_fonts/NanumGothic";
 
 body, input, textarea, pre {
-  font-family: "Roboto", "Nanum Gothic";
+  font-family: "Roboto", 'Spoqa Han Sans Neo', "Nanum Gothic";
 }
 
 [data-template^="?"], .next-hide + * {
@@ -68,11 +67,6 @@ input[data-type="number"] {
   user-select: none;
 }
 
-
-[data-event] {
-  cursor: pointer;
-  @extend .no-drag;
-}
 
 /* setup tooltips */
 [data-tooltip] {

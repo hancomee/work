@@ -1,4 +1,4 @@
-import {ImageController} from "../../../lib/core/component/ImageController";
+import {ImageController} from "../../../lib/core/component/_ImageController";
 
 export class ImageScreen extends ImageController {
 

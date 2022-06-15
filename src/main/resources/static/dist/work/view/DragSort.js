@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 37);
+/******/ 	return __webpack_require__(__webpack_require__.s = 41);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -108,15 +108,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.__read = __read;
         Access.__primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            var r_string = /^['"]|['"]$/g;
             return function (val) {
                 if (typeof val === 'string' && val) {
-                    if (r_string.test(val))
-                        return val.slice(1, -1);
                     if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
+                        return val.indexOf(".") === -1 ? parseInt(val) : parseFloat(val);
+                    if (val === 'true')
+                        return true;
+                    if (val === 'false')
+                        return false;
+                    //return val.replace(r_string, '');
                 }
                 return val;
             };
@@ -486,6 +487,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return r;
         }
         Arrays.__map = __map;
+        function __toArray(obj, h) {
+            var r = [], rr = 0, i = 0, p, rv;
+            for (p in obj) {
+                rv = h(p, obj[p], i++);
+                if (rv !== null)
+                    r[rr++] = rv;
+            }
+            return r;
+        }
+        Arrays.__toArray = __toArray;
         function __colMap(values, size, handler) {
             var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
             while (index < l) {
@@ -577,316 +588,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 3:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.__attrMap = exports.__eachAttrs = exports.__className = exports.__toggleClass = exports.__removeChild = exports.__createHTML = exports.__hasClass = exports.__reduceFragment = exports.__offset = exports.__closest = exports.__contains = void 0;
-    function __contains(parent, target) {
-        var p;
-        while (p = target.parentNode) {
-            if (parent === p)
-                return true;
-        }
-        return false;
-    }
-    exports.__contains = __contains;
-    var _closestFns = {
-        '#': function (sel) {
-            sel = sel.slice(1);
-            return function (e) { return e.id === sel; };
-        },
-        '<': function (sel) {
-            var r = new RegExp(sel.slice(1, sel.length - 1), 'i');
-            return function (e) { return r.test(e.tagName); };
-        },
-        '.': function (sel) {
-            sel = sel.slice(1);
-            return function (e) { return e.classList.contains(sel); };
-        },
-        '[': function (sel) {
-            var i = sel.length - 1;
-            sel = sel.slice(0, i);
-            // 값이 있을때
-            if (sel[i - 1] === '"') {
-                var e = sel.indexOf('='), val_1 = sel.slice(e + 2, i - 1);
-                sel = sel.slice(1, e);
-                return function (e) { return e.getAttribute(sel) === val_1; };
-            }
-            else
-                return function (e) { return e.hasAttribute(sel); };
-        }
-    };
-    function __closest(target, selector, handler) {
-        var f = _closestFns[selector[0]](selector);
-        while (target = target.parentElement) {
-            if (f(target)) {
-                if (handler)
-                    return handler(target);
-                return target;
-            }
-        }
-        return null;
-    }
-    exports.__closest = __closest;
-    /*
-     *  body에 스크롤이 설정된 경우도 있다.
-     *  이와 같은 상황을 방지하기 위해 offset 계산에서 body를 빼야 한다.
-     *  안 그러면 스크롤이 내려갈수록 body의 scrollTop값이 빠지면서,
-     *  element의 offset.top값이 점점 작아진다.
-     */
-    function __offset(e, parent) {
-        if (parent === void 0) { parent = document.body; }
-        var l = 0, t = 0, target = e;
-        do {
-            t += target.offsetTop - target.scrollTop;
-            l += target.offsetLeft - target.scrollLeft;
-        } while ((target = target.offsetParent) && target !== parent);
-        var result = { left: l, top: t }, w = e.offsetWidth, h = e.offsetHeight;
-        result['width'] = w;
-        result['height'] = h;
-        result['right'] = w + l;
-        result['bottom'] = t + h;
-        return result;
-    }
-    exports.__offset = __offset;
-    function __reduceFragment(values, handler) {
-        var frag = document.createDocumentFragment();
-        values.forEach(function (v, i) {
-            v = handler(v, i);
-            if (v)
-                frag.appendChild(v);
-        });
-        return frag;
-    }
-    exports.__reduceFragment = __reduceFragment;
-    function __hasClass(element, name) {
-        var className = element.className.split(c_r), names = Array.isArray(name) ? name : [name];
-        return names.every(function (v) { return className.indexOf(v) !== -1; });
-    }
-    exports.__hasClass = __hasClass;
-    /*
-     *  isAdd가 null이면 toggleClass로 작동한다.
-     */
-    var c_r = /\s+/g, uuid = 1;
-    /*
-     *  2018-01-20
-     *  원래는 <div> 하나의 객체를 만들어서 재활용하는 형태로 사용했었다.
-     *  하지만 그렇게 할 경우 ie에서 버그가 생긴다.
-     */
-    exports.__createHTML = (function () {
-        var r = /^<([^\s>]+)/i;
-        function get(parent, html, tag) {
-            var index;
-            switch (tag) {
-                case 'option':
-                    index = 2;
-                    parent.innerHTML = '<select>' + html + '</select>';
-                    break;
-                case 'thead':
-                case 'tbody':
-                case 'tfoot':
-                case 'colgroup':
-                case 'caption':
-                    index = 2;
-                    parent.innerHTML = '<table>' + html + '</table>';
-                    break;
-                case 'col':
-                    index = 3;
-                    parent.innerHTML = '<table><colgroup>' + html + '</colgroup></table>';
-                    break;
-                case 'tr':
-                    index = 3;
-                    parent.innerHTML = '<table><tbody>' + html + '</tbody></table>';
-                    break;
-                case 'td':
-                case 'th':
-                    index = 4;
-                    parent.innerHTML = '<table><tbody><tr>' + html + '</tr></tbody></table>';
-                    break;
-                default:
-                    parent.innerHTML = html;
-                    return parent.firstElementChild;
-            }
-            while (index-- > 0)
-                parent = parent.firstElementChild;
-            return parent;
-        }
-        return function (html, safe) {
-            if (safe === void 0) { safe = false; }
-            var div = document.createElement('div');
-            if (safe) {
-                div.innerHTML = html;
-                var c = div.firstElementChild;
-                div.removeChild(c);
-                return c;
-            }
-            html = html.trim();
-            return get(div, html, r.exec(html)[1]);
-        };
-    })();
-    function __removeChild(ele) {
-        var c;
-        while (c = ele.lastChild)
-            ele.removeChild(c);
-        return ele;
-    }
-    exports.__removeChild = __removeChild;
-    function __toggleClass(flag, target, classes) {
-        target = target instanceof Element ? target.classList : target;
-        if (flag == null) {
-            classes[1] && target.remove(classes[1]);
-            classes[0] && target.remove(classes[0]);
-        }
-        else if (flag) {
-            classes[1] && target.add(classes[1]);
-            classes[0] && target.remove(classes[0]);
-        }
-        else {
-            classes[0] && target.add(classes[0]);
-            classes[1] && target.remove(classes[1]);
-        }
-        return target;
-    }
-    exports.__toggleClass = __toggleClass;
-    function __className(element, value, isAdd) {
-        if (element == null)
-            return element;
-        var className = element.className.trim(), array = className ? className.split(/\s+/g) : [], result;
-        if (typeof value === 'function') {
-            result = value.call(element, array, element);
-        }
-        else {
-            var values = typeof value === 'string' ? [value] : value;
-            // ① ['a', 'u']  ==> ['!a', 'b']  ====>  ['u', 'b'];
-            if (isAdd == null)
-                result = __toggleC(array, values);
-            else if (isAdd === true)
-                result = __addClass(array, values);
-            else
-                result = __removeClass(array, values);
-        }
-        element.className = result.join(' ');
-        return element;
-    }
-    exports.__className = __className;
-    function __addClass(array, target) {
-        var i = 0, l = target.length;
-        for (; i < l; i++) {
-            array.indexOf(target[i]) === -1 && array.push(target[i]);
-        }
-        return array;
-    }
-    function __removeClass(array, target) {
-        var i = 0, l = array.length, result = [], pos = 0;
-        for (; i < l; i++) {
-            target.indexOf(array[i]) === -1 && (result[pos++] = array[i]);
-        }
-        return result;
-    }
-    function __toggleC(array, values) {
-        var l = values.length, i = 0, pos = -1, result = [], v, removal;
-        for (; i < l; i++) {
-            if (removal = ((v = values[i])[0] === '!')) {
-                if ((pos = array.indexOf(v.slice(1))) !== -1)
-                    array.splice(pos, 1);
-            }
-            else {
-                if ((pos = array.indexOf(v)) === -1)
-                    result.push(v);
-            }
-        }
-        return array.concat(result);
-    }
-    function __eachAttrs(ele, handler) {
-        var attributes = ele.attributes, length = ele.attributes.length;
-        while (length-- > 0)
-            if (handler.call(ele, attributes[length].name, attributes[length].value) === false)
-                return;
-    }
-    exports.__eachAttrs = __eachAttrs;
-    exports.__attrMap = (function (r_data, r_up, fn) {
-        var rename = function (s) { return s.replace(r_data, '').replace(r_up, fn); };
-        return function (element) {
-            var attributes = element.attributes, length = attributes.length, attr, result = {};
-            while (length-- > 0) {
-                attr = attributes[length];
-                result[rename(attr.name)] = attr.value;
-            }
-            return result;
-        };
-    })(/^data-/, /-([^-])/g, function (_, i) { return i.toUpperCase(); });
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 37:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(1), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _array_1, _commons_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.DragSort = void 0;
-    var _selector = _array_1.Arrays.__selector;
-    var _map = _array_1.Arrays.__map;
-    var Offset = /** @class */ (function () {
-        function Offset(element) {
-            this.element = element;
-            this.reset();
-        }
-        /*
-         *  위치가 이동했을수도 있으므로 재계산용 메서드
-         */
-        Offset.prototype.reset = function () {
-            var element = this.element, s = this.start = _commons_1.__offset(element).top, h = element.offsetHeight;
-            this.end = s + element.offsetHeight;
-            this.center = s + Math.ceil(h / 2);
-        };
-        Offset.prototype.up = function (pos) {
-            return this.end > pos && this.center < pos;
-        };
-        Offset.prototype.down = function (pos) {
-            return this.start < pos && this.center > pos;
-        };
-        return Offset;
-    }());
-    var DragSort = /** @class */ (function () {
-        function DragSort() {
-            var _this = this;
-            this.y = 0;
-            this.event = new _events_1.Events(document, 'dragover', function (e) {
-                var isUp = e.pageY < _this.y, y = _this.y = e.pageY, matched = _selector(_this.list, function (offset) { return isUp ? offset.up(y) : offset.down(y); });
-                // ① 매치되는게 있으면
-                if (matched) {
-                    _this.handler(matched.element, isUp);
-                    matched.reset();
-                }
-            }).off();
-        }
-        DragSort.prototype.on = function (list, handler) {
-            this.list = _map(list, function (l) { return new Offset(l); });
-            this.handler = handler;
-            this.event.on();
-            return this;
-        };
-        DragSort.prototype.off = function () {
-            this.event.off();
-            return this;
-        };
-        return DragSort;
-    }());
-    exports.DragSort = DragSort;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 5:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1220,143 +922,67 @@ var __extends = (this && this.__extends) || (function () {
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
          */
-        var r_read_split = /;\s*/, r_data = /^data-/, r_data_pre = /-./g, r_fun = function (v) { return v[1].toUpperCase(); }, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
-        /*
-         * ① :evt="name:textContent"
-         *    obj[name] = __primitive(element[textContent])
-         *
-         * ② :evt="name:this"
-         *    obj[name] = <element>  (=: data-element="name")
-         *
-         * ③ :evt="name"
-         *    obj[name] = __primitive(element.getAttribute('data-name'))
-         *
-         * ④ :evt="name:[attr]"
-         *    obj[name] = __primitive(element.getAttribute('attr'))
-         *
-         * ⑤ :evt="name:{val}"
-         *    obj[name] = __primitive(val);
-         *
-         * ⑥ 함수호출
-         *    :evt="name("val")"
-         *    obj[name](element, ...args)
-         *
-         */
-        function __parse(target, prop, obj, names, idx) {
-            var p = prop, v, i;
-            // 모든
-            if (p === '*') {
-                var v_1 = target.attributes, l = v_1.length, n = void 0;
-                while (l-- > 0) {
-                    if (r_data.test(n = v_1[l].name)) {
-                        n = n.slice(5).replace(r_data_pre, r_fun);
-                        if (names.indexOf(n) === -1) {
-                            obj = __primitive(v_1[l].value);
-                            names[idx++] = n;
-                        }
-                    }
-                }
-                return idx;
+        var _camelcase = (function (reg) {
+            return function (attrName) { return attrName.replace(reg, function (char) { return char[1].toUpperCase(); }); };
+        })(/\-./g);
+        var DEFAULT_DIRECTIVE = {
+            ele: function (element, attrValue, obj) {
+                obj[attrValue || 'element'] = element;
             }
-            // 함수는 중복 호출된다.
-            if ((i = prop.indexOf('(')) !== -1) {
-                p = prop.slice(0, i++);
-                if (typeof obj[p] === 'function') {
-                    v = prop.slice(i, -1);
-                    if (v)
-                        obj[p].apply(obj, [target].concat(JSON.parse('[' + v + ']')));
-                    else
-                        obj[p](target);
-                }
-            }
-            // 프로퍼티
-            else if ((i = prop.indexOf(':')) !== -1) {
-                p = prop.slice(0, i++);
-                if (names.indexOf(p) === -1) {
-                    v = prop.slice(i);
-                    if (v === 'this')
-                        obj[p] = target;
-                    else if (v[0] === '[')
-                        obj[p] = __primitive(target.getAttribute(v.slice(1, -1)));
-                    else if (v[0] === '{')
-                        obj[p] = __primitive(v.slice(1, -1));
-                    else
-                        obj[p] = __primitive(target[v]);
-                    names[idx++] = p;
-                }
-            }
-            else {
-                if (names.indexOf(p) === -1) {
-                    obj[p] = __primitive(target.getAttribute('data-' + p));
-                }
-            }
-            names[idx++] = p;
-            return idx;
-        }
-        function __builder(target, obj, names, idx) {
-            var v;
-            // target 자체를
-            if ((v = target.getAttribute('data-element')) != null) {
-                __setter(obj, v || 'element', target);
-            }
-            if ((v = target.getAttribute('evt') || '*')) {
-                var array = v.split(r_read_split), l = array.length;
-                while (l-- > 0)
-                    idx = __parse(target, array[l], obj, names, idx);
-            }
-            return idx;
-        }
-        function __$dataEvent(element, type, attr, provider, directive) {
+        };
+        function __$attrEvent(element, type, attr, provider, directive) {
             // arguments : 4
             if (!directive) {
                 directive = provider;
                 provider = false;
             }
+            if (directive['$init'])
+                directive['$init']();
             return new Events(element, type, function (e) {
-                var target = e.target, attrValue, dir;
-                // 등록된 객체가 있는지 확인
+                var eventTarget, target = eventTarget = e.target, attrValue, dir;
+                /*
+                 *  총 2번의 순회를 하게 되는 오버헤드가 존재한다.
+                 *
+                 */
                 do {
-                    if (attrValue = target.getAttribute(attr)) {
+                    if (attrValue = eventTarget.getAttribute(attr)) {
                         dir = directive[attrValue];
                         break;
                     }
-                } while ((target = target.parentElement) && target !== element);
+                } while ((eventTarget = eventTarget.parentElement) && eventTarget !== element);
                 if (dir) {
-                    var obj = provider ? new provider(e, target) : { event: e }, limit = element, node = e.target, exists = [], i = 0;
-                    while (node && (limit !== node)) {
-                        i = __builder(node, obj, exists, i);
-                        node = node.parentElement;
+                    var obj = provider ? new provider(e, eventTarget) : { event: e }, limit = element, done = {}, attrs = void 0, l = 0, isData = void 0, att = void 0, attrName = void 0;
+                    done[attr] = true;
+                    while (target) {
+                        attrs = target.attributes;
+                        l = attrs.length;
+                        while (l-- > 0) {
+                            att = attrs[l];
+                            attrName = att.name;
+                            isData = attrName.indexOf('data-') === 0;
+                            attrName = isData ? _camelcase(attrName.slice(5)) : attrName;
+                            if (!done[attrName]) {
+                                attrName[0] !== '$' && (done[attrName] = true);
+                                if (typeof obj[attrName] === 'function') {
+                                    obj[attrName].call(obj, target, att.value);
+                                }
+                                else if (DEFAULT_DIRECTIVE[attrName]) {
+                                    DEFAULT_DIRECTIVE[attrName](target, att.value, obj);
+                                }
+                                else if (isData) {
+                                    att.value && (obj[attrName] = __primitive(att.value));
+                                }
+                            }
+                        }
+                        if (target === limit)
+                            break;
+                        target = target.parentElement;
                     }
-                    __builder(limit, obj, exists, i);
-                    obj['init'] && obj['init']();
                     dir.call(directive, obj);
                 }
             });
         }
-        Events.__$dataEvent = __$dataEvent;
-        /*export function __$bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
-    
-            return new Events(element, type, (e) => {
-    
-            let target = <HTMLElement>e.target, prop: string, handler, obj;
-            do {
-                if (!obj) {
-                if (target.hasAttribute(attr)) {
-                    prop = target.getAttribute(attr);
-                    handler = directive[prop];
-                    if (handler) obj = {target: target};
-                }
-                }
-                obj && __builder(target, obj);
-                target = target.parentElement;
-            } while (target && target !== element);
-    
-            if (obj) {
-                directive['*'] && directive['*'](obj, e);
-                handler.call(directive, obj, e);
-            }
-            });
-        }*/
+        Events.__$attrEvent = __$attrEvent;
         /*
          *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
          *
@@ -1425,6 +1051,298 @@ var __extends = (this && this.__extends) || (function () {
 
 /***/ }),
 
+/***/ 41:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(1), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _array_1, _commons_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.DragSort = void 0;
+    var _selector = _array_1.Arrays.__selector;
+    var _map = _array_1.Arrays.__map;
+    var Offset = /** @class */ (function () {
+        function Offset(element) {
+            this.element = element;
+            this.reset();
+        }
+        /*
+         *  위치가 이동했을수도 있으므로 재계산용 메서드
+         */
+        Offset.prototype.reset = function () {
+            var element = this.element, s = this.start = _commons_1.__offset(element).top, h = element.offsetHeight;
+            this.end = s + element.offsetHeight;
+            this.center = s + Math.ceil(h / 2);
+        };
+        Offset.prototype.up = function (pos) {
+            return this.end > pos && this.center < pos;
+        };
+        Offset.prototype.down = function (pos) {
+            return this.start < pos && this.center > pos;
+        };
+        return Offset;
+    }());
+    var DragSort = /** @class */ (function () {
+        function DragSort() {
+            var _this = this;
+            this.y = 0;
+            this.event = new _events_1.Events(document, 'dragover', function (e) {
+                var isUp = e.pageY < _this.y, y = _this.y = e.pageY, matched = _selector(_this.list, function (offset) { return isUp ? offset.up(y) : offset.down(y); });
+                // ① 매치되는게 있으면
+                if (matched) {
+                    _this.handler(matched.element, isUp);
+                    matched.reset();
+                }
+            }).off();
+        }
+        DragSort.prototype.on = function (list, handler) {
+            this.list = _map(list, function (l) { return new Offset(l); });
+            this.handler = handler;
+            this.event.on();
+            return this;
+        };
+        DragSort.prototype.off = function () {
+            this.event.off();
+            return this;
+        };
+        return DragSort;
+    }());
+    exports.DragSort = DragSort;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.__attrMap = exports.__eachAttrs = exports.__className = exports.__removeChild = exports.__createHTML = exports.__hasClass = exports.__reduceFragment = exports.__offset = exports.__closest = exports.__contains = void 0;
+    function __contains(parent, target) {
+        var p;
+        while (p = target.parentNode) {
+            if (parent === p)
+                return true;
+        }
+        return false;
+    }
+    exports.__contains = __contains;
+    var _closestFns = {
+        '#': function (sel) {
+            sel = sel.slice(1);
+            return function (e) { return e.id === sel; };
+        },
+        '<': function (sel) {
+            var r = new RegExp(sel.slice(1, sel.length - 1), 'i');
+            return function (e) { return r.test(e.tagName); };
+        },
+        '.': function (sel) {
+            sel = sel.slice(1);
+            return function (e) { return e.classList.contains(sel); };
+        },
+        '[': function (sel) {
+            var i = sel.length - 1;
+            sel = sel.slice(0, i);
+            // 값이 있을때
+            if (sel[i - 1] === '"') {
+                var e = sel.indexOf('='), val_1 = sel.slice(e + 2, i - 1);
+                sel = sel.slice(1, e);
+                return function (e) { return e.getAttribute(sel) === val_1; };
+            }
+            else
+                return function (e) { return e.hasAttribute(sel); };
+        }
+    };
+    function __closest(target, selector, handler) {
+        var f = _closestFns[selector[0]](selector);
+        while (target = target.parentElement) {
+            if (f(target)) {
+                if (handler)
+                    return handler(target);
+                return target;
+            }
+        }
+        return null;
+    }
+    exports.__closest = __closest;
+    /*
+     *  body에 스크롤이 설정된 경우도 있다.
+     *  이와 같은 상황을 방지하기 위해 offset 계산에서 body를 빼야 한다.
+     *  안 그러면 스크롤이 내려갈수록 body의 scrollTop값이 빠지면서,
+     *  element의 offset.top값이 점점 작아진다.
+     */
+    function __offset(e, parent) {
+        if (parent === void 0) { parent = document.body; }
+        var l = 0, t = 0, target = e;
+        do {
+            t += target.offsetTop - target.scrollTop;
+            l += target.offsetLeft - target.scrollLeft;
+        } while ((target = target.offsetParent) && target !== parent);
+        var result = { left: l, top: t }, w = e.offsetWidth, h = e.offsetHeight;
+        result['width'] = w;
+        result['height'] = h;
+        result['right'] = w + l;
+        result['bottom'] = t + h;
+        return result;
+    }
+    exports.__offset = __offset;
+    function __reduceFragment(values, handler) {
+        var frag = document.createDocumentFragment();
+        values.forEach(function (v, i) {
+            v = handler(v, i);
+            if (v)
+                frag.appendChild(v);
+        });
+        return frag;
+    }
+    exports.__reduceFragment = __reduceFragment;
+    function __hasClass(element, name) {
+        var className = element.className.split(c_r), names = Array.isArray(name) ? name : [name];
+        return names.every(function (v) { return className.indexOf(v) !== -1; });
+    }
+    exports.__hasClass = __hasClass;
+    /*
+     *  isAdd가 null이면 toggleClass로 작동한다.
+     */
+    var c_r = /\s+/g, uuid = 1;
+    /*
+     *  2018-01-20
+     *  원래는 <div> 하나의 객체를 만들어서 재활용하는 형태로 사용했었다.
+     *  하지만 그렇게 할 경우 ie에서 버그가 생긴다.
+     */
+    exports.__createHTML = (function () {
+        var r = /^<([^\s>]+)/i;
+        function get(parent, html, tag) {
+            var index;
+            switch (tag) {
+                case 'option':
+                    index = 2;
+                    parent.innerHTML = '<select>' + html + '</select>';
+                    break;
+                case 'thead':
+                case 'tbody':
+                case 'tfoot':
+                case 'colgroup':
+                case 'caption':
+                    index = 2;
+                    parent.innerHTML = '<table>' + html + '</table>';
+                    break;
+                case 'col':
+                    index = 3;
+                    parent.innerHTML = '<table><colgroup>' + html + '</colgroup></table>';
+                    break;
+                case 'tr':
+                    index = 3;
+                    parent.innerHTML = '<table><tbody>' + html + '</tbody></table>';
+                    break;
+                case 'td':
+                case 'th':
+                    index = 4;
+                    parent.innerHTML = '<table><tbody><tr>' + html + '</tr></tbody></table>';
+                    break;
+                default:
+                    parent.innerHTML = html;
+                    return parent.firstElementChild;
+            }
+            while (index-- > 0)
+                parent = parent.firstElementChild;
+            return parent;
+        }
+        return function (html, safe) {
+            if (safe === void 0) { safe = false; }
+            var div = document.createElement('div');
+            if (safe) {
+                div.innerHTML = html;
+                var c = div.firstElementChild;
+                div.removeChild(c);
+                return c;
+            }
+            html = html.trim();
+            return get(div, html, r.exec(html)[1]);
+        };
+    })();
+    function __removeChild(ele) {
+        var c;
+        while (c = ele.lastChild)
+            ele.removeChild(c);
+        return ele;
+    }
+    exports.__removeChild = __removeChild;
+    function __className(element, value, isAdd) {
+        if (element == null)
+            return element;
+        var className = element.className.trim(), array = className ? className.split(/\s+/g) : [], result;
+        if (typeof value === 'function') {
+            result = value.call(element, array, element);
+        }
+        else {
+            var values = typeof value === 'string' ? [value] : value;
+            // ① ['a', 'u']  ==> ['!a', 'b']  ====>  ['u', 'b'];
+            if (isAdd == null)
+                result = __toggleC(array, values);
+            else if (isAdd === true)
+                result = __addClass(array, values);
+            else
+                result = __removeClass(array, values);
+        }
+        element.className = result.join(' ');
+        return element;
+    }
+    exports.__className = __className;
+    function __addClass(array, target) {
+        var i = 0, l = target.length;
+        for (; i < l; i++) {
+            array.indexOf(target[i]) === -1 && array.push(target[i]);
+        }
+        return array;
+    }
+    function __removeClass(array, target) {
+        var i = 0, l = array.length, result = [], pos = 0;
+        for (; i < l; i++) {
+            target.indexOf(array[i]) === -1 && (result[pos++] = array[i]);
+        }
+        return result;
+    }
+    function __toggleC(array, values) {
+        var l = values.length, i = 0, pos = -1, result = [], v, removal;
+        for (; i < l; i++) {
+            if (removal = ((v = values[i])[0] === '!')) {
+                if ((pos = array.indexOf(v.slice(1))) !== -1)
+                    array.splice(pos, 1);
+            }
+            else {
+                if ((pos = array.indexOf(v)) === -1)
+                    result.push(v);
+            }
+        }
+        return array.concat(result);
+    }
+    function __eachAttrs(ele, handler) {
+        var attributes = ele.attributes, length = ele.attributes.length;
+        while (length-- > 0)
+            if (handler.call(ele, attributes[length].name, attributes[length].value) === false)
+                return;
+    }
+    exports.__eachAttrs = __eachAttrs;
+    exports.__attrMap = (function (r_data, r_up, fn) {
+        var rename = function (s) { return s.replace(r_data, '').replace(r_up, fn); };
+        return function (element) {
+            var attributes = element.attributes, length = attributes.length, attr, result = {};
+            while (length-- > 0) {
+                attr = attributes[length];
+                result[rename(attr.name)] = attr.value;
+            }
+            return result;
+        };
+    })(/^data-/, /-([^-])/g, function (_, i) { return i.toUpperCase(); });
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
 /***/ 6:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1432,7 +1350,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.r_number = void 0;
-    exports.r_number = /^[+-]?\d+$/;
+    exports.r_number = /^[+-]?[0-9\.]+$/;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

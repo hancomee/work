@@ -60,11 +60,11 @@ export class XHRequest {
 
     send(delay = 0) {
 
-        if(this.working) return this;
+        if (this.working) return this;
 
         this.working = true;
 
-        if(delay > 0) {
+        if (delay > 0) {
             return setTimeout(() => {
                 this.working = false;
                 this.send(0);
@@ -139,15 +139,15 @@ export function __parseHeader(lines): { [index: string]: string } {
 /*
  * 리소스가 있는지 확인
  */
-export function $blob(url: string, it?: Interceptor): Promise<Blob> {
+export function $blob(url: string, it?: Interceptor): Promise<{value: Blob, response: XMLHttpRequest}> {
 
-    return new Promise<Blob>((y, n) => {
+    return new Promise<{value: Blob, response: XMLHttpRequest}>((y, n) => {
             let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4) {
                     let data = xhr.response;
-                    if (data instanceof Blob) y(data);
-                    else y(null);
+                    if (data instanceof Blob) y({value: data, response: xhr});
+                    else y({value: null, response: xhr});
                 }
             }
 
@@ -159,6 +159,38 @@ export function $blob(url: string, it?: Interceptor): Promise<Blob> {
     );
 }
 
+export function $loop(url: string, handler, time: number) {
+
+    return new Promise((resolve, reject) => {
+
+        let __dispatcher = () => $get(url).then(result => {
+            if (!result) resolve();
+            else {
+                handler(result);
+                setTimeout(__dispatcher, time);
+            }
+        }).catch(reject);
+        __dispatcher();
+
+    });
+}
+
+export function $xml(url: string, it?: Interceptor): Promise<HTMLElement> {
+    return new Promise((resolve, error) => {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                let doc = document.createElement('xml');
+                doc.innerHTML = xhr.responseText;
+                resolve(doc);
+            }
+
+        }
+        xhr.open('GET', url, true);
+        it && it(xhr);
+        xhr.send(null);
+    });
+}
 
 export function $head(url: string, it?: Interceptor): Promise<XMLHttpRequest> {
     return new Promise((resolve, error) => {
@@ -176,6 +208,23 @@ export function $head(url: string, it?: Interceptor): Promise<XMLHttpRequest> {
 }
 
 // asdf
+export function $text_post(url: string, data?, it?: Interceptor): Promise<any> {
+    return new Promise((resolve, error) => {
+        let xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) resolve(xhr.responseText)
+                else error(xhr);
+            }
+        }
+
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        it && it(xhr);
+        xhr.send(data);
+    });
+}
 
 export function $text(url: string, it?: Interceptor): Promise<any> {
     return new Promise((resolve, error) => {

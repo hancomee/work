@@ -1,6 +1,11 @@
+const r = /(\d+)deg\)/i;
 
+export const
 
-export let
+    __rotate = (ele: HTMLElement) => {
+        let {transform} = ele.style as any;
+        return (transform = r.exec(transform)) ? parseInt(transform[1]) : 0;
+    },
 
     // n이 N이 되기 위한 비율
     __rate = (N: number, n: number) => (N - n) / n,
@@ -19,20 +24,6 @@ export let
         return num2 + (num2 * ((num1c - num1) / num1))
     },
 
-    __adjustTo = (parent: HTMLElement, image: HTMLImageElement, forceSize = true) => {
-        let {style} = image,
-            {w, h, x, y} = __adjust(parent.offsetWidth, parent.offsetHeight,
-                image.naturalWidth, image.naturalHeight, forceSize);
-
-        style.width = w + 'px';
-        style.height = h + 'px';
-        style.left = x + 'px';
-        style.top = y + 'px';
-        style.transform = '';
-
-        return image;
-    },
-
     // 외부 사이즈(W,H)에 딱 맞추기
     // 마지막 인자가 true면 무조건 외부사이즈에 맞춤. 아니면 본래 사이즈
     __adjust = (W: number, H: number, w: number, h: number, forceSize = true) => {
@@ -46,18 +37,6 @@ export let
         return {w: size.w, h: size.h, x: pos.x, y: pos.y};
     },
 
-    __alignmentTo = (obj: { element: HTMLElement, width(): number, height(): number, rotate(): number },
-                     container: HTMLElement) => {
-        let {element: {style}} = obj,
-            [left, top, width, height] = __alignment(obj.width(), obj.height(), obj.rotate(),
-                container.offsetWidth, container.offsetHeight);
-        style.transform = 'rotate(' + obj.rotate() + 'deg)';
-        style.width = width + 'px';
-        style.height = height + 'px';
-        style.left = left + 'px';
-        style.top = top + 'px';
-        return obj;
-    },
     __alignment = (w: number, h: number, rotate: number, W: number, H: number) => {
 
         if (__tilt(rotate)) {
@@ -100,13 +79,56 @@ export let
         return {w: w + Math.round(__rate(H, h) * w), h: H};
     },
 
+    // 딱 맞춘
+    __adjustScale2 = (container: HTMLElement, media: HTMLVideoElement | HTMLImageElement, rotate: number) => {
+        let W = container.offsetWidth, H = container.offsetHeight,
+            w = media.width, h = media.height,
+            tilt = __tilt(rotate),
+            from,
+            to;
+
+        if (tilt) {
+            to = h;
+            h = w;
+            w = to;
+        }
+
+        if ((H - h) > (W - w)) {
+            from = W;
+            to = w;
+        } else {
+            from = H;
+            to = h;
+        }
+
+        return 1 + ((from - to) / to);
+    },
+
+    __adjustScale = ({W, H, w, h}: { W: number, H: number, w: number, h: number }, rotate: number) => {
+        let tilt = __tilt(rotate),
+            from,
+            to;
+
+        if (tilt) {
+            to = h;
+            h = w;
+            w = to;
+        }
+
+        if ((H - h) > (W - w)) {
+            from = W;
+            to = tilt ? H : W;
+        } else {
+            from = H;
+            to = tilt ? H : W;
+        }
+
+        return 1 + ((from - to) / to);
+    },
+
     // 가운데 맞춤
     __center = (W: number, H: number, w: number, h: number) => {
         return {x: Math.round((W - w) / 2), y: Math.round((H - h) / 2)};
-    },
-    __transform = (value: string) => {
-        if (value && value.indexOf('rotate') !== -1) return parseInt(/\d+/.exec(value)[0]);
-        else return 0;
     };
 
 /*

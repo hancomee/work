@@ -11,7 +11,6 @@ let class2type = {},
     objStr = class2type.toString();                     // [object Object]
 
 
-
 export let ownNames = Object.getOwnPropertyNames;
 
 export function __toString(v) {
@@ -59,6 +58,7 @@ export function __isArrayLike(item) {
 }
 
 let r_fn = /^function\s*([^\s(]+)/;
+
 export function __getFunctionName(func) {
     return func.name ? func.name : func.toString().match(r_fn)[1]
 }
@@ -102,23 +102,25 @@ export function extend(...args: any[]) {
     return temp;
 }
 
-export function __extend<T>(dest: ArrayLike<T>, source: ArrayLike<T>): ArrayLike<T>
-export function __extend<T>(dest: {}, source: T, defaultValues?): T
-export function __extend(dest, source, defaultValues?): any {
+export function __extend<T>(dest: ArrayLike<T>, source: ArrayLike<T>, override?: boolean): ArrayLike<T>
+export function __extend<T>(dest: {}, source: T, override?: boolean): T
+export function __extend(dest, source, override = true): any {
 
-    if(source == null) return dest;
+    if (source == null) return dest;
 
     if (__isArrayLike(source)) {
         let i = 0, l = source.length;
         for (; i < l; i++) {
-            dest[i] = source[i];
+            if (!override) dest[i] == null && (dest[i] = source[i]);
+            else dest[i] = source[i];
         }
-    }
-    else {
+    } else {
         let p;
         for (p in source) {
-            dest[p] = source[p];
-            if(dest[p] === undefined) dest[p] = defaultValues[p];
+            if (typeof dest[p] !== 'function') {
+                if (!override) dest[p] == null && (dest[p] = source[p]);
+                else dest[p] = source[p];
+            }
         }
     }
 
@@ -139,8 +141,7 @@ export function __deepExtend(dest, source): any {
             else if (__isPlainObject(s)) dest[i] = __deepExtend(__isPlainObject(d) ? d : {}, s);
             else dest[i] = s;
         }
-    }
-    else {
+    } else {
         let i, s, d;
         for (i in source) {
             s = source[i];
@@ -181,8 +182,7 @@ export function $extend<T>(target: T, source, converts: EXTEND_CONFIG<T> = <any>
                 if (typeof f === 'function') {
                     v = f.call(target, source[p], target);
                     if (v !== void 0) target[p] = v;
-                }
-                else target[p] = v
+                } else target[p] = v
         }
     }
 

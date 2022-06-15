@@ -24,36 +24,6 @@
 
 
     <!------------------  ▼ [data-template] ▼  -------------------->
-    <script type="text/html" data-template="items">
-        <tr data-element="target" data-form-enter="true" e="mapping:[data-mapping]">
-            <td data-directive="subject"></td>
-            <td data-directive="detail"></td>
-            <td data-directive="count" class="text-right"></td>
-            <td data-directive="price | number" class="text-right"></td>
-            <td data-directive="total | number" class="text-right"></td>
-            <td data-directive="vat | number" class="text-right"></td>
-            <td>
-                <div>
-                    <span class="work-items-btn" data-event="screen" data-directive=" | draft">시안</span>
-                    <div class="dropdown work-items-print" data-element="print"
-                         style="display: inline-block;" data-directive=" | print">
-                        <span class="work-items-btn">인쇄파일</span>
-                        <div class="dropdown-menu dropdown-menu-right"></div>
-                    </div>
-                </div>
-                <span data-directive="memo"></span>
-            </td>
-            <td class="sort ctrl">
-                <span class="view-btn" data-event="modify">수정</span>
-                <span class="view-btn view-btn-danger" data-event="remove">삭제</span>
-                <div class="work-items-table-sort-btn" draggable="true">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-            </td>
-        </tr>
-    </script>
 
 
     <script type="text/html" data-template="memo">
@@ -90,91 +60,6 @@
 
     </script>
 
-    <script type="text/html" data-form="customer">
-
-        <div class="work-customer">
-            <div class="view-btns">
-                <span class="view-btn form-btn" data-event="confirm">확인</span>
-                <span class="view-btn view-btn-gray" data-cancel>취소</span>
-            </div>
-            <table class="view-table work-customer-table">
-                <tbody>
-                <tr>
-                    <th>상호</th>
-                    <td colspan="3">
-                        <input name="name" required>
-                    </td>
-                </tr>
-                <tr>
-                    <th style="width: 10%">사업자번호</th>
-                    <td style="width: 25%">
-                        <input name="biz_num">
-                    </td>
-                    <th style="width: 10%">대표자</th>
-                    <td style="width: 25%">
-                        <input name="owner">
-                    </td>
-                </tr>
-                <tr>
-                    <th>업태</th>
-                    <td>
-                        <input name="biz_con">
-                    </td>
-                    <th>종목</th>
-                    <td>
-                        <input name="biz_type">
-                    </td>
-                </tr>
-                <tr>
-                    <th>휴대전화</th>
-                    <td>
-                        <input name="mobile">
-                    </td>
-                    <th>이메일</th>
-                    <td>
-                        <input name="email">
-                    </td>
-                </tr>
-                <tr>
-                    <th>유선전화</th>
-                    <td>
-                        <input name="tel">
-                    </td>
-                    <th>팩스</th>
-                    <td>
-                        <input name="fax">
-                    </td>
-                </tr>
-                <tr>
-                    <th>주소</th>
-                    <td colspan="3">
-                        <input name="address">
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </script>
-
-    <script type="text/html" data-form="items">
-        <tr data-pre-processor="compute">
-            <td><input name="subject" required></td>
-            <td><input name="detail"></td>
-            <td class="text-right"><input name="count" data-compute="0" data-type="number" data-pre-processor="number">
-            </td>
-            <td class="text-right"><input name="price" data-compute="1" data-type="number" data-pre-processor="number">
-            </td>
-            <td class="text-right"><input name="total" data-compute="3" data-type="number" data-pre-processor="number"
-                                          disabled></td>
-            <td class="text-right"><input name="vat" data-compute="2" data-type="number" data-pre-processor="number">
-            </td>
-            <td><input name="memo"></td>
-            <td class="ctrl">
-                <span class="view-btn form-btn" data-event="confirm">확인</span>
-                <span class="view-btn view-btn-gray" data-cancel>취소</span>
-            </td>
-        </tr>
-    </script>
 
     <script type="text/html" data-form="text">
         <div>
@@ -229,7 +114,7 @@
 
 <#include "./modules/aside.html">
 
-<main>
+<main id="main">
 
     <div id="view">
 
@@ -268,63 +153,128 @@
             </div>
 
             <div class="view-container">
-                <div class="view-content" data-mapper="customer" e="mapper:this; name:[data-mapper]">
-                    <div class="work-customer" data-mapping="customer" data-element="target" e="mapping">
+
+                <div class="view-content">
+
+                    <div class="work-customer next-hide" _template="?customerModify">
                         <div class="view-btns">
-                            <span class=" view-btn" data-event="modify">수정</span>
+                            <span class="view-btn form-btn" data-event="customerConfirm">확인</span>
+                            <span class="view-btn view-btn-gray" data-event="customerCancel">취소</span>
                         </div>
                         <table class="view-table work-customer-table">
                             <tbody>
                             <tr>
                                 <th>상호</th>
                                 <td colspan="3">
-                                    <span data-directive="name"></span>
+                                    <input name="name" required>
                                 </td>
                             </tr>
                             <tr>
                                 <th style="width: 10%">사업자번호</th>
                                 <td style="width: 25%">
-                                    <span data-directive="biz_num"></span>
+                                    <input name="biz_num">
                                 </td>
                                 <th style="width: 10%">대표자</th>
                                 <td style="width: 25%">
-                                    <span data-directive="owner"></span>
+                                    <input name="owner">
                                 </td>
                             </tr>
                             <tr>
                                 <th>업태</th>
                                 <td>
-                                    <span data-directive="biz_con"></span>
+                                    <input name="biz_con">
                                 </td>
                                 <th>종목</th>
                                 <td>
-                                    <span data-directive="biz_type"></span>
+                                    <input name="biz_type">
                                 </td>
                             </tr>
                             <tr>
                                 <th>휴대전화</th>
                                 <td>
-                                    <span data-directive="mobile"></span>
+                                    <input name="mobile">
                                 </td>
                                 <th>이메일</th>
                                 <td>
-                                    <span data-directive="email"></span>
+                                    <input name="email">
                                 </td>
                             </tr>
                             <tr>
                                 <th>유선전화</th>
                                 <td>
-                                    <span data-directive="tel"></span>
+                                    <input name="tel">
                                 </td>
                                 <th>팩스</th>
                                 <td>
-                                    <span data-directive="fax"></span>
+                                    <input name="fax">
                                 </td>
                             </tr>
                             <tr>
                                 <th>주소</th>
                                 <td colspan="3">
-                                    <span data-directive="address"></span>
+                                    <input name="address">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="work-customer" _template="customer">
+                        <div class="view-btns">
+                            <span class=" view-btn" data-event="customerModify">수정</span>
+                        </div>
+                        <table class="view-table work-customer-table">
+                            <tbody>
+                            <tr>
+                                <th>상호</th>
+                                <td colspan="3">
+                                    <span _access="data.name"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th style="width: 10%">사업자번호</th>
+                                <td style="width: 25%">
+                                    <span _access="data.biz_num"></span>
+                                </td>
+                                <th style="width: 10%">대표자</th>
+                                <td style="width: 25%">
+                                    <span _access="data.owner"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>업태</th>
+                                <td>
+                                    <span _access="data.biz_con"></span>
+                                </td>
+                                <th>종목</th>
+                                <td>
+                                    <span _access="data.biz_type"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>휴대전화</th>
+                                <td>
+                                    <span _access="data.mobile"></span>
+                                </td>
+                                <th>이메일</th>
+                                <td>
+                                    <span _access="data.email"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>유선전화</th>
+                                <td>
+                                    <span _access="data.tel"></span>
+                                </td>
+                                <th>팩스</th>
+                                <td>
+                                    <span _access="data.fax"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>주소</th>
+                                <td colspan="3">
+                                    <span _access="data.address"></span>
                                 </td>
                             </tr>
                             </tbody>
@@ -375,13 +325,59 @@
                             <th>규격</th>
                             <th class="text-right">수량</th>
                             <th class="text-right">단가</th>
-                            <th class="text-right">금액</th>
                             <th class="text-right">부가세</th>
+                            <th class="text-right">금액</th>
                             <th>비고</th>
                             <th>...</th>
                         </tr>
                         </thead>
-                        <tbody id="items-form" data-template="items">
+
+                        <tbody id="items-form">
+
+                        <tr>
+                            <td _access="data.subject"></td>
+                            <td _access="data.detail"></td>
+                            <td _access="data.count" class="text-right"></td>
+                            <td _access="data.price?number" class="text-right"></td>
+                            <td _access="data.total?number" class="text-right"></td>
+                            <td _access="data.vat?number" class="text-right"></td>
+                            <td>
+                                <div>
+                                    <span class="work-items-btn" data-event="screen">시안</span>
+                                    <div class="dropdown work-items-print" data-element="print"
+                                         style="display: inline-block;" data-directive=" | print">
+                                        <span class="work-items-btn">인쇄파일</span>
+                                        <div class="dropdown-menu dropdown-menu-right"></div>
+                                    </div>
+                                </div>
+                                <span data-directive="memo"></span>
+                            </td>
+                            <td class="sort ctrl">
+                                <span class="view-btn" data-event="modify">수정</span>
+                                <span class="view-btn view-btn-danger" data-event="remove">삭제</span>
+                                <div class="work-items-table-sort-btn" draggable="true">
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr _template="itemForm">
+                            <td><input name="subject" required></td>
+                            <td><input name="detail"></td>
+                            <td class="text-right"><input name="count" data-type="number"></td>
+                            <td class="text-right"><input name="price" data-type="number"></td>
+                            <td class="text-right"><input name="vat" data-type="number"></td>
+                            <td class="text-right"><input name="total" data-type="number"></td>
+                            <td><input name="memo"></td>
+                            <td class="ctrl">
+                                <span class="view-btn form-btn" data-event="confirm">확인</span>
+                                <span class="view-btn view-btn-gray" data-cancel>취소</span>
+                            </td>
+                        </tr>
+
+
                         </tbody>
                     </table>
                 </div>

@@ -1,6 +1,4 @@
 import {Access} from "./_access";
-import {r_number} from "./_regexp/number";
-import {__toString} from "./_core";
 
 /**
  * Created by hellofunc on 2017-03-01.
@@ -8,11 +6,12 @@ import {__toString} from "./_core";
 
 export namespace Formats {
 
-    import primitive = Access.__primitive;
     import __read = Access.__read;
-    import __primitive = Access.__primitive;
+    import primitive = Access.__primitive;
 
-    let rr = /:([\w.]+)/g,
+    let
+        __f = (a) => a,
+        rr = /:([\w.]+)/g,
         rn = /[^\d\.]+/g,
         today = new Date(),
         second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day,
@@ -40,6 +39,10 @@ export namespace Formats {
 
         __DUMMY = {},
         _DEFAULT_FILTER = {
+
+            toLowerCase(val) {
+                return val ? val.toString().toLowerCase() : '';
+            },
 
             filesize: (function (array) {
 
@@ -116,9 +119,12 @@ export namespace Formats {
                     else return $1;
                 });
             },
-            number(val) {
+            // zero : 0을 빈문자열로 반환할지
+            number(val, zero = false) {
                 if (typeof val === "number") {
-                    return val.toString().replace(r_num_replace, ",")
+                    val = val.toString().replace(r_num_replace, ",");
+                    if(zero && val === '0') val = '';
+                    return val;
                 }
                 return '';
             },
@@ -190,6 +196,30 @@ export namespace Formats {
     }
 
 
+    export function __filterFunction(str: string) {
+
+        if(str.indexOf('?') === -1)
+            return (data) => __read(str, data);
+
+        let [prop, filter] = str.split('?'),
+            name, args,
+            i;
+        if ((i = filter.indexOf('(')) !== -1) {
+            name = filter.substring(0, i);
+            args = JSON.parse('[' + filter.substring(i + 1, -1) + ']');
+        } else {
+            name = filter;
+            args = [];
+        }
+
+        return (data, filter = __DUMMY) => {
+            let f = filter[name] || _DEFAULT_FILTER[name] || __f;
+            return f.apply(f, [__read(prop, data)].concat(args));
+        }
+    }
+
+
+    // prop?function("args...")
     export function __filterApply(str: string, obj, filter: any = __DUMMY) {
         let i = str.indexOf('?');
         if (i === -1) obj = __read(str, obj);
@@ -199,6 +229,7 @@ export namespace Formats {
                 if ((i = func.indexOf('(')) !== -1) {
                     args = JSON.parse('[' + func.slice(i + 1, -1) + ']');
                     func = func.slice(0, i);
+
                 }
                 if (filter[func]) {
                     obj = filter[func].apply(filter, [obj].concat(args));
@@ -245,7 +276,7 @@ export namespace Formats {
             h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
 
         return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
-            _zf(h), h, ':', _zf(s), s, ':', _zf(M), M].join('');
+            _zf(h), h, ':', _zf(M), M, ':', _zf(s), s].join('');
     }
 
     export function __date(val: Date) {

@@ -2,183 +2,86 @@ import {Access} from "../_access";
 import access = Access.__access;
 import {__indexOfChar} from "./_indexof";
 import {Formats} from "../_format";
-import expValParse = Formats.__expValParse;
+import __filterFunction = Formats.__filterFunction;
+import __filterParser = Formats.__filterParser;
+import __read = Access.__read;
+import __filterApply = Formats.__filterApply;
 
 let
-    directive = Formats.__getDirective(),
-    ___createFunction = (exp) => new Function('_', '$', 'return _ == null ? null : (' + exp + ');'),
-    __createFunction = (str: string) => {
-
-        let [_prop, dir, opt] = expValParse(str),
-            prop = _prop[0] !== '_' && _prop[0] !== '$' && _prop.indexOf(' ') === -1 && _prop.indexOf('.') === -1
-                ? '_.' + _prop : _prop,
-            func = ___createFunction(prop);
-
-        return function (data, opData, directive) {
-            let v = func.call(this, data, opData);
-
-            if (directive[dir])
-                v = directive[dir](v, opt);
-            return v == null ? '' : v;
-        }
-    },
 
     // "div>"  or "div class=...>"
     // 앞 <는 빼고 올린다.
-    ___getTagName = (html: string, pos: number) => {
+    ___tagName = (html: string, pos: number) => {
         let i = pos;
-        while (html[pos] !== ' ' && html[pos] !== '>')
-            pos++;
+        while (html[pos] !== ' ' && html[pos] !== '>' && html[pos] !== '/') pos++;
         return html.substring(i, pos);
-    },
-
-    ___parse = (str: string) => {
-
-        let l = str.length,
-            pos = __indexOfChar(str, ':');
-
-        if (pos !== -1) {
-
-            pos--;
-
-            // ① :="..."
-            if (str[pos + 2] === '=') {
-                if (str[pos + 3] === '"') {
-                    let d = str.lastIndexOf('"');
-                    return [str.substring(0, pos) + str.substring(d + 1, l), '=',
-                        str.substring(pos + 4, d)]
-                }
-            }
-
-            // ② ::prop
-            else if (str[pos + 2] === ':') {
-                let i = pos + 3;
-                while (str[i] !== '/' && str[i++] !== '>') ;
-
-                return [str.substring(0, pos) + str.substring(i - 1, l), '::',
-                    str.substring(pos + 3, i - 1)]
-            }
-
-            // ③ :prop>   :prop/>   공백이 없어야 함
-            else if (str.indexOf(' ', pos + 2) === -1) {
-                let i = pos + 2;
-                while (str[i] !== '/' && str[i++] !== '>') ;
-                return [str.substring(0, pos) + str.substring(i - 1, l), ':',
-                    str.substring(pos + 2, i - 1)]
-            }
-        }
-
-        return [str, ''];
-    }
+    };
 
 
-function ___replaceHTML(html: string, pos: number, limit: number, directive) {
+/*
+ *
+ *  엘리먼트의 헤더를 시작점으로 재귀 스택
+ *
+ */
+function ____compile(html: string, filter,
+                     idx = {val: 0}, // 전체 커서
+                     stack_headline: string[] = [],
+                     stack_name: string[] = [],
+                     stack_index = 0
+) {
 
-    let index = 0, func = [], fi = 0;
+    let pos = idx.val,  // 탐색에 사용될 커서
+        i = idx.val,    // 태그의 시작 커서
+        e: number,
+        r = [],
+        rIdx = 0,
+        tag_name: string,
 
-    do {
-        // ...{{  사이에 문자열이 있으면
-        if (index !== pos) {
-            func[fi++] = html.substring(index, pos);
-        }
-
-        index = pos = pos + 2;              // 커서를 {{ 다음으로 옮긴다.
-        pos = html.indexOf('}}', index);    // }}를 찾는다
-
-        if (pos === -1) {
-            throw new Error('표현식이 잘못되었습니다. 닫는 "}}" 문자열이 없습니다' + '\n' + html)
-        }
-
-        func[fi++] = __createFunction(html.substring(index, pos));
-
-        index = pos + 2;
-
-        pos = html.indexOf('{{', index);
-
-    } while (pos !== -1 && index < limit);
-
-    if (index < limit) {
-        func[fi++] = html.substring(index, limit);
-    }
-
-    return function (obj, opt?, dir?) {
-
-        if (dir == null) dir = directive;
-
-        let i = 0, f = func, l = fi, r = [];
-        for (; i < l; i++) {
-            r[i] = typeof f[i] === 'string' ? f[i] : f[i].call(this, obj, opt, dir);
-        }
-        return r.join('');
-    }
-}
-
-function ____compile(html: string, directive,
-                     idx = {val: 0}, lines: string[] = [], tagStack = [], index = 0) {
-
-    let pos: number, i = pos = idx.val, e: number,
-        r = [], rIdx = 0, tag: string,
-        handler = function (data, opt?) {
+        handler = function (data) {
             let result = [];
             for (let i = 0; i < rIdx; i++)
-                result[i] = r[i].call(this, data, opt, directive);
+                result[i] = r[i].call(this, data);
             return result.join('');
         };
 
-    // ① 태그인 경우
-    if (index) {
-        let [line, type, exp] = ___parse(lines[index - 1]),
-            _handler = handler;
+    // ① 태그의 헤더가 들어온 경우.
+    if (stack_index) {
+        let line = stack_headline[stack_index - 1],
+            s_cursor = line.indexOf(' _="');
 
-        switch (type) {
-            // ① 함수로 변경  :="expression"
-            case '=' :
-                let fn = ___createFunction(exp);
-                handler = function (data, opt) {
-                    let d = fn.call(this, data, opt);
-                    if (d != null) return _handler.call(this, d, opt);
-                    return '';
+        if (s_cursor !== -1) {
+            let e_cursor = line.indexOf('"', s_cursor + 4),
+                exp = line.substring(s_cursor + 4, e_cursor),   //  :="exp"  ==> exp
+                _handler = handler;
+
+            // 문자열은 없앤다.
+            line = line.substring(0, s_cursor) + line.substring(e_cursor + 1);
+
+            handler = function (data) {
+                let val = access(data, exp);
+                if (val != null) {
+                    if (Array.isArray(val)) {
+                        return val.map((v, i) => _handler.call((this.index = i, this), v)).join('');
+                    } else return _handler.call(this, val);
                 }
-                break;
-
-            // ② 루프     ::prop
-            case '::' :
-                handler = function (data, opt) {
-                    let val = access(data, exp);
-                    if (val != null) {
-                        if (Array.isArray(val)) {
-                            return val.map((v, i) => _handler.call((this.index = i, this), v, opt)).join('');
-                        } else {
-                            let r = [], i = 0, p;
-                            for (p in val) {
-                                this.index = p;
-                                r[i++] = _handler.call(this, val[p], opt);
-
-                            }
-                            return r.join('');
-                        }
-                    }
-                    return '';
-                }
-                break;
-
-            // ③ 단순 변수  :prop
-            case ':' :
-                handler = function (data, opt) {
-                    let val = access(data, exp);
-                    return val != null ? _handler.call(this, val, opt) : '';
-                }
+                return '';
+            }
         }
 
-        r[rIdx++] = __replaceHTML(line);
+        r[rIdx++] = __replaceHTML(line, filter);
     }
 
 
+    /*
+     * ② 태그 시작점을 찾는다
+     * < >를 기준으로 전체 문자열을 순차적으로 검색한다.
+     */
     while ((pos = html.indexOf('<', pos)) !== -1) {
 
+        // 여는 태그를 찾는 동시에 닫는 태그를 찾는다
         e = __indexOfChar(html, '>', pos) + 1;
 
-        // ① 여는 태그
+        // 1) 여는 태그일 경우
         if (html[pos + 1] !== '/') {
 
             // prefix string
@@ -186,30 +89,31 @@ function ____compile(html: string, directive,
                 r[rIdx++] = __replaceHTML(html.substring(i, pos));
             }
 
+            stack_headline[stack_index] = html.substring(pos, e);
+            tag_name = stack_name[stack_index] = ___tagName(html, pos + 1);
 
-            lines[index] = html.substring(pos, e);
-            tag = tagStack[index] = ___getTagName(html, pos + 1);
-
+            // 하위 엘리먼트를 탐색하고 온다. idx.val은 진행된 커서를 가지고 오기 위함
             idx.val = e;
-            r[rIdx++] = ____compile(html, directive, idx, lines, tagStack, index + 1);
+            r[rIdx++] = ____compile(html, filter, idx, stack_headline, stack_name, stack_index + 1);
             e = idx.val;
         }
 
-        // ② 닫는 태그
+        // 2) 닫는 태그 :: 재귀함수의 끝
         else {
-            tag = html.substring(pos + 2, e - 1);
 
-            index--;
+            tag_name = html.substring(pos + 2, e - 1);
+
+            stack_index--;
 
             // 현재 태그의 끝
-            if (tagStack[index] === tag) {
-                r[rIdx++] = __replaceHTML(html.substring(i, e));
-                idx.val = e;
+            if (stack_name[stack_index] === tag_name) {
+                r[rIdx++] = __replaceHTML(html.substring(i, e), filter);
+                idx.val = e;    // 전체 커서를 변경한다.
             } else {
                 idx.val = i;
             }
 
-            return handler
+            return handler;
         }
 
         i = pos = e;
@@ -229,131 +133,71 @@ function ____compile(html: string, directive,
     return handler;
 }
 
-
-export namespace DHTML {
-
-    // {{str}}
-    import __expValParse = Formats.__expValParse;
-
-    function ___str(html: string) {
-        let prefix, endfix, fn,
-            i = html.indexOf('{'), ii = html.indexOf('}', i);
-        prefix = html.slice(0, i);
-        endfix = html.slice(ii + 1);
-        fn = ___exp(html.slice(i + 1, ii));
-        html = i = ii = void 0;
-        return (obj) => {
-            let d = fn(obj);
-            return d ? prefix + d + endfix : '';
-        }
+export function __compileHTML(html: HTMLElement, filter?)
+export function __compileHTML(html: string, filter?)
+export function __compileHTML(html, filter?) {
+    if (typeof html !== 'string') {
+        html = html.outerHTML;
+        if (html.parentElement)
+            html.parentElement.removeChild(html);
     }
-
-    // {prop}
-    function ___exp(html: string) {
-        let [prop, func, val] = __expValParse(html);
-        if (func = directive[func]) {
-            return (obj) => (obj = obj[prop]) != null ? func(obj, val) : '';
-        } else return (obj) => (obj = obj[prop]) != null ? obj : '';
-    }
-
-    /*
-     * {prop} => obj[prop]
-     * {prop | directive} => directive[prop](obj[prop])
-     * {prop | directive : primitive} => directive[prop](obj[prop], primitive)
-     * {{ class="{prop}"}}  =>  obj[prop] != null && {{...}}
-     */
-    export function __simpleMap(html: string) {
-        let result = [], idx = 0,
-            search = 0, pos = 0,
-            len = html.length;
-
-        while (pos < len) {
-
-            search = html.indexOf('{', pos);
-
-            // "{{" 전까지 문자열 저장
-            if (search !== -1) {
-
-                result[idx++] = html.slice(pos, search);
-
-                if (html[search + 1] === '{') {
-                    pos = html.indexOf('}}', search);
-                    result[idx++] = ___str(html.slice(search + 2, pos));
-                    pos += 2;
-                } else {
-                    pos = html.indexOf('}', search);
-                    result[idx++] = ___exp(html.slice(search + 1, pos));
-                    pos++;
-                }
-            } else break;
-        }
-
-        if (pos < len) result[idx++] = html.slice(pos);
-
-        return (obj) => result.map(v => typeof v === 'string' ? v : v(obj)).join('');
+    let fn = ____compile(html, filter);
+    return function (data, filter1 = filter) {
+        return fn.call({}, data, filter1);
     }
 }
 
-/*
-
-export function __htmlMap(str: string, k = ['[', ']']) {
-
-    let [a, z] = k, html = [], key = [], map = {}, p = 0,
-        s = 0, e = 0, i = 0, l = str.length;
-
-    while (i < l) {
-
-        s = str.indexOf(a, i);
-
-        // "{{" 전까지 문자열 저장
-        if (s == -1) {
-            html[p++] = str.substring(i, l);
-            break;
-        } else {
-            s != i && (html[p++] = str.substring(i, s));
-        }
-
-        e = str.indexOf(z, s);
-        key.push(p);
-        map[p] = str.substring(s + a.length, e);
-        html[p++] = null;
-
-        i = e + z.length;
-
-    }
-
-    s = e = i = p = void 0;
-    l = key.length;
-
-    return (obj) => {
-        for (let i = 0, p, v; i < l; i++) {
-            p = key[i];
-            v = obj[map[p]];
-            html[p] = v == null ? '' : v;
-        }
-        return html.join('');
-    }
-}
-*/
 
 /*
  *  단순히 문자열을 치환할때 쓴다.
  */
-export function __replaceHTML(html: string, dir = directive) {
+export function __replaceHTML(html: string, filter?) {
 
     let pos = html.indexOf('{{');
     if (pos === -1) return () => html;
-    return ___replaceHTML(html, pos, html.length, dir);
 
-}
+    let r = [], rIdx = 0,
+        c = 0, s = 0, e = 0, len = html.length;
 
+    while ((s = html.indexOf('{{', c)) !== -1) {
+        e = html.indexOf('}}', s);
+        if (s !== c) r[rIdx++] = html.substring(c, s);
+        r[rIdx++] = __filterFunction(html.substring(s + 2, e));
+        c = e + 2;
+    }
 
-export function __compileHTML(html, directive?, _opt?) {
-    let fn = ____compile(html, directive);
-    return function (data, opt?) {
-        if (!opt) opt = _opt;
-        return fn.call({}, data, opt);
+    if (c < len) r[rIdx++] = html.substring(c);
+
+    return (data, d = filter) => {
+        let rr = [];
+        for (let i = 0; i < rIdx; i++) {
+            rr[i] = typeof r[i] === 'string' ? r[i] : r[i](data, d);
+        }
+        return rr.join('');
     }
 }
 
+
+function ___replaceCommand(ele: HTMLElement, command, obj) {
+    if (!command) return;
+
+    let i = command.indexOf('?');
+    if (i === -1) {
+        let fn = __read(command, obj);
+        if (typeof fn === 'function') fn.call(obj, ele);
+        else if (fn) ele.textContent = fn;
+    } else {
+        ele.textContent = __filterApply(command, obj);
+    }
+}
+
+
+export function __replaceCommand(ele: HTMLElement, obj, attr = 'data-command') {
+    ___replaceCommand(ele, ele.getAttribute(attr), obj);
+    let {children, children: {length}} = ele, i = 0;
+    while (i < length) {
+        if (children[i].nodeType === 1) __replaceCommand(<any>children[i], obj, attr);
+        i++;
+    }
+}
 

@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 38);
+/******/ 	return __webpack_require__(__webpack_require__.s = 42);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -108,15 +108,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.__read = __read;
         Access.__primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            var r_string = /^['"]|['"]$/g;
             return function (val) {
                 if (typeof val === 'string' && val) {
-                    if (r_string.test(val))
-                        return val.slice(1, -1);
                     if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
+                        return val.indexOf(".") === -1 ? parseInt(val) : parseFloat(val);
+                    if (val === 'true')
+                        return true;
+                    if (val === 'false')
+                        return false;
+                    //return val.replace(r_string, '');
                 }
                 return val;
             };
@@ -486,6 +487,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return r;
         }
         Arrays.__map = __map;
+        function __toArray(obj, h) {
+            var r = [], rr = 0, i = 0, p, rv;
+            for (p in obj) {
+                rv = h(p, obj[p], i++);
+                if (rv !== null)
+                    r[rr++] = rv;
+            }
+            return r;
+        }
+        Arrays.__toArray = __toArray;
         function __colMap(values, size, handler) {
             var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
             while (index < l) {
@@ -577,430 +588,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 22:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.__puzzleTune = exports.__puzzle = exports.__transform = exports.__center = exports.__adjustHeigth = exports.__adjustWidth = exports.__resize = exports.__alignment = exports.__alignmentTo = exports.__adjust = exports.__adjustTo = exports.__ratio = exports.__tilt = exports._adjust = exports.__rate = void 0;
-    // n이 N이 되기 위한 비율
-    exports.__rate = function (N, n) { return (N - n) / n; }, exports._adjust = function (W, H, w, h) {
-        var height = h + (exports.__rate(W, w) * h);
-        if (height > H)
-            return { w: w + (exports.__rate(H, h) * w), h: H };
-        return { w: W, h: height };
-    }, exports.__tilt = function (rotate, r) {
-        if (r === void 0) { r = Math.abs(rotate % 360); }
-        return r === 90 || r === 270;
-    }, exports.__ratio = function (num1, num1c, num2) {
-        return num2 + (num2 * ((num1c - num1) / num1));
-    }, exports.__adjustTo = function (parent, image, forceSize) {
-        var _a;
-        if (forceSize === void 0) { forceSize = true; }
-        var style = image.style, w = (_a = exports.__adjust(parent.offsetWidth, parent.offsetHeight, image.naturalWidth, image.naturalHeight, forceSize), _a.w), h = _a.h, x = _a.x, y = _a.y;
-        style.width = w + 'px';
-        style.height = h + 'px';
-        style.left = x + 'px';
-        style.top = y + 'px';
-        style.transform = '';
-        return image;
-    }, 
-    // 외부 사이즈(W,H)에 딱 맞추기
-    // 마지막 인자가 true면 무조건 외부사이즈에 맞춤. 아니면 본래 사이즈
-    exports.__adjust = function (W, H, w, h, forceSize) {
-        if (forceSize === void 0) { forceSize = true; }
-        var size, pos;
-        // 강제 맞춤옵션이거나, 이미지가 대지보다 클 경우
-        if (forceSize || W < w || H < h)
-            size = exports._adjust(W, H, w, h);
-        else
-            size = { w: w, h: h };
-        pos = exports.__center(W, H, size.w, size.h);
-        return { w: size.w, h: size.h, x: pos.x, y: pos.y };
-    }, exports.__alignmentTo = function (obj, container) {
-        var _a;
-        var style = obj.element.style, left = (_a = exports.__alignment(obj.width(), obj.height(), obj.rotate(), container.offsetWidth, container.offsetHeight), _a[0]), top = _a[1], width = _a[2], height = _a[3];
-        style.transform = 'rotate(' + obj.rotate() + 'deg)';
-        style.width = width + 'px';
-        style.height = height + 'px';
-        style.left = left + 'px';
-        style.top = top + 'px';
-        return obj;
-    }, exports.__alignment = function (w, h, rotate, W, H) {
-        if (exports.__tilt(rotate)) {
-            var maxHeight_1 = exports.__ratio(w, H, h);
-            if (maxHeight_1 > W) {
-                w = exports.__ratio(h, W, w);
-                return [(W - w) / 2, (H - W) / 2, w, W];
-            }
-            else {
-                w = H;
-                return [(W - w) / 2, (H - maxHeight_1) / 2, w, maxHeight_1];
-            }
-        }
-        var maxHeight = exports.__ratio(w, W, h);
-        // 세로를 딱 맞춰야 할 경우
-        if (maxHeight > H) {
-            w = exports.__ratio(h, H, w);
-            return [(W - w) / 2, 0, w, H];
-        }
-        else {
-            h = maxHeight;
-            return [0, (H - h) / 2, W, h];
-        }
-    }, 
-    // from에서 to로 변할때 val의 변환값
-    exports.__resize = function (from, to, val) {
-        var ratio = (to - from) / from;
-        return Math.floor(val + (val * ratio));
-    }, 
-    // 가로 사이즈에 딱 맞추기
-    exports.__adjustWidth = function (W, H, w, h) {
-        return { w: W, h: h + Math.round(exports.__rate(W, w) * h) };
-    }, 
-    // 세로사이즈에 딱 맞추기
-    exports.__adjustHeigth = function (W, H, w, h) {
-        return { w: w + Math.round(exports.__rate(H, h) * w), h: H };
-    }, 
-    // 가운데 맞춤
-    exports.__center = function (W, H, w, h) {
-        return { x: Math.round((W - w) / 2), y: Math.round((H - h) / 2) };
-    }, exports.__transform = function (value) {
-        if (value && value.indexOf('rotate') !== -1)
-            return parseInt(/\d+/.exec(value)[0]);
-        else
-            return 0;
-    };
-    /*
-     *  ## 단순히 이미지를 (좌 -> 우)로 박스 쌓듯이 쌓는다.
-     *
-     *  전체 가로사이즈와 분할갯수를 가지고 이미지 위치를 설정한다.
-     *  재사용을 위해 마지막 높이값을 반환한다.
-     */
-    function __puzzle(values, split, //
-    outerWidth, // 전체 가로 사이즈
-    call, // 콜백함수
-    tops // 시작높이
-    ) {
-        if (tops === void 0) { tops = []; }
-        var width = Math.round(outerWidth / split), index = split;
-        while (index-- > 0)
-            if (tops[index] == null)
-                tops[index] = 0;
-        values.forEach(function (v, i) {
-            var newHeight = exports.__resize(v.width, width, v.height), pos = i % split;
-            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
-            tops[pos] = tops[pos] + newHeight; // 높이 보정
-        });
-        return tops;
-    }
-    exports.__puzzle = __puzzle;
-    /*
-     *  ## [튜닝버전] 높이를 봐가면서 쌓기
-     */
-    function __puzzleTune(values, split, //
-    outerWidth, // 전체 가로 사이즈
-    call, // 콜백함수
-    tops // 시작높이
-    ) {
-        if (tops === void 0) { tops = []; }
-        var width = Math.floor(outerWidth / split), index = split;
-        while (index-- > 0)
-            if (tops[index] == null)
-                tops[index] = 0;
-        values.forEach(function (v, i) {
-            var newHeight = exports.__resize(v.width, width, v.height), pos = _min(tops);
-            call.call(v, v, tops[pos], width * pos, width, newHeight, index++, pos);
-            tops[pos] = tops[pos] + newHeight; // 높이 보정
-        });
-        return tops;
-    }
-    exports.__puzzleTune = __puzzleTune;
-    function _min(array) {
-        var result = 0, i = 1, l = array.length, val = array[0];
-        for (; i < l; i++) {
-            if (array[i] < val) {
-                val = array[result = i];
-            }
-        }
-        return result;
-    }
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 38:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(39)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, ImageController_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.ImageScreen = void 0;
-    var ImageScreen = /** @class */ (function (_super) {
-        __extends(ImageScreen, _super);
-        function ImageScreen(ele) {
-            var _this = _super.call(this) || this;
-            _this.element = ele;
-            _this.cliendRect = ele.getBoundingClientRect();
-            _this.events.register(ele, 'click', function (e) {
-                if (e.target === ele) {
-                    _this.off();
-                    _this.onClose && _this.onClose();
-                }
-            });
-            return _this;
-        }
-        ImageScreen.prototype.putImage = function (image) {
-            this.element.textContent = '';
-            this.element.appendChild(image);
-            _super.prototype.setImage.call(this, image);
-            return this;
-        };
-        ImageScreen.prototype.on = function () {
-            this.element.classList.add('on');
-            this.events.on();
-            return this;
-        };
-        ImageScreen.prototype.off = function () {
-            this.element.classList.remove('on');
-            this.events.off();
-            return this;
-        };
-        return ImageScreen;
-    }(ImageController_1.ImageController));
-    exports.ImageScreen = ImageScreen;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 39:
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(22)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, _image_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Imager = exports.ImageController = void 0;
-    var ImageController = /** @class */ (function () {
-        function ImageController() {
-            var _this = this;
-            var handler, mouseWheelHandler = function (e) {
-                if (e.target === _this.imager.element) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    _this.wheelZoom(e);
-                }
-            };
-            this.events = new _events_1.EventsGroup().off()
-                .register(document, 'mousedown', function (e) {
-                if (_this.element.contains(e.target) && _this.imager) {
-                    handler = _this.move(e);
-                    e.stopPropagation();
-                }
-            })
-                .register(document, 'mouseup', function () { return handler = null; })
-                .register(document, 'mousemove', function (e) { return handler && handler(e); })
-                // 마우스 휠로 확대 축소
-                .register(document, 'mousewheel', mouseWheelHandler)
-                .register(document, 'DOMMouseScroll', mouseWheelHandler)
-                // 더블클릭으로 그림 회전
-                .register(document, 'dblclick', function (e) {
-                if (_this.element.contains(e.target) && _this.imager) {
-                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
-                    e.stopPropagation();
-                }
-            })
-                // 이미지 움직일때 드래그 이벤트 봉쇄
-                .register(document, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
-        }
-        ImageController.prototype.on = function (element) {
-            this.element = element;
-            this.cliendRect = element.getBoundingClientRect();
-            this.events.on();
-            return this;
-        };
-        ImageController.prototype.off = function () {
-            this.element = this.cliendRect = this.imager = null;
-            this.events.off();
-            return this;
-        };
-        ImageController.prototype.setImage = function (image) {
-            //let {element, element: {offsetWidth, offsetHeight}} = this;
-            this.imager = new Imager(image);
-            // .setSize(__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
-            return this;
-        };
-        ImageController.prototype.render = function (rotate) {
-            if (rotate === void 0) { rotate = 0; }
-        };
-        // 이미지 줌
-        ImageController.prototype.wheelZoom = function (e) {
-            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e['wheelDelta'] < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
-            if (width + widthAdd < 300)
-                img.setWidth(300);
-            else
-                img.addWidth(widthAdd);
-            img.left = (left - ((img.width - width) * ratioX));
-            img.top = (top - ((img.height - height) * ratioY));
-        };
-        // 이미지 이동
-        ImageController.prototype.move = function (e, img) {
-            if (img === void 0) { img = this.imager; }
-            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
-            return function (e) {
-                img.left = left + e.pageX - pageX;
-                img.top = top + e.pageY - pageY;
-            };
-        };
-        return ImageController;
-    }());
-    exports.ImageController = ImageController;
-    var Imager = /** @class */ (function () {
-        // style을 설정한다.
-        function Imager(element) {
-            this.element = element;
-            this.CSSStyle = element.style;
-            this.left = 0;
-            this.top = 0;
-            this.width = element.naturalWidth;
-            this.height = element.naturalHeight;
-            this.position = 'relative';
-        }
-        Object.defineProperty(Imager.prototype, "zIndex", {
-            get: function () {
-                return parseInt(this.CSSStyle.zIndex);
-            },
-            set: function (v) {
-                this.CSSStyle.zIndex = v.toString();
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "left", {
-            get: function () {
-                return parseInt(this.CSSStyle.left);
-            },
-            set: function (v) {
-                this.CSSStyle.left = v + 'px';
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "top", {
-            get: function () {
-                return parseInt(this.CSSStyle.top);
-            },
-            set: function (v) {
-                this.CSSStyle.top = v + 'px';
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "width", {
-            get: function () {
-                return parseInt(this.CSSStyle.width);
-            },
-            set: function (v) {
-                this.CSSStyle.width = v + 'px';
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "height", {
-            get: function () {
-                return parseInt(this.CSSStyle.height);
-            },
-            set: function (v) {
-                this.CSSStyle.height = v + 'px';
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "rotate", {
-            get: function () {
-                return _image_1.__transform(this.CSSStyle.transform);
-            },
-            set: function (v) {
-                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Object.defineProperty(Imager.prototype, "position", {
-            get: function () {
-                return this.CSSStyle.position;
-            },
-            set: function (v) {
-                this.CSSStyle.position = v;
-            },
-            enumerable: false,
-            configurable: true
-        });
-        Imager.prototype.setSize = function (_a) {
-            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
-            this.left = x;
-            this.top = y;
-            this.width = w;
-            this.height = h;
-            return this;
-        };
-        // 정중앙 정렬
-        Imager.prototype.center = function (W, H) {
-            var _a = this, width = _a.width, height = _a.height;
-            this.left = Math.ceil((W - width) / 2);
-            this.top = Math.ceil((H - height) / 2);
-            return this;
-        };
-        Imager.prototype.$setSize = function (drive, change, driven) {
-            return { driven: driven + (driven * (change / drive)), drive: drive + change };
-        };
-        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
-        Imager.prototype.setWidth = function (v) {
-            return this.addWidth(v - this.width);
-        };
-        Imager.prototype.setHeight = function (v) {
-            return this.addHeight(v - this.height);
-        };
-        // (+-)v 값만큼 크기 조정.
-        Imager.prototype.addWidth = function (v) {
-            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
-            this.width = drive;
-            this.height = driven;
-            return this;
-        };
-        Imager.prototype.addHeight = function (v) {
-            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
-            this.width = driven;
-            this.height = drive;
-            return this;
-        };
-        return Imager;
-    }());
-    exports.Imager = Imager;
-}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-
-/***/ }),
-
-/***/ 5:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1334,143 +922,67 @@ var __extends = (this && this.__extends) || (function () {
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
          */
-        var r_read_split = /;\s*/, r_data = /^data-/, r_data_pre = /-./g, r_fun = function (v) { return v[1].toUpperCase(); }, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
-        /*
-         * ① :evt="name:textContent"
-         *    obj[name] = __primitive(element[textContent])
-         *
-         * ② :evt="name:this"
-         *    obj[name] = <element>  (=: data-element="name")
-         *
-         * ③ :evt="name"
-         *    obj[name] = __primitive(element.getAttribute('data-name'))
-         *
-         * ④ :evt="name:[attr]"
-         *    obj[name] = __primitive(element.getAttribute('attr'))
-         *
-         * ⑤ :evt="name:{val}"
-         *    obj[name] = __primitive(val);
-         *
-         * ⑥ 함수호출
-         *    :evt="name("val")"
-         *    obj[name](element, ...args)
-         *
-         */
-        function __parse(target, prop, obj, names, idx) {
-            var p = prop, v, i;
-            // 모든
-            if (p === '*') {
-                var v_1 = target.attributes, l = v_1.length, n = void 0;
-                while (l-- > 0) {
-                    if (r_data.test(n = v_1[l].name)) {
-                        n = n.slice(5).replace(r_data_pre, r_fun);
-                        if (names.indexOf(n) === -1) {
-                            obj = __primitive(v_1[l].value);
-                            names[idx++] = n;
-                        }
-                    }
-                }
-                return idx;
+        var _camelcase = (function (reg) {
+            return function (attrName) { return attrName.replace(reg, function (char) { return char[1].toUpperCase(); }); };
+        })(/\-./g);
+        var DEFAULT_DIRECTIVE = {
+            ele: function (element, attrValue, obj) {
+                obj[attrValue || 'element'] = element;
             }
-            // 함수는 중복 호출된다.
-            if ((i = prop.indexOf('(')) !== -1) {
-                p = prop.slice(0, i++);
-                if (typeof obj[p] === 'function') {
-                    v = prop.slice(i, -1);
-                    if (v)
-                        obj[p].apply(obj, [target].concat(JSON.parse('[' + v + ']')));
-                    else
-                        obj[p](target);
-                }
-            }
-            // 프로퍼티
-            else if ((i = prop.indexOf(':')) !== -1) {
-                p = prop.slice(0, i++);
-                if (names.indexOf(p) === -1) {
-                    v = prop.slice(i);
-                    if (v === 'this')
-                        obj[p] = target;
-                    else if (v[0] === '[')
-                        obj[p] = __primitive(target.getAttribute(v.slice(1, -1)));
-                    else if (v[0] === '{')
-                        obj[p] = __primitive(v.slice(1, -1));
-                    else
-                        obj[p] = __primitive(target[v]);
-                    names[idx++] = p;
-                }
-            }
-            else {
-                if (names.indexOf(p) === -1) {
-                    obj[p] = __primitive(target.getAttribute('data-' + p));
-                }
-            }
-            names[idx++] = p;
-            return idx;
-        }
-        function __builder(target, obj, names, idx) {
-            var v;
-            // target 자체를
-            if ((v = target.getAttribute('data-element')) != null) {
-                __setter(obj, v || 'element', target);
-            }
-            if ((v = target.getAttribute('evt') || '*')) {
-                var array = v.split(r_read_split), l = array.length;
-                while (l-- > 0)
-                    idx = __parse(target, array[l], obj, names, idx);
-            }
-            return idx;
-        }
-        function __$dataEvent(element, type, attr, provider, directive) {
+        };
+        function __$attrEvent(element, type, attr, provider, directive) {
             // arguments : 4
             if (!directive) {
                 directive = provider;
                 provider = false;
             }
+            if (directive['$init'])
+                directive['$init']();
             return new Events(element, type, function (e) {
-                var target = e.target, attrValue, dir;
-                // 등록된 객체가 있는지 확인
+                var eventTarget, target = eventTarget = e.target, attrValue, dir;
+                /*
+                 *  총 2번의 순회를 하게 되는 오버헤드가 존재한다.
+                 *
+                 */
                 do {
-                    if (attrValue = target.getAttribute(attr)) {
+                    if (attrValue = eventTarget.getAttribute(attr)) {
                         dir = directive[attrValue];
                         break;
                     }
-                } while ((target = target.parentElement) && target !== element);
+                } while ((eventTarget = eventTarget.parentElement) && eventTarget !== element);
                 if (dir) {
-                    var obj = provider ? new provider(e, target) : { event: e }, limit = element, node = e.target, exists = [], i = 0;
-                    while (node && (limit !== node)) {
-                        i = __builder(node, obj, exists, i);
-                        node = node.parentElement;
+                    var obj = provider ? new provider(e, eventTarget) : { event: e }, limit = element, done = {}, attrs = void 0, l = 0, isData = void 0, att = void 0, attrName = void 0;
+                    done[attr] = true;
+                    while (target) {
+                        attrs = target.attributes;
+                        l = attrs.length;
+                        while (l-- > 0) {
+                            att = attrs[l];
+                            attrName = att.name;
+                            isData = attrName.indexOf('data-') === 0;
+                            attrName = isData ? _camelcase(attrName.slice(5)) : attrName;
+                            if (!done[attrName]) {
+                                attrName[0] !== '$' && (done[attrName] = true);
+                                if (typeof obj[attrName] === 'function') {
+                                    obj[attrName].call(obj, target, att.value);
+                                }
+                                else if (DEFAULT_DIRECTIVE[attrName]) {
+                                    DEFAULT_DIRECTIVE[attrName](target, att.value, obj);
+                                }
+                                else if (isData) {
+                                    att.value && (obj[attrName] = __primitive(att.value));
+                                }
+                            }
+                        }
+                        if (target === limit)
+                            break;
+                        target = target.parentElement;
                     }
-                    __builder(limit, obj, exists, i);
-                    obj['init'] && obj['init']();
                     dir.call(directive, obj);
                 }
             });
         }
-        Events.__$dataEvent = __$dataEvent;
-        /*export function __$bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
-    
-            return new Events(element, type, (e) => {
-    
-            let target = <HTMLElement>e.target, prop: string, handler, obj;
-            do {
-                if (!obj) {
-                if (target.hasAttribute(attr)) {
-                    prop = target.getAttribute(attr);
-                    handler = directive[prop];
-                    if (handler) obj = {target: target};
-                }
-                }
-                obj && __builder(target, obj);
-                target = target.parentElement;
-            } while (target && target !== element);
-    
-            if (obj) {
-                directive['*'] && directive['*'](obj, e);
-                handler.call(directive, obj, e);
-            }
-            });
-        }*/
+        Events.__$attrEvent = __$attrEvent;
         /*
          *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
          *
@@ -1539,6 +1051,274 @@ var __extends = (this && this.__extends) || (function () {
 
 /***/ }),
 
+/***/ 42:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(43)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _ImageController_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ImageScreen = void 0;
+    var ImageScreen = /** @class */ (function (_super) {
+        __extends(ImageScreen, _super);
+        function ImageScreen(ele) {
+            var _this = _super.call(this) || this;
+            _this.element = ele;
+            _this.cliendRect = ele.getBoundingClientRect();
+            _this.events.register(ele, 'click', function (e) {
+                if (e.target === ele) {
+                    _this.off();
+                    _this.onClose && _this.onClose();
+                }
+            });
+            return _this;
+        }
+        ImageScreen.prototype.putImage = function (image) {
+            this.element.textContent = '';
+            this.element.appendChild(image);
+            _super.prototype.setImage.call(this, image);
+            return this;
+        };
+        ImageScreen.prototype.on = function () {
+            this.element.classList.add('on');
+            this.events.on();
+            return this;
+        };
+        ImageScreen.prototype.off = function () {
+            this.element.classList.remove('on');
+            this.events.off();
+            return this;
+        };
+        return ImageScreen;
+    }(_ImageController_1.ImageController));
+    exports.ImageScreen = ImageScreen;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
+/***/ 43:
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Imager = exports.ImageController = void 0;
+    var ImageController = /** @class */ (function () {
+        function ImageController() {
+            var _this = this;
+            var handler, mouseWheelHandler = function (e) {
+                if (e.target === _this.imager.element) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    _this.wheelZoom(e);
+                }
+            };
+            this.events = new _events_1.EventsGroup().off()
+                .register(document, 'mousedown', function (e) {
+                if (_this.element.contains(e.target) && _this.imager) {
+                    handler = _this.move(e);
+                    e.stopPropagation();
+                }
+            })
+                .register(document, 'mouseup', function () { return handler = null; })
+                .register(document, 'mousemove', function (e) { return handler && handler(e); })
+                // 마우스 휠로 확대 축소
+                .register(document, 'mousewheel', mouseWheelHandler)
+                .register(document, 'DOMMouseScroll', mouseWheelHandler)
+                // 더블클릭으로 그림 회전
+                .register(document, 'dblclick', function (e) {
+                if (_this.element.contains(e.target) && _this.imager) {
+                    _this.imager.rotate += e.ctrlKey ? -90 : 90;
+                    e.stopPropagation();
+                }
+            })
+                // 이미지 움직일때 드래그 이벤트 봉쇄
+                .register(document, 'dragstart', function (e) { return _this.imager && e.preventDefault(); });
+        }
+        ImageController.prototype.on = function (element) {
+            this.element = element;
+            this.cliendRect = element.getBoundingClientRect();
+            this.events.on();
+            return this;
+        };
+        ImageController.prototype.off = function () {
+            this.element = this.cliendRect = this.imager = null;
+            this.events.off();
+            return this;
+        };
+        ImageController.prototype.setImage = function (image) {
+            //let {element, element: {offsetWidth, offsetHeight}} = this;
+            this.imager = new Imager(image);
+            // .setSize(__adjust(offsetWidth, offsetHeight, image.naturalWidth, image.naturalHeight, true));
+            return this;
+        };
+        ImageController.prototype.render = function (rotate) {
+            if (rotate === void 0) { rotate = 0; }
+        };
+        // 이미지 줌
+        ImageController.prototype.wheelZoom = function (e) {
+            var img = this.imager, pageX = e.clientX, pageY = e.clientY, _a = this.cliendRect, boundingLeft = _a.left, boundingTop = _a.top, top = img.top, left = img.left, width = img.width, height = img.height, ratioX = (pageX - left - boundingLeft) / width, ratioY = (pageY - top - boundingTop) / height, zoom = e['wheelDelta'] < 0 ? -1 : 1, widthAdd = (width * .3) * zoom;
+            if (width + widthAdd < 300)
+                img.setWidth(300);
+            else
+                img.addWidth(widthAdd);
+            img.left = (left - ((img.width - width) * ratioX));
+            img.top = (top - ((img.height - height) * ratioY));
+        };
+        // 이미지 이동
+        ImageController.prototype.move = function (e, img) {
+            if (img === void 0) { img = this.imager; }
+            var pageX = e.pageX, pageY = e.pageY, left = img.left, top = img.top;
+            return function (e) {
+                img.left = left + e.pageX - pageX;
+                img.top = top + e.pageY - pageY;
+            };
+        };
+        return ImageController;
+    }());
+    exports.ImageController = ImageController;
+    var Imager = /** @class */ (function () {
+        // style을 설정한다.
+        function Imager(element) {
+            this.element = element;
+            this.CSSStyle = element.style;
+            this.left = 0;
+            this.top = 0;
+            this.width = element.naturalWidth;
+            this.height = element.naturalHeight;
+            this.position = 'relative';
+        }
+        Object.defineProperty(Imager.prototype, "zIndex", {
+            get: function () {
+                return parseInt(this.CSSStyle.zIndex);
+            },
+            set: function (v) {
+                this.CSSStyle.zIndex = v.toString();
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "left", {
+            get: function () {
+                return parseInt(this.CSSStyle.left);
+            },
+            set: function (v) {
+                this.CSSStyle.left = v + 'px';
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "top", {
+            get: function () {
+                return parseInt(this.CSSStyle.top);
+            },
+            set: function (v) {
+                this.CSSStyle.top = v + 'px';
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "width", {
+            get: function () {
+                return parseInt(this.CSSStyle.width);
+            },
+            set: function (v) {
+                this.CSSStyle.width = v + 'px';
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "height", {
+            get: function () {
+                return parseInt(this.CSSStyle.height);
+            },
+            set: function (v) {
+                this.CSSStyle.height = v + 'px';
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "rotate", {
+            get: function () {
+                return __transform(this.CSSStyle.transform);
+            },
+            set: function (v) {
+                this.CSSStyle.transform = 'rotate(' + v + 'deg)';
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Object.defineProperty(Imager.prototype, "position", {
+            get: function () {
+                return this.CSSStyle.position;
+            },
+            set: function (v) {
+                this.CSSStyle.position = v;
+            },
+            enumerable: false,
+            configurable: true
+        });
+        Imager.prototype.setSize = function (_a) {
+            var w = _a.w, h = _a.h, x = _a.x, y = _a.y;
+            this.left = x;
+            this.top = y;
+            this.width = w;
+            this.height = h;
+            return this;
+        };
+        // 정중앙 정렬
+        Imager.prototype.center = function (W, H) {
+            var _a = this, width = _a.width, height = _a.height;
+            this.left = Math.ceil((W - width) / 2);
+            this.top = Math.ceil((H - height) / 2);
+            return this;
+        };
+        Imager.prototype.$setSize = function (drive, change, driven) {
+            return { driven: driven + (driven * (change / drive)), drive: drive + change };
+        };
+        // 가로 사이즈 비율에 맞게 전체 사이즈 조정
+        Imager.prototype.setWidth = function (v) {
+            return this.addWidth(v - this.width);
+        };
+        Imager.prototype.setHeight = function (v) {
+            return this.addHeight(v - this.height);
+        };
+        // (+-)v 값만큼 크기 조정.
+        Imager.prototype.addWidth = function (v) {
+            var _a = this.$setSize(this.width, v, this.height), drive = _a.drive, driven = _a.driven;
+            this.width = drive;
+            this.height = driven;
+            return this;
+        };
+        Imager.prototype.addHeight = function (v) {
+            var _a = this.$setSize(this.height, v, this.width), drive = _a.drive, driven = _a.driven;
+            this.width = driven;
+            this.height = drive;
+            return this;
+        };
+        return Imager;
+    }());
+    exports.Imager = Imager;
+}).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+
+/***/ }),
+
 /***/ 6:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1546,7 +1326,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.r_number = void 0;
-    exports.r_number = /^[+-]?\d+$/;
+    exports.r_number = /^[+-]?[0-9\.]+$/;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

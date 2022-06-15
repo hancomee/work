@@ -1,17 +1,12 @@
 package com.hancomee.web;
 
-import com.boosteel.nativedb.NativeDB;
-import com.boosteel.nativedb.core.anno.SQLString;
-import com.boosteel.nativedb.core.anno.Selector;
 import org.junit.Test;
-import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.function.Function;
+
+import static com.hancomee.web.controller.db.SqlUtil.*;
 
 public class 통장 {
 
@@ -19,62 +14,32 @@ public class 통장 {
     @Test
     public void copy() throws Exception {
 
-        Set<AccountData> set = new HashSet<>();
-        List<String> query = new ArrayList<>();
+        String str = "SELECT this.*, customer.*\n" +
+                "            FROM hancomee_work this\n" +
+                "            INNER JOIN hancomee_customer customer ON this.customer_id = customer.id\n" +
+                "            LEFT OUTER JOIN hancomee_workitem item ON this.id = item.work_id\n" +
+                "            [INNER JOIN hancomee_workmemo memo ON work.id = memo.work_id {?memo}]\n" +
+                "            [INNER JOIN hancomee_workfile_ref ref ON ref.work_id = this.id {?ref}]\n" +
+                "            [INNER JOIN hancomee_workfile wfile1 ON ref.id = wfile1.id {?ref}]\n" +
+                "            [INNER JOIN hancomee_workfile_print print ON print.item_id = item.id {?print}]\n" +
+                "            [INNER JOIN hancomee_workfile wfile3 ON print.id = wfile3.id {?print}]\n" +
+                "            WHERE this.state = {state:int}\n" +
+                "            [AND this.title LIKE {title:%_%}]\n" +
+                "            [AND wfile3.original_name LIKE {print:%_%}]\n" +
+                "            [AND wfile1.original_name LIKE {ref:%_%}]\n" +
+                "            [AND customer.name LIKE {customerName:%_%}]\n" +
+                "            [AND item.subject LIKE {itemSubject:%_%}]\n" +
+                "            [AND memo.value LIKE {memo:%_%}]\n" +
+                "            [AND this.datetime BETWEEN {st:st} AND {et:et}]\n" +
+                "            GROUP BY this.id;";
 
-        Path file = Paths.get(getClass().getClassLoader().getResource("이체결과.txt").toURI());
-        List<String> lines = Files.readAllLines(file);
-
-        for(String line : lines) {
-            AccountData data = new AccountData(line.split("\t"));
-            if(set.add(data)) {
-                query.add(data.query());
-            }
-        }
-
-
-        out("INSERT INTO bank_account (bank, nums, owner) VALUES " + String.join(", ", query) + ";");
-
-
+        Function<Map<String, Object>, String> fun = parser(str);
+        Map<String, Object> values = createMap("state", 1, "memo", "뚠'%따", "st", new Date().getTime(), "et", new Date().getTime());
+        out(fun.apply(values));
     }
 
 
-    class AccountData {
 
-        String value;
-        String name;
-        String bank;
-
-        public AccountData(String...ars) {
-            bank = ars[0];
-            value = ars[1];
-            name = ars[2];
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            AccountData that = (AccountData) o;
-            return Objects.equals(value, that.value) &&
-                    Objects.equals(name, that.name) &&
-                    Objects.equals(bank, that.bank);
-        }
-
-        @Override
-        public int hashCode() {
-
-            return Objects.hash(value, name, bank);
-        }
-        public String query() {
-            return "('" +  bank + "', '" + value + "', '" + name + "')";
-        }
-
-        @Override
-        public String toString() {
-            return "[" + bank + "] " + value + " / " + name;
-        }
-    }
 
     private static void out(Object obj) {
         System.out.println(obj);

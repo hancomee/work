@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 24);
+/******/ 	return __webpack_require__(__webpack_require__.s = 29);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -108,15 +108,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.__read = __read;
         Access.__primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            var r_string = /^['"]|['"]$/g;
             return function (val) {
                 if (typeof val === 'string' && val) {
-                    if (r_string.test(val))
-                        return val.slice(1, -1);
                     if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
+                        return val.indexOf(".") === -1 ? parseInt(val) : parseFloat(val);
+                    if (val === 'true')
+                        return true;
+                    if (val === 'false')
+                        return false;
+                    //return val.replace(r_string, '');
                 }
                 return val;
             };
@@ -159,9 +160,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
      */
     var Formats;
     (function (Formats) {
-        var primitive = _access_1.Access.__primitive;
         var __read = _access_1.Access.__read;
-        var rr = /:([\w.]+)/g, rn = /[^\d\.]+/g, today = new Date(), second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
+        var primitive = _access_1.Access.__primitive;
+        var __f = function (a) { return a; }, rr = /:([\w.]+)/g, rn = /[^\d\.]+/g, today = new Date(), second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
         // 숫자 자리수 맞추기
         zeroFill = function (t) { return _zf(t) + t; }, _switch = {
             'yyyy': function (d) { return d.getFullYear(); },
@@ -177,6 +178,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             'ss': function (d) { return zeroFill(d.getSeconds()); },
             'a/p': function (d) { return d.getHours() < 12 ? "오전" : "오후"; },
         }, __DUMMY = {}, _DEFAULT_FILTER = {
+            toLowerCase: function (val) {
+                return val ? val.toString().toLowerCase() : '';
+            },
             filesize: (function (array) {
                 var r = /\B(?=(?:\d{3})+(?!\d))/g;
                 return function (size, unit) {
@@ -243,9 +247,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         return $1;
                 });
             },
-            number: function (val) {
+            // zero : 0을 빈문자열로 반환할지
+            number: function (val, zero) {
+                if (zero === void 0) { zero = false; }
                 if (typeof val === "number") {
-                    return val.toString().replace(r_num_replace, ",");
+                    val = val.toString().replace(r_num_replace, ",");
+                    if (zero && val === '0')
+                        val = '';
+                    return val;
                 }
                 return '';
             },
@@ -314,6 +323,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return result;
         }
         Formats.__filterParser = __filterParser;
+        function __filterFunction(str) {
+            if (str.indexOf('?') === -1)
+                return function (data) { return __read(str, data); };
+            var _a = str.split('?'), prop = _a[0], filter = _a[1], name, args, i;
+            if ((i = filter.indexOf('(')) !== -1) {
+                name = filter.substring(0, i);
+                args = JSON.parse('[' + filter.substring(i + 1, -1) + ']');
+            }
+            else {
+                name = filter;
+                args = [];
+            }
+            return function (data, filter) {
+                if (filter === void 0) { filter = __DUMMY; }
+                var f = filter[name] || _DEFAULT_FILTER[name] || __f;
+                return f.apply(f, [__read(prop, data)].concat(args));
+            };
+        }
+        Formats.__filterFunction = __filterFunction;
+        // prop?function("args...")
         function __filterApply(str, obj, filter) {
             if (filter === void 0) { filter = __DUMMY; }
             var i = str.indexOf('?');
@@ -366,7 +395,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         function __datetimeFull(val) {
             var m = val.getMonth() + 1, d = val.getDate(), h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
             return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
-                _zf(h), h, ':', _zf(s), s, ':', _zf(M), M].join('');
+                _zf(h), h, ':', _zf(M), M, ':', _zf(s), s].join('');
         }
         function __date(val) {
             var m = val.getMonth() + 1, d = val.getDate();
@@ -465,7 +494,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 
-/***/ 24:
+/***/ 29:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _format_1) {
@@ -512,7 +541,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.r_number = void 0;
-    exports.r_number = /^[+-]?\d+$/;
+    exports.r_number = /^[+-]?[0-9\.]+$/;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 

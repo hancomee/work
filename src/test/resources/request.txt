@@ -1,0 +1,10 @@
+Accept: application/json, text/javascript, */*; q=0.01
+Accept-Language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+Connection: keep-alive
+Content-Length: 123
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Cookie: JSESSIONID=dS6qrOmRJRNAFAhDUzWwGOKLdiWq7H8aQAU5Ev0ma6J7wnDB71a0OtRLA0RY4nem.elecapp10_servlet_engine6; WMONID=P8nosa762SA; JSESSIONID=d2D92mpSQBkSp6CnUBdB0DKT3Zxlla4SQG7p7aJqw6JwNBDP7n6U1dCWn1LSih7I.elecapp10_servlet_engine2
+Host: info.nec.go.kr
+Referer: http://info.nec.go.kr/m/main/showDocument.xhtml?electionId=0020220601&secondMenuId=VCCP09&topMenuId=VC&
+User-Agent: Mozilla/5.0 (Linux; Android 4.4.2; Nexus 4 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.114 Mobile Safari/537.36
+X-Requested-With: XMLHttpRequest

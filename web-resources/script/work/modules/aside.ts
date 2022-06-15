@@ -1,10 +1,9 @@
 import "../../../lib/core/_event/_toggle";
 import {__zeroFill} from "../../../lib/core/_util/_zeroFill";
 import {
-    getElementsByAttr,
     __findByClass,
     __findByTag,
-    __findAll
+    __findAll, __findByAttr
 } from "../../../lib/core/_dom/_selector";
 import {todo} from "./aside/todo";
 import {calculator} from "./aside/calculator";
@@ -41,7 +40,7 @@ __findAll(aside, '[data-val]').forEach(v => {
 });
 
 
-getElementsByAttr(aside, 'data-pop', (r, ele, v) => {
+__findByAttr(aside, 'data-pop', (r, ele, v) => {
     sideProgram[v] && sideProgram[v](ele);
 });
 

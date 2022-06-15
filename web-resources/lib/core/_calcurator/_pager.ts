@@ -1,3 +1,11 @@
+type Arg = {
+    page: number
+    totalPages: number
+}
+
+type TableArg = {
+    page: number, totalPages: number, col: number, row: number
+}
 
 /*
  *  page: 현재페이지
@@ -8,8 +16,8 @@
  *
  *  _tablePage : 테이블 페이징
  */
-export function __pager(page: number, totalPages: number, col: number, row: number,
-                            _tablePage?: number) {
+export function __pagerTable({page, totalPages, col, row}: TableArg,
+                             _tablePage?: number) {
 
 
     let
@@ -40,7 +48,7 @@ export function __pager(page: number, totalPages: number, col: number, row: numb
     }
 
 
-    return  {
+    return {
         page: page,
         totalPages: totalPages,
         tPage: (tablePage + 1),
@@ -50,3 +58,28 @@ export function __pager(page: number, totalPages: number, col: number, row: numb
     };
 }
 
+
+// next, prev 없을땐 0
+export function __pager(arg: Arg, links: number) {
+
+    let {page, totalPages} = arg,
+        flag = page > links,
+        val, array = [];
+
+    if (flag) val = (Math.floor((page - 1) / links) * links) + 1;
+    else val = 1;
+
+    totalPages++;
+
+    // 배열만들기
+    for (let i = 0; i < links && val < totalPages; i++)
+        array[i] = val++;
+
+    return {
+        current: page,
+        next: val < totalPages ? val : 0,
+        prev: flag ? array[0] - 1 : 0,
+        links: array
+    }
+
+}

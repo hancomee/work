@@ -1,0 +1,33 @@
+$path: "/imgs/icon/file/";
+$values: (
+        img: (jpg, gif, png, bmp),
+        eps: (eps),
+        ai: (ai),
+        ppt: (ppt, pptm, pptx),
+        psd: (psd),
+        txt: (txt),
+        zip: (zip, rar, ogg),
+        xls: (xlsx, xlsb, xls, csv, xl),
+        pdf: (pdf),
+        indd: (indd),
+);
+
+.file-icon {
+
+  background: {
+    position: center;
+    size: contain;
+    repeat: no-repeat;
+    image: url("#{$path}unknown.png");
+  }
+
+  @each $key, $val in $values {
+
+    @each $v in $val {
+      &-#{$v} {
+        background-image: url("#{$path}#{$key}.png");
+      }
+    }
+  }
+}
+

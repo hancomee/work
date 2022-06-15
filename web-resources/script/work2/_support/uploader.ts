@@ -1,5 +1,4 @@
-import {Templates} from "../../../lib/core/_dom/_template";
-import Template = Templates.Template;
+import {Template} from "../../../lib/core/_dom/_template";
 
 
 type E = HTMLElement
@@ -73,39 +72,42 @@ export class WorkUploader extends Uploader {
 
     static $create: (data?) => WorkUploader
 
-    constructor(public element: E, public gauge: E, public countGauge: E,
-                public current: E, public fileinfo: E) {
-        super('/work2/view/upload');
+    constructor(
+        public element: E,
+        public gauge: E,
+        public countGauge: E,
+        public current: E,
+        public fileinfo: E
+    ) {
+        super('/work/db/upload');
     }
 
     apply() {
         return this;
     }
 
-    add(data: File, json: any, handler: HANDLER)
-    add(data: FormData, handler: HANDLER)
-    add(data, json, handler?) {
-        if(!handler) handler = json;
-        else {
-            let val = data;
-            data = new FormData();
-            json && data.append('data', new Blob([JSON.stringify(json)], {type: "application/json"}));
-            data.append('file', val);
+    add(file: File, data, handler: HANDLER) {
+        let formData = new FormData();
+        for (let p in data) {
+            formData.append(p, data[p]);
         }
+        formData.append('file', file);
 
-        this.values.push([data, handler]);
+        this.values.push([formData, handler]);
         return this.countCheck().upload();
+    }
+
+    startup() {
+        this.countGauge.style.width = this.gauge.style.width = '0%';
+        this.countGauge.textContent = this.gauge.textContent = '';
+        this.element.classList.add('on');
+        return this;
     }
 
     progress(load: number, total: number) {
         let {gauge} = this,
             val = Math.floor(load / total * 100) + '%';
         gauge.textContent = gauge.style.width = val;
-        return this;
-    }
-
-    startup() {
-        this.element.classList.add('on');
         return this;
     }
 
@@ -118,14 +120,11 @@ export class WorkUploader extends Uploader {
     }
 
     done() {
-        let {countGauge, gauge} = this;
         setTimeout(() => {
             if (!this.uploading) {
                 this.element.classList.remove('on');
-                countGauge.style.width = gauge.style.width = '0%';
-                countGauge.textContent = gauge.textContent = '';
             }
-        }, 1000);
+        }, 500);
         return this;
     }
 

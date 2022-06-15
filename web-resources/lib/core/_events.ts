@@ -350,166 +350,37 @@ export namespace Events {
      *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
      *  어트리뷰트를 읽어 데이터맵을 만들어준다.
      */
-    let r_read_split = /;\s*/,
-        r_data = /^data-/,
-        r_data_pre = /-./g, r_fun = (v) => v[1].toUpperCase(),
-        __setter = (obj, name, val) => obj[name] === void 0 && (obj[name] = val);
+    let _camelcase = (function (reg) {
+        return (attrName) => attrName.replace(reg, (char) => char[1].toUpperCase());
+    })(/\-./g);
 
-
-    /*
-     * ① :evt="name:textContent"
-     *    obj[name] = __primitive(element[textContent])
-     *
-     * ② :evt="name:this"
-     *    obj[name] = <element>  (=: data-element="name")
-     *
-     * ③ :evt="name"
-     *    obj[name] = __primitive(element.getAttribute('data-name'))
-     *
-     * ④ :evt="name:[attr]"
-     *    obj[name] = __primitive(element.getAttribute('attr'))
-     * 
-     * ⑤ :evt="name:{val}"
-     *    obj[name] = __primitive(val);
-     *
-     * ⑥ 함수호출
-     *    :evt="name("val")"
-     *    obj[name](element, ...args)
-     * 
-     */
-    function __parse(target: HTMLElement, prop, obj, names: string[], idx: number) {
-        let p = prop, v, i;
-
-        // 모든
-        if(p === '*') {
-            let {attributes: v} = target, l = v.length, n;
-            while(l-- > 0) {
-                if(r_data.test(n = v[l].name)) {
-                    n = n.slice(5).replace(r_data_pre, r_fun);
-                    if(names.indexOf(n) === -1) {
-                        obj = __primitive(v[l].value);
-                        names[idx++] = n;
-                    }
-                }
-            }
-            return idx;
-        }
-        
-        // 함수는 중복 호출된다.
-        if ((i = prop.indexOf('(')) !== -1) {
-            p = prop.slice(0, i++);
-            if (typeof obj[p] === 'function') {
-                v = prop.slice(i, -1);
-                if (v) obj[p].apply(obj, [target].concat(JSON.parse('[' + v + ']')));
-                else obj[p](target);
-            }
-        }
-        // 프로퍼티
-        else if ((i = prop.indexOf(':')) !== -1) {
-            p = prop.slice(0, i++);
-            if (names.indexOf(p) === -1) {
-                v = prop.slice(i);
-                if (v === 'this') obj[p] = target;
-                else if (v[0] === '[')
-                    obj[p] = __primitive(target.getAttribute(v.slice(1, -1)));
-                else if (v[0] === '{')
-                    obj[p] = __primitive(v.slice(1, -1));
-                else obj[p] = __primitive(target[v]);
-                names[idx++] = p;
-            }
-        } else {
-            if (names.indexOf(p) === -1) {
-                obj[p] = __primitive(target.getAttribute('data-' + p));
-            }
-        }
-
-        names[idx++] = p;
-        return idx;
-    }
-
-    function __builder(target: HTMLElement, obj, names: string[], idx: number) {
-
-        let v: any;
-
-        // target 자체를
-        if ((v = target.getAttribute('data-element')) != null) {
-            __setter(obj, v || 'element', target);
-        }
-
-        if ((v = target.getAttribute('evt') || '*')) {
-            let array = v.split(r_read_split), l = array.length;
-            while (l-- > 0) idx = __parse(target, array[l], obj, names, idx);
-        }
-
-        return idx;
-    }
-
-    export interface DATA_EVENT_OBJECT {
-        event: Event
-        target: HTMLElement
-        eventKey: string
-    }
 
     export interface DATA_EVENT_DIRECTIVE<T> {
         [index: string]: (t: T) => any
     }
 
-    export interface DATA_EVENT_OBJ_HANDLER<T> {
-        (e: Event, eventKey: string): T
-    }
-
-    // DOM을 순회할때 직접 참여할 수 있는 인터셉터 핸들러
-    export type DATA_EVENT_INTERCEPTOR<T> = (target: HTMLElement, obj: T, eventKey: string, e: Event) => any;
-
-
-    /*
-     *
-     * ★★★ 첫번째 메서드에만 타입을 마킹하면, 그 뒤의 메서드들은 자동으로 타입체크가 된다.
-     *
-     * type VAL = DE_TYPE<{ name: number, ele: HTMLElement }>
-     *
-     * __dataEvent(..., {
-     *      some(val: VAL) {    // <-- type marking!!
-     *      val.name;   // ok!
-     *      val.ele;    // ok!
-     *      },
-     *      some2(val) {
-     *      val.name;   // ok!
-     *      val.ele;    // ok!
-     *      }
-     *  });
-     *
-     *
-     */
-    export type DE_TYPE<T> = DATA_EVENT_OBJECT & T;
-    export type DED_TYPE<T> = DATA_EVENT_DIRECTIVE<DE_TYPE<T>>;
-
-
-    type DEM = keyof DocumentEventMap;
 
     interface EvtFactory<E, T> {
         new(e: E, eventTarget: HTMLElement): T & { init?() }
     }
 
+
+    const DEFAULT_DIRECTIVE = {
+        ele(element, attrValue, obj) {
+            obj[attrValue || 'element'] = element;
+        }
+    }
+
     /*
-     * 2020-10-09
-     * 타입유추를 최대한 사용하기 위한 인터페이스
      *
-     * ① directive의 첫번째 메서드에 타입을 적용하면, 이하 나머지 메서드들의 인자는 자동으로 타입추론이 된다.
-     * ② directive의 범용성을 높이기 위해 메서드 인자는 100% 커스텀하도록 만들었다. (원래는 이벤트객체를 포함하게 했었음)
-     * ③ 인터페이스는 선언된 순서대로 우선권을 가진다. directive:any를 후반부에 넣어 타입형이 우선되도록 했다.
-     *
+     * DOM 트리의 모든 어트리뷰트를 순회하며 데이터를 작성한다.
      */
-    export function __$dataEvent<T>(element: Element, type: keyof DocumentEventMap, attr: string,
-                                    directive: DATA_EVENT_DIRECTIVE<T>)
-    export function __$dataEvent(element: Element, type: keyof DocumentEventMap, attr: string, directive)
-    export function __$dataEvent<T, K extends keyof DocumentEventMap>(element: Element, type: K, attr: string,
+    export function __$attrEvent<T>(element: Element, type: keyof DocumentEventMap, attr: string, directive: DATA_EVENT_DIRECTIVE<T>)
+    export function __$attrEvent(element: Element, type: keyof DocumentEventMap, attr: string, directive)
+    export function __$attrEvent<T, K extends keyof DocumentEventMap>(element: Element, type: K, attr: string,
                                                                       provider: EvtFactory<DocumentEventMap[K], T>,
                                                                       directive: DATA_EVENT_DIRECTIVE<T>)
-    export function __$dataEvent<T, K extends keyof DocumentEventMap>(element: Element, type: K, attr: string,
-                                                                      provider: EvtFactory<DocumentEventMap[K], T>,
-                                                                      directive)
-    export function __$dataEvent(element, type, attr, provider, directive?) {
+    export function __$attrEvent(element, type, attr, provider, directive?) {
 
         // arguments : 4
         if (!directive) {
@@ -517,62 +388,76 @@ export namespace Events {
             provider = false;
         }
 
+        if(directive['$init']) directive['$init']();
+
         return new Events(element, type, (e) => {
-            let target = e.target,
+            let eventTarget,
+                target = eventTarget = e.target,
                 attrValue,
                 dir;
 
-            // 등록된 객체가 있는지 확인
+
+            /*
+             *  총 2번의 순회를 하게 되는 오버헤드가 존재한다.
+             *
+             */
             do {
-                if (attrValue = target.getAttribute(attr)) {
+                if (attrValue = eventTarget.getAttribute(attr)) {
                     dir = directive[attrValue];
                     break;
                 }
-            } while ((target = target.parentElement) && target !== element);
+            } while ((eventTarget = eventTarget.parentElement) && eventTarget !== element);
+
 
             if (dir) {
+
+
                 let
-                    obj = provider ? new provider(e, target) : {event: e},
+                    obj = provider ? new provider(e, eventTarget) : {event: e},
                     limit = element,
-                    node = e.target,
-                    exists = [], i = 0;
+                    done = {},
+                    attrs: NamedNodeMap, l = 0,
+                    isData,
+                    att: Attr,
+                    attrName;
 
-                while (node && (limit !== node)) {
-                    i = __builder(node, obj, exists, i);
-                    node = node.parentElement;
+                done[attr] = true;
+
+                while (target) {
+
+                    attrs = target.attributes;
+                    l = attrs.length;
+
+                    while (l-- > 0) {
+                        att = attrs[l];
+                        attrName = att.name;
+                        isData = attrName.indexOf('data-') === 0;
+                        attrName = isData ? _camelcase(attrName.slice(5)) : attrName;
+
+                        if (!done[attrName]) {
+
+                            attrName[0] !== '$' && (done[attrName] = true);
+
+                            if (typeof obj[attrName] === 'function') {
+                                obj[attrName].call(obj, target, att.value);
+                            } else if (DEFAULT_DIRECTIVE[attrName]) {
+                                DEFAULT_DIRECTIVE[attrName](target, att.value, obj);
+                            } else if (isData) {
+                                att.value && (obj[attrName] = __primitive(att.value));
+                            }
+                        }
+                    }
+
+                    if (target === limit) break;
+                    target = target.parentElement;
                 }
-                __builder(limit, obj, exists, i);
 
-                obj['init'] && obj['init']();
                 dir.call(directive, obj);
             }
         });
+
     }
 
-
-    /*export function __$bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
-
-        return new Events(element, type, (e) => {
-
-        let target = <HTMLElement>e.target, prop: string, handler, obj;
-        do {
-            if (!obj) {
-            if (target.hasAttribute(attr)) {
-                prop = target.getAttribute(attr);
-                handler = directive[prop];
-                if (handler) obj = {target: target};
-            }
-            }
-            obj && __builder(target, obj);
-            target = target.parentElement;
-        } while (target && target !== element);
-
-        if (obj) {
-            directive['*'] && directive['*'](obj, e);
-            handler.call(directive, obj, e);
-        }
-        });
-    }*/
 
     /*
      *  click 이벤트에 의한 focus-in focus-out 토글 이벤트

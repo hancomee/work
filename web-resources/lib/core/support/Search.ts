@@ -29,6 +29,11 @@ export class Search implements iLocation.iSearch {
         return this;
     }
 
+    writeHash(v?) {
+        location.hash = this.extend(v).toString();
+        return this;
+    }
+
     hash(obj?) {
         location.hash = this.extend(obj).toString();
         return this;
@@ -142,11 +147,9 @@ export namespace Search {
             // ie는 encodeURIComponent를 안해주면 ajax 에러가 난다.
             else if (Array.isArray(value)) {
                 array = array.concat(value.map(v => key + '=' + encodeURIComponent(v)));
-            }
-            else if (value instanceof Date) {
+            } else if (value instanceof Date) {
                 array.push(key + '=' + datetime(value));
-            }
-            else
+            } else
                 array.push(prefix + key + '=' + encodeURIComponent(value));
         }
 
@@ -252,8 +255,7 @@ export namespace URLManager {
                 if (v[0] === ':' && (v = v.slice(1))) {
                     let value = Access.__access(obj, v);
                     value != null && r.push(value);
-                }
-                else r.push(v);
+                } else r.push(v);
                 return r;
 
             }, []).join('/'),
@@ -267,8 +269,7 @@ export namespace URLManager {
                 if (value[0] === ':' && (value = value.slice(1))) {
                     let u = Access.__access(obj, value);
                     u != null && r.push(prop + '=' + u);
-                }
-                else r.push(v);
+                } else r.push(v);
 
                 return r;
 

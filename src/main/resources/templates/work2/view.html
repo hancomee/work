@@ -2,200 +2,315 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>hancomee</title>
+    <title>한컴기획</title>
 
+    <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="/dist/work2/view.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
 </head>
 <body>
 
 <nav>
+    <#include "./modules/menu.html">
+    <button class="btn btn-danger remove-work ml-auto" data-msg="작업삭제"
+            data-event="removeWork" data-toggle="dblclick" data-toggle-class="warning:this"></button>
+
+    <div class="dropdown ml-3" x-placement="right">
+        <button class="btn btn-outline-secondary" data-toggle="toggle" data-toggle-class="dropdown-show:.dropdown">
+            <i class="bi bi-dice-4-fill"></i>
+        </button>
+        <div id="m3" class="dropdown-menu p-3" style="width: 18rem;">
+            <h5 class="text-center">헤배계산</h5>
+            <div class="input-group mt-3">
+                <span class="input-group-text">단가</span>
+                <input name="m3-price" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <span class="input-group-text">가로</span>
+                <input name="m3-width" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <span class="input-group-text">세로</span>
+                <input name="m3-height" class="form-control">
+            </div>
+            <div class="input-group mt-3">
+                <span class="input-group-text">가격</span>
+                <input name="m3-result" class="form-control font-weight-bolder">
+            </div>
+            <div class="text-center mt-3"><button class="btn btn-outline-secondary" data-reset>reset</button></div>
+        </div>
+    </div>
 </nav>
 
 
 <div class="container-fluid px-4">
 
-    <div class="row" :template="work">
+    <div class="row" _template="work">
 
         <!-- Work -->
         <div class="col-9">
-            <div id="view" class="dash-box" data-element :access="work.id:[data-id]">
+
+            <div id="view" class="dash-box" _access="work.id:[data-id]">
 
                 <!-- Customer -->
-                <div id="customer" data-element :template="customer" evt='get("customer")' :access="data.id:[data-id]">
-                    <div class="p-2 text-right">
-                        <span class="material-icons ml-auto" data-event="modifyCustomer">settings</span>
+                <div id="customer" class="view-dark" _template="customer" _access="data.id:[data-id]">
+                    <div class="header d-flex align-items-center justify-content-center">
+                        <button class="view-btn customer-btn" data-event="modifyCustomer">수정</button>
+                        <div class="overflow-hidden">
+                            <strong class="view-title">고객정보</strong>
+                            <h5 class="customer-name" _access="data.name"></h5>
+                        </div>
                     </div>
                     <div class="customer-info">
-                        <div class="text-center">
-                            <strong :access='"{data.biz_con} {data.biz_type}"'></strong>
-                            <h4 class="font-weight-bolder" :access="data.name"></h4>
-                        </div>
                         <table>
                             <tbody>
                             <tr>
-                                <th><span class="material-icons" data-tooltip="대표자">account_circle</span></th>
-                                <td :access="data.owner"></td>
+                                <th>번호</th>
+                                <td _access="data.biz_num"></td>
                             </tr>
                             <tr>
-                                <th><span class="material-icons" data-tooltip="휴대폰">phonelink_ring</span></th>
-                                <td :access="data.mobile"></td>
+                                <th>업태</th>
+                                <td _access="data.biz_con"></td>
                             </tr>
                             <tr>
-                                <th><span class="material-icons" data-tooltip="전화">phone</span></th>
-                                <td :access="data.tel"></td>
+                                <th>종목</th>
+                                <td _access="data.biz_type"></td>
                             </tr>
                             <tr>
-                                <th><span class="material-icons" data-tooltip="팩스">local_printshop</span></th>
-                                <td :access="data.fax"></td>
+                                <th>대표</th>
+                                <td _access="data.owner"></td>
                             </tr>
                             <tr>
-                                <th><span class="material-icons-outlined" data-tooltip="이메일">mail</span></th>
-                                <td :access="data.email"></td>
+                                <th>전화</th>
+                                <td _access="data.mobile"></td>
                             </tr>
                             <tr>
-                                <th><span class="material-icons" data-tooltip="주소">room</span></th>
-                                <td :access="data.address"></td>
+                                <th>유선</th>
+                                <td _access="data.tel"></td>
                             </tr>
                             <tr>
-                                <td><span class="material-icons" data-tooltip="메모">textsms</span></td>
-                                <td :access="data.memo"></td>
+                                <th>팩스</th>
+                                <td _access="data.fax"></td>
+                            </tr>
+                            <tr>
+                                <th>메일</th>
+                                <td _access="data.email"></td>
+                            </tr>
+                            <tr>
+                                <th>주소</th>
+                                <td _access="data.address"></td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                     <!-- Customer Form -->
-                    <div class="customer-form" :template="customerForm">
+                    <div class="customer-form" _template="customerForm">
 
+                        <strong class="view-title">고객정보 수정</strong>
+
+                        <div class="customer-btn">
+                            <button class="view-btn" data-event="confirmCustomer">확인</button>
+                            <button class="view-btn" data-event="cancelCustomer">취소</button>
+                        </div>
+
+                        <table>
+                            <tbody>
+                            <tr>
+                                <th>상호</th>
+                                <td><input class="d-input" name="name"></td>
+                            </tr>
+                            <tr>
+                                <th>번호</th>
+                                <td><input class="d-input" name="biz_num"></td>
+                            </tr>
+                            <tr>
+                                <th>업태</th>
+                                <td><input class="d-input" name="biz_con"></td>
+                            </tr>
+                            <tr>
+                                <th>종목</th>
+                                <td><input class="d-input" name="biz_type"></td>
+                            </tr>
+                            <tr>
+                                <th>대표</th>
+                                <td><input class="d-input" name="owner"></td>
+                            </tr>
+                            <tr>
+                                <th>전화</th>
+                                <td><input class="d-input" name="mobile"></td>
+                            </tr>
+                            <tr>
+                                <th>유선</th>
+                                <td><input class="d-input" name="tel"></td>
+                            </tr>
+                            <tr>
+                                <th>팩스</th>
+                                <td><input class="d-input" name="fax"></td>
+                            </tr>
+                            <tr>
+                                <th>메일</th>
+                                <td><input class="d-input" name="email"></td>
+                            </tr>
+                            <tr>
+                                <th>주소</th>
+                                <td><input class="d-input" name="address"></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
 
-                <!-- Work Header -->
-                <div id="work-header" class="d-flex">
+                <!-- Work Header  :: fixed  -->
+                <div id="work-header" class="d-flex view-dark">
 
-                    <div class="header d-flex align-items-center justify-content-center">
-                        <div>
-                            <span class="duration mb-2 mx-auto" :access="work.datetime?duration"></span>
-                            <span class="h5" :access='work.datetime?datetime("yyyy-MM-dd(E) HH:mm")'></span>
+                    <div class="container-fluid px-4" style="border-left: 1px solid #636a70;">
+
+                        <div class="row h-100">
+
+                            <div class="col-9">
+                                <div class="d-flex h-100 align-items-center px-4 flex-grow-1">
+
+                                    <div class="mr-auto toggle-view flex-grow-1" data-view="0" data-ele>
+
+                                        <div class="mb-2" data-view-value="1">
+                                            <div class="btn-group dropdown mr-1">
+                                                <button type="button" class="view-btn dropdown-toggle" data-toggle="dropdown" _access='work.state?state'>
+                                                </button>
+                                                <ul class="dropdown-menu work-state" data-dismiss
+                                                    _access="work.state:[data-state]" data-event="changeState">
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="0">작업대기</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="1">시안검토</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="2">시안완료</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="3">작업중</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="4">입고</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="5">납품</span></li>
+                                                    <li><span class="dropdown-item cursor-pointer" data-state="6">완료</span></li>
+                                                </ul>
+                                            </div>
+                                            <button class="view-btn" _access="work.datetime?duration"></button>
+                                            <!--<span class="h5" _access='work.datetime?datetime("yyyy-MM-dd(E) HH:mm")'></span>-->
+                                            <button class="view-btn" data-event="modifySubject">수정</button>
+                                        </div>
+
+                                        <div>
+                                            <span class="h4 font-weight-bolder toggle-1" _access="work.title" data-view-value="1"></span>
+                                            <div class="v-flex align-items-center" data-view-value="0">
+                                                <input id="subject" name="title" class="input-subject mb-2 flex-grow-1">
+                                                <button class="view-btn" data-event="confirmSubject">확인</button>
+                                                <button class="view-btn ml-2" data-event="cancelSubject">취소</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="d-flex h-100">
+                                        <div class="money-info">
+                                            <span>공급가액</span>
+                                            <strong class="h3 d-block text-right" _access="work.price?number(true)"></strong>
+                                        </div>
+                                        <div class="money-info">
+                                            <span>부가세</span>
+                                            <strong class="h3 d-block text-right" _access="work.vat?number(true)"></strong>
+                                        </div>
+                                        <div class="money-info">
+                                            <span>합계</span>
+                                            <strong class="h3 font-weight-bolder d-block text-right" _access="work.total?number(true)"></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="d-flex h-100 align-items-center" data-event="bill">
+                                    <span class="btn btn-secondary bill-btn ml-auto" data-print-type="0">견적서</span>
+                                    <span class="btn btn-secondary bill-btn ml-2" data-print-type="1">명세표</span>
+                                    <span class="btn btn-secondary bill-btn ml-2" data-print-type="2">영수증</span>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-
-                    <div class="d-flex align-items-center px-4 flex-grow-1">
-
-                        <!-- 작업상태 토글 -->
-                        <div class="btn-group dropdown mr-3">
-                            <button type="button" class="btn btn-primary dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    :access='work.state?state'>
-                            </button>
-                            <ul class="dropdown-menu work-state" data-dismiss :access="work.state:[data-state]"
-                                data-event="state">
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="0">작업대기</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="1">시안검토</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="2">시안완료</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="3">제작중</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="4">입고</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="5">납품</span></li>
-                                <li><span class="dropdown-item cursor-pointer" evt="state" data-state="6">완료</span></li>
-                            </ul>
-                        </div>
-                        <div class="mr-auto">
-                            <span class="h3 font-weight-bolder" :access="work.title"></span>
-                        </div>
-
-                        <div class="d-flex text-nowrap" data-event="bill">
-                            <div class="bill-btn" evt="printType:{0}">
-                                <span class="material-icons ml-auto">add_box</span>
-                                <span class="d-block">견적서</span>
-                            </div>
-                            <div class="bill-btn" evt="printType:{1}">
-                                <span class="material-icons ml-auto">add_box</span>
-                                <span class="d-block">명세표</span>
-                            </div>
-                            <div class="bill-btn" evt="printType:{1}">
-                                <span class="material-icons ml-auto">add_box</span>
-                                <span class="d-block" evt="printType:{2}">영수증</span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center">
-                            <div class="money-info">
-                                <span>단가</span>
-                                <strong class="h3 d-block text-right" :access="work.price?number">0</strong>
-                            </div>
-                            <div class="money-info">
-                                <span>부가세</span>
-                                <strong class="h3 d-block text-right" :access="work.vat?number">0</strong>
-                            </div>
-                            <div class="money-info">
-                                <span class="font-weight-bolder">합계</span>
-                                <strong class="h3 font-weight-bolder d-block text-right"
-                                        :access="work.total?number">0</strong>
-                            </div>
-                        </div>
-                    </div>
-
-
                 </div>
 
                 <div class="dash-box-header">
-                    <strong>작업 목록</strong>
-                    <span class="material-icons ml-auto" data-event="modifyItem" data-tooltip="작업 추가">add_box</span>
+                    <strong data-event="toggle">작업 목록</strong>
+                    <button class="ml-auto view-btn" data-event="addItem">추가</button>
                 </div>
+
 
                 <div class="items">
                     <table class="table item-table">
                         <thead>
                         <tr>
-                            <th>품목</th>
-                            <th>규격</th>
-                            <th class="text-center">수량</th>
-                            <th class="text-right">단가</th>
-                            <th class="text-right">금액</th>
-                            <th class="text-right">부가세</th>
-                            <th>비고</th>
-                            <th class="text-center">..</th>
-                            <th></th>
-                            <th></th>
+                            <th style="width: 17%">품목</th>
+                            <th style="width: 17%">규격</th>
+                            <th class="text-center" style="width: 9%">수량</th>
+                            <th class="text-right" style="width: 10%">단가</th>
+                            <th class="text-right" style="width: 10%">공급가액</th>
+                            <th class="text-right" style="width: 9%">부가세</th>
+                            <th class="text-center" style="width: 14%">비고</th>
+                            <th class="text-center" style="width: 7%">..</th>
+                            <th class="text-center" style="width: 7%">...</th>
                         </tr>
                         </thead>
-                        <tbody data-element="itemContainer">
-                        <tr :template="item" evt='get("item")' :access="data.priority:[data-priority]" draggable="true">
-                            <td :access="data.subject"></td>
-                            <td :access="data.detail"></td>
-                            <td class="text-center" :access="data.count?number"></td>
-                            <td class="text-right" :access="data.price?number"></td>
-                            <td class="text-right" :access="data.total?number"></td>
-                            <td class="text-right" :access="data.vat?number"></td>
-                            <td :access="data.memo"></td>
-                            <td class="text-nowrap">
-                                <div class="d-flex">
+                        <tbody _element="itemContainer">
 
-                                    <div :access='$toggle("", "good", "data.draft.length")'>
-                                        <span class="material-icons ml-auto">add_box</span>
-                                    </div>
+                        <tr class="item" _template="item" _access="data.priority:[data-priority]; data.id:[data-id]">
+                            <td _access="data.subject"></td>
+                            <td _access="data.detail"></td>
+                            <td class="text-center" _access="data.count?number(true)"></td>
+                            <td class="text-right" _access="data.price?number(true)"></td>
+                            <td class="text-right" _access="data.total?number(true)"></td>
+                            <td class="text-right" _access="data.vat?number(true)"></td>
+                            <td _access="data.memo"></td>
+                            <td>
+                                <div class="d-flex align-items-center">
 
-                                    <div class="print-files d-inline-block dropdown" x-placement="right">
-                                        <div :access='$toggle("", "good", "data.draft.length")' data-toggle="dropdown">
-                                            <span class="material-icons ml-auto">add_box</span>
+                                    <button class="view-btn border-0 ml-auto" data-event="draft"
+                                            _access='$class({"active":"drafts.length"})'>시안
+                                    </button>
+                                    <div class="print-files dropdown" x-placement="right">
+                                        <button class="view-btn border-0 ml-1" _access='$class({"active":"prints.length"})'
+                                                data-event="print" data-toggle="dropdown">인쇄
+                                        </button>
+                                        <div class="print-container dropdown-menu">
+                                            <div class="print-header text-right">
+                                                <button class="view-btn" data-event="uploadPrint">파일 업로드</button>
+                                            </div>
+                                            <div class="print-body" _element="printContainer">
+                                                <div class="work-file" _template="?workPrint">
+                                                    <div class="work-file-icon">
+                                                        <a class="file-icon d-inline-block" _element="icon"></a>
+                                                    </div>
+                                                    <div class="work-file-info">
+                                                        <strong class="file-name"
+                                                                _access="'{data.original_name}.{data.filetype}'; data.original_name:title"></strong>
+                                                        <span class="file-date" _access='data.datetime?datetime("yyyy-MM-dd HH:mm")'></span>
+                                                        <span class="file-size" _access='data.size?filesize'></span>
+                                                        <button class="view-btn view-del" data-toggle="dblclick" data-event="removePrint">삭제</button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="print-pop dropdown-menu" data-element="prints">
-                                            <i data-dismiss>지우기</i>
-                                            <div :template="?print" :access="data.original_name"></div>
-                                        </div>
+
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-nowrap">
-                                <span class="material-icons ml-auto" data-event="modifyItem">settings</span>
-                            </td>
-                            <td class="text-nowrap">
-                                <span class="material-icons ml-auto" data-event="removeItem"
-                                      data-tooltip="삭제!">disabled_by_default</span>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex dropdown" x-placement="right">
+                                        <button class="view-btn" data-event="modifyItem">수정</button>
+                                        <button class="view-btn view-del left-0" data-event="removeItem" data-toggle="dblclick"
+                                                data-toggle-class="delete:.item; delete:this">삭제
+                                        </button>
+                                    </div>
+                                    <i class="bi bi-list-ul cursor-pointer no-drag" style="position: absolute; margin-left: 5.6rem" data-sort></i>
+                                </div>
                             </td>
                         </tr>
-                        <tr class="d-form" data-element="" :template="?itemForm" evt='get("itemForm")' :access="data.id:[data-id]">
+                        <tr class="d-form" _template="?itemForm" _access="data.id:[data-id]">
                             <td><input class="d-input" name="subject"></td>
                             <td><input class="d-input" name="detail"></td>
                             <td><input class="d-input" name="count" data-type="number"></td>
@@ -205,40 +320,75 @@
                             <td><input class="d-input" name="memo"></td>
                             <td></td>
                             <td>
-                                <span class="material-icons d-form-ani" data-event="cancelItem">settings</span>
-                            </td>
-                            <td>
-                                <span class="material-icons" data-event="updateItem">check_circle</span>
+                                <div class="d-flex">
+                                    <button class="view-btn" data-event="saveItem">저장</button>
+                                    <button class="view-btn left-0" data-event="cancelItem">취소</button>
+                                </div>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+
         </div>
+
+
         <div class="col-3">
 
-            <div class="dash-box">
+            <div class="dash-box" data-view="0" data-ele>
                 <div class="dash-box-header">
-                    <strong>작업 메모</strong>
-                    <span class="material-icons ml-auto" data-event="addMemo" data-tooltip="메모 추가">add_box</span>
-                </div>
-                <div data-element="memoContainer">
-                    <div :template="?workMemo">
-                        <pre :access="data.value"></pre>
+                    <strong>견적 메모</strong>
+                    <button class="ml-auto view-btn" data-event="modifyText" data-view-value="1">수정</button>
+                    <div class="ml-auto" data-view-value="0">
+                        <button class="ml-auto view-btn" data-event="confirmText">확인</button>
+                        <button class="ml-auto view-btn" data-event="cancelText">취소</button>
                     </div>
-                    <div :template="?memoForm"></div>
                 </div>
+                <textarea id="workText" class="work-text" _access="work.text" name="text" disabled></textarea>
             </div>
 
             <div class="dash-box">
                 <div class="dash-box-header">
-                    <strong>작업 파일</strong>
-                    <span class="material-icons ml-auto" data-event="uploadRef" data-tooltip="파일 추가">add_box</span>
+                    <strong data-event="toggle">작업 메모</strong>
+                    <button class="ml-auto view-btn" data-event="addMemo">등록</button>
                 </div>
-                <div data-element="refContainer">
-                    <div :template="?workRef">
-                        <pre :access="data.value"></pre>
+                <div _element="memoContainer">
+                    <div class="work-memo" _template="?workMemo">
+                        <pre _access="data.value"></pre>
+                        <div class="text-right">
+                            <span _access='data.datetime?datetime("yyyy-MM-dd(E) HH:mm")'></span>
+                            <button class="view-btn" data-event="modifyMemo">수정</button>
+                            <button class="view-btn view-del" data-event="removeMemo" data-toggle="dblclick">삭제</button>
+                        </div>
+                    </div>
+                    <div class="work-memo" _template="?memoForm">
+                        <textarea _element="textarea" class="form-control mt-3" rows="5"></textarea>
+                        <div class="text-right">
+                            <button class="view-btn" data-event="confirmMemo">확인</button>
+                            <button class="view-btn" data-event="cancelMemo">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-box">
+                <div class="dash-box-header mb-0">
+                    <strong>작업 파일</strong>
+                    <button class="ml-auto view-btn" data-event="uploadRef">등록</button>
+                </div>
+                <div class="container work-refs" _element="refContainer">
+                    <div class="work-file" _template="?workRef">
+                        <div class="work-file-icon">
+                            <a class="file-icon d-inline-block" _element="icon"></a>
+                        </div>
+                        <div class="work-file-info">
+                            <strong class="file-name" _access="data.original_name; data.original_name:title"></strong>
+                            <span class="file-size" _access='data.size?filesize'></span>
+                            <span class="file-date" _access='data.datetime?datetime("yyyy-MM-dd HH:mm")'></span>
+                            <button class="view-btn view-del" data-toggle="dblclick" data-event="removeRef">삭제</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -247,33 +397,42 @@
 </div>
 
 
-<div class="confirm-box dropdown-menu" :template="confirmBox">
-    <button class="btn btn-danger" data-element="confirm">삭제</button>
-    <button class="btn btn-secondary" data-element="cancel">취소</button>
-</div>
-
-<div id="uploader" :template="workUploader">
+<div id="uploader" _template="workUploader">
     <div class="progress">
-        <div class="progress-bar progress-bar-striped" data-element="gauge" style="width: 0%"></div>
+        <div class="progress-bar progress-bar-striped" _element="gauge" style="width: 0%"></div>
     </div>
-    <div class="text-center" data-element="fileinfo"></div>
+    <div class="text-center" _element="fileinfo"></div>
     <div class="progress mt-5">
-        <div class="progress-bar progress-bar-striped bg-success" data-element="countGauge" style="width: 0%"></div>
+        <div class="progress-bar progress-bar-striped bg-success" _element="countGauge" style="width: 0%"></div>
     </div>
-    <div class="text-center" data-element="current"></div>
+    <div class="text-center" _element="current"></div>
 </div>
 
-<div id="screen" class="screen v-screen" :template="screen"></div>
+<div id="screen" class="screen" _template="screen">
+    <div class="screen-nav">
+        <button class="btn btn-primary ml-auto" data-event="uploadDraft">시안 이미지 업로드</button>
+        <button class="btn btn-secondary ml-2 mr-3" data-event="screenClose">닫기</button>
+    </div>
+    <div class="screen-aside" _element="imgList">
+        <div class="img-list" _template="?imgTemplate">
+            <span data-event="removeDraft" data-toggle="dblclick" data-toggle-class="del-confirm:this">삭제</span>
+            <img data-event="viewDraft" _element="img" _access="url:src">
+        </div>
+    </div>
+    <div class="screen-main" _element="imgContainer"></div>
+</div>
 
 
 <#include "./modules/bill.html">
 
 <!-- 화면 블락처리 -->
-<div id="spinner">
-    <div class="spinner-border text-light" role="status"></div>
+<div id="block">
+    <div class="viewer"></div>
+    <div class="text-center">
+        <div class="spinner-border text-light" role="status"></div>
+    </div>
 </div>
 
-<script src="/lib/js/es6-promise.js"></script>
 <script src="/dist/work2/view.js"></script>
 </body>
 </html>

@@ -1,22 +1,21 @@
 import {Customer, Work, WorkFile, WorkItem, WorkMemo} from "./_core/Work";
 import {$extend} from "../../lib/core/_core";
-import {FileUpload} from "../_support/FileUpload";
+import {FileUpload} from "./_support/FileUpload";
 import {Screen} from "./view/Screen";
 import {Events, EventsGroup} from "../../lib/core/_events";
 import {Access} from "../../lib/core/_access";
 import {DragSort} from "./view/DragSort";
 import {ImageScreen} from "./view/ImageScreen";
-import {ModifyForm} from "../_support/ModifyForm";
+import {ModifyForm} from "./_support/ModifyForm";
 import {Mapping} from "../../lib/core/_dom/Mapping";
-import {ConfirmBox} from "../_support/ComfirmBox";
+import {ConfirmBox} from "./_support/ComfirmBox";
 import {__findByTag, __findAll, __findById} from "../../lib/core/_dom/_selector";
 import {$bill} from "./view/Bill";
 import {r_number} from "../../lib/core/_regexp/number";
-import dataEvent = Events.__$dataEvent;
 import access = Access.__access;
 import simpleTrigger = Events.__$simpleTrigger;
 import acceptKeys = Events.__$acceptKeys;
-import {mapperDispatcher} from "../_support/dispatcher";
+import {mapperDispatcher} from "./_support/dispatcher";
 import {Formats} from "../../lib/core/_format";
 import number = Formats.__number;
 import {Calendar} from "../../lib/core/support/Calendar";
@@ -29,13 +28,15 @@ import _filter = Arrays.__filter;
 import {__replaceHTML} from "../../lib/core/_html/_compile";
 import _reduce = Arrays.__reduce;
 import _map = Arrays.__map;
-import {__adjustTo} from "../../lib/core/_calcurator/_image";
 import {__selectA} from "../../lib/core/_dom/_select";
 import {__className, __createHTML} from "../../lib/core/_dom/_commons";
 import {__pasteImage} from "../../lib/core/support/patseImage";
 import DATA_EVENT_DIRECTIVE = Events.DATA_EVENT_DIRECTIVE;
 import {FormEvent} from "../../lib/core/_form/_formEvents";
 import {_recieveFiles} from "../../lib/core/_form/_recieveFiles";
+import __$attrEvent = Events.__$attrEvent;
+
+declare let __adjustTo;
 
 class EventObject {
 
@@ -669,7 +670,7 @@ function $init($uuid: string, $path: string, $work: Work) {
     };
 
     //************************************** ▼ Events ▼ **************************************//
-    dataEvent($container, 'click', 'data-event', EventObject, $dataEvent);
+    __$attrEvent($container, 'click', 'data-event', EventObject, $dataEvent);
     //************************************** ▲ Events ▲ **************************************//
 
     $mapping.$render($container);

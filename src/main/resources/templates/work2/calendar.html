@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>일정관리</title>
+
+    <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/dist/work2/calendar.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav>
+    <#include "./modules/menu.html">
+    <div class="c-navi d-flex ml-auto dropdown">
+        <span class="c-navi-btn" data-value="0" data-navi="prev" data-event="navi"><i class="bi bi-chevron-double-left"></i></span>
+        <strong class="c-navi-current ml-2 mr-2" id="navi" data-navi="current" data-value="1">2022년 08월</strong>
+        <span class="c-navi-btn" data-value="2" data-navi="next" data-event="navi"><i class="bi bi-chevron-double-right"></i></span>
+        <div class="dropdown-menu">sdfasdf</div>
+    </div>
+</nav>
+
+
+<div>
+
+    <div id="month" class="month">
+        <div class="day" _template="?day" _access="calendar.date:[data-value]; chk:[data-chk]; calendar.day:[data-week]"
+             data-screen="0">
+            <div class="day-fixed"> <!-- 전체화면시 display:fixed -->
+                <div class="day-container">
+                    <div class="day-header" data-event="screen">
+                        <span class="day-header-date view-0" _access="calendar.date"></span>
+                        <strong class="view-1" _access='calendar.value?datetime("yyyy년 MM월 dd일 (E)")'></strong>
+                        <button class="view-1 day-header-add btn btn-primary btn-sm" data-event="add">추가</button>
+                    </div>
+                    <div class="day-body">
+                        <div class="day-content" _element="container">   <!-- position:absolute; 로 최대사이즈를 맞춘다 -->
+
+                            <div class="day-content-list" _template="?dayContent" _access="data.id:[data-id]; data.complete:[data-complete]">
+                                <button class="c-btn" _access="data.category" data-event="complete"></button>
+                                <div class="day-content-text flex-grow-1" _access="data.text" _element="text"></div>
+                                <div class="w-flex ml-2 view-1">
+                                    <span class="day-content-btn" data-event="modifyContent">수정</span>
+                                    <span class="day-content-btn day-content-remove" data-event="removeContent" data-toggle="dblclick">삭제</span>
+                                </div>
+                            </div>
+
+                            <div class="day-content-form" _template="?dayContentForm">
+                                <div class="dropdown">
+                                    <button class="c-btn" data-toggle="dropdown" _access="category" _element="categoryBtn"></button>
+                                    <div class="dropdown-menu" _element="categories"></div>
+                                </div>
+                                <textarea name="text" class="day-content-form-text flex-grow-1" _element="textarea" _access="text"></textarea>
+                                <div class="w-flex ml-2">
+                                    <span class="day-content-btn" data-event="confirmContent">확인</span>
+                                    <span class="day-content-btn" data-event="cancelContent">취소</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="/dist/work2/calendar.js"></script>
+</body>
+</html>

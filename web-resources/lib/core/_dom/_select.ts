@@ -36,11 +36,11 @@ export function __nthChildren(context: Element, nth: number) {
 }
 
 
-export function __selectMap<T>(obj: new(...args) => T, element: HTMLElement, selectors: string[]|string): T
+export function __selectMap<T>(obj: new(...args) => T, element: HTMLElement, selectors: string[] | string): T
 export function __selectMap<T>(obj: T, element: HTMLElement, directive: Object): T
 export function __selectMap(obj, element: HTMLElement, directive) {
 
-    if(typeof obj === 'function') {
+    if (typeof obj === 'function') {
         return __newApply(obj, __selectA(element, directive));
     }
 
@@ -51,7 +51,6 @@ export function __selectMap(obj, element: HTMLElement, directive) {
     }
     return obj;
 }
-
 
 
 function _lookup(str: string, e: number) {
@@ -79,8 +78,7 @@ export function __select1(context, selector: string) {
             if (l === ']') {
                 r = context.getElementsByClassName(selector.substring(1, selector.lastIndexOf('[')));
                 return r[_lookup(selector, e)];
-            }
-            else return context.getElementsByClassName(selector.substring(1));
+            } else return context.getElementsByClassName(selector.substring(1));
         default :
             return null;
     }
@@ -127,27 +125,35 @@ export function __selectA(element: Element, arg, handler?) {
 };
 
 
+/*
+ *  어트리뷰트 이름앞에 !를 붙이면 detach도 수행한다.
+ */
 export function __attrMap(target: HTMLElement, attrName: string, names: string[]): HTMLElement[]
-export function __attrMap(target: HTMLElement, attrName: string): {[index: string]: HTMLElement}
+export function __attrMap(target: HTMLElement, attrName: string): { [index: string]: HTMLElement }
 export function __attrMap(target: HTMLElement, attrName: string, names?) {
+
+    const detach = attrName[0] === '!';
+
+    if(detach) attrName = attrName.slice(1);
 
     let values = target.querySelectorAll('[' + attrName + ']'),
         l = values.length;
 
-    if(names) {
+    if (names) {
         let r = [], s, i;
-        while(l-- > 0) {
+        while (l-- > 0) {
+            if(detach) values[l].parentElement.removeChild(values[l]);
             s = values[l].getAttribute(attrName);
             i = names.indexOf(s);
-            if(i !== -1) r[i] = values[l];
+            if (i !== -1) r[i] = values[l];
         }
         return r;
-    }
-
-    else {
+    } else {
         let map = {};
-        while(l-- > 0)
+        while (l-- > 0) {
+            if(detach) values[l].parentElement.removeChild(values[l]);
             map[values[l].getAttribute(attrName)] = values[l];
+        }
         return map;
     }
 

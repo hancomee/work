@@ -29,7 +29,7 @@ input.form-error {
   border-color: #f92f2f !important;
 }
 
-[data-form-mapping] + * {
+.next-hide + * {
   display: none !important;
 }
 

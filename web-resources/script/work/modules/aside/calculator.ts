@@ -1,4 +1,4 @@
-import {getElementsByAttr, __find} from "../../../../lib/core/_dom/_selector";
+import {__find, __findByAttr} from "../../../../lib/core/_dom/_selector";
 import {Formats} from "../../../../lib/core/_format";
 import number = Formats.__number;
 
@@ -34,5 +34,5 @@ let program = {
 }
 
 export function calculator(element: HTMLElement) {
-    getElementsByAttr(element, 'data-calculator', (r, e, v) => program[v](e));
+    __findByAttr(element, 'data-calculator', (r, e, v) => program[v](e));
 }

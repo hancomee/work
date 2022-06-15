@@ -1,5 +1,4 @@
-import {Templates} from "../../../lib/core/_dom/_template";
-import Template = Templates.Template;
+import {Template} from "../../../lib/core/_dom/_template";
 
 
 @Template(document.getElementsByTagName('nav')[0], false)

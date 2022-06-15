@@ -1,0 +1,11 @@
+<ul class="menu">
+    <li><a href="/work/list">작업리스트</a></li>
+    <li><a href="/calendar">일정관리</a></li>
+</ul>
+<script>
+    (function (pathname) {
+        Array.prototype.forEach.call(document.getElementsByClassName('menu')[0].getElementsByTagName('a'), (ele) => {
+            if(ele.getAttribute('href').indexOf(pathname) === 0) ele.parentElement.classList.add('active');
+        });
+    })(location.pathname.replace(/\/$/, ''))
+</script>

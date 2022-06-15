@@ -61,7 +61,6 @@ module.exports = {
         ],*/
     },
 
-
     output: {
         path: __root + 'src/main/resources/static/dist/',
         filename: '[name]'

@@ -44,6 +44,7 @@ export function __findAll(ele, s?) {
 }
 
 
+
 export function __findByClass(s: string): HTMLElement[]
 export function __findByClass(s: string, index: number): HTMLElement
 export function __findByClass(ele: Element | Document, s: string): HTMLElement[]
@@ -79,14 +80,14 @@ export function __findByTag(ele, s?, idx?) {
 
 
 export function
-getElementsByAttr(target: HTMLElement | Document, attrName: string): { [index: string]: HTMLElement }
-export function getElementsByAttr<T>(target: HTMLElement | Document,
-                                     attrName: string,
-                                     handler: (r: T, e: HTMLElement, v: string, i: number) => any, r?: T): T
-export function getElementsByAttr<R extends HTMLElement, T>(target: HTMLElement | Document,
-                                                            attrName: string,
-                                                            directive: { [index: string]: (ele: R, target: HTMLElement, data: T) => void }, data?: T): R
-export function getElementsByAttr(target, attrName, c?, d?) {
+__findByAttr(target: HTMLElement | Document, attrName: string): { [index: string]: HTMLElement }
+export function __findByAttr<T>(target: HTMLElement | Document,
+                                attrName: string,
+                                handler: (r: T, e: HTMLElement, v: string, i: number) => any, r?: T): T
+export function __findByAttr<R extends HTMLElement, T>(target: HTMLElement | Document,
+                                                       attrName: string,
+                                                       directive: { [index: string]: (ele: R, target: HTMLElement, data: T) => void }, data?: T): R
+export function __findByAttr(target, attrName, c?, d?) {
 
     let i = 0,
         list = target.querySelectorAll('[' + attrName + ']'),

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>한컴기획</title>
+
+    <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/dist/work2/list.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav>
+    <#include "./modules/menu.html">
+    <div class="ml-auto d-flex align-items-center">
+        <div class="search">
+            <input name="search" id="search">
+            <button id="searchBtn" data-event="search"><i class="bi bi-search"></i> Search</button>
+        </div>
+        <button class="ml-4 nav-btn" data-event="createWork">작업등록</button>
+    </div>
+</nav>
+
+<div id="header">
+    <div id="info" class="info" _template="info" data-event="pageMove">
+        <div class="info-name" _access="name">작업대기</div>
+        <div class="info-navi dropdown">
+            <span class="pager-prev"><i class="bi bi-chevron-left"></i></span>
+            <strong data-toggle="dropdown" class="pager-current"></strong>
+            <span class="pager-next"><i class="bi bi-chevron-right"></i></span>
+            <div class="dropdown-menu pager-container" _element="navTable">
+                <div class="pager-nav">
+                    <span class="pager-table-prev"><i class="bi bi-chevron-left"></i></span>
+                    <strong data-toggle="dropdown" class="pager-table-current"></strong>
+                    <span class="pager-table-next"><i class="bi bi-chevron-right"></i></span>
+                </div>
+                <div class="pager-table"></div>
+            </div>
+        </div>
+    </div>
+    <div id="state">
+        <div class="state-list" _template="?stateList" _access="data.index:[data-state]" data-event="moveState">
+            <div class="title" _access="data.name"></div>
+            <div class="count" _access="data.count?number"></div>
+            <div class="price" _access="data.price?number"></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid">
+
+    <div class="row" id="container">
+        <div class="col-2" _template="?itemList" _access="data.uuid:[data-uuid]; data.id:[data-id]; data.state:[data-state]">
+            <div class="item-list">
+                <div class="item-thumb cursor-pointer" data-event="view"></div>
+                <div class="item-datetime">
+                    <span class="item-duration" _access='data.datetime?duration'></span>
+                    <span _access='data.datetime?datetime("yyyy-MM-dd(E) HH:mm")'></span>
+                    <div class="dropdown ml-auto" x-placement="right">
+                        <span data-toggle="dropdown"><i class="bi bi-caret-down-square"></i></span>
+                        <ul class="dropdown-menu work-state" data-dismiss
+                            _access="data.state:[data-state]" data-event="changeState">
+                            <li><span class="dropdown-item cursor-pointer" data-state="0">작업대기</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="1">시안검토</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="2">시안완료</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="3">작업중</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="4">입고</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="5">납품</span></li>
+                            <li><span class="dropdown-item cursor-pointer" data-state="6">완료</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="item-customer cursor-pointer" _access="data.customer.name" data-event="view"></div>
+                <div class="item-title" _access="data.title"></div>
+                <div class="item-price">
+                    <div class="mr-auto">
+                        <button class="btn btn-sm btn-outline-danger remove-work" data-toggle="dblclick" data-event="removeWork">작업삭제</button>
+                    </div>
+                    <div class="item-count" _access="data.item_len"></div>
+                    <div class="item-total cursor-pointer" _access="data.total?number" data-event="view"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="createWork" class="create-work" _template="workCreator">
+    <div class="create-container">
+
+        <h2 class="text-center mb-4">
+            <strong>새 작업 생성</strong>
+        </h2>
+
+        <div class="customer-name">
+            <div class="dropdown create-form">
+                <span>업체명</span>
+                <input name="customer" _element="customer">
+                <button data-creator="customer">새로 만들기</button>
+                <ul class="result-list" _element="resultList"></ul>
+            </div>
+        </div>
+        <div class="work-title">
+            <div class="create-form">
+                <span>작업 제목</span>
+                <input name="title" _element="title">
+                <button data-creator="work">생성</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/dist/work2/list.js"></script>
+</body>
+</html>

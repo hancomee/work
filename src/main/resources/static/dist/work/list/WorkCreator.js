@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 30);
+/******/ 	return __webpack_require__(__webpack_require__.s = 34);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -107,15 +107,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         }
         Access.__read = __read;
         Access.__primitive = (function () {
-            var r_boolean = /^true$|^false$/, r_string = /^['"][^"']+['"]$/;
+            var r_string = /^['"]|['"]$/g;
             return function (val) {
                 if (typeof val === 'string' && val) {
-                    if (r_string.test(val))
-                        return val.slice(1, -1);
                     if (number_1.r_number.test(val))
-                        return parseInt(val);
-                    if (r_boolean.test(val))
-                        return val === 'true';
+                        return val.indexOf(".") === -1 ? parseInt(val) : parseFloat(val);
+                    if (val === 'true')
+                        return true;
+                    if (val === 'false')
+                        return false;
+                    //return val.replace(r_string, '');
                 }
                 return val;
             };
@@ -484,6 +485,16 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return r;
         }
         Arrays.__map = __map;
+        function __toArray(obj, h) {
+            var r = [], rr = 0, i = 0, p, rv;
+            for (p in obj) {
+                rv = h(p, obj[p], i++);
+                if (rv !== null)
+                    r[rr++] = rv;
+            }
+            return r;
+        }
+        Arrays.__toArray = __toArray;
         function __colMap(values, size, handler) {
             var r = [], v, l = values.length, index = 0, rIndex = 0, vIndex = 0;
             while (index < l) {
@@ -586,9 +597,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
      */
     var Formats;
     (function (Formats) {
-        var primitive = _access_1.Access.__primitive;
         var __read = _access_1.Access.__read;
-        var rr = /:([\w.]+)/g, rn = /[^\d\.]+/g, today = new Date(), second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
+        var primitive = _access_1.Access.__primitive;
+        var __f = function (a) { return a; }, rr = /:([\w.]+)/g, rn = /[^\d\.]+/g, today = new Date(), second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24, year = 365 * day, __day = ["일", "월", "화", "수", "목", "금", "토"], r_datetime = /yyyy|yy|M{1,2}|d{1,2}|E|HH|mm|ss|a\/p/gi, _zf = function (v) { return v < 10 ? '0' : ''; }, 
         // 숫자 자리수 맞추기
         zeroFill = function (t) { return _zf(t) + t; }, _switch = {
             'yyyy': function (d) { return d.getFullYear(); },
@@ -604,6 +615,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             'ss': function (d) { return zeroFill(d.getSeconds()); },
             'a/p': function (d) { return d.getHours() < 12 ? "오전" : "오후"; },
         }, __DUMMY = {}, _DEFAULT_FILTER = {
+            toLowerCase: function (val) {
+                return val ? val.toString().toLowerCase() : '';
+            },
             filesize: (function (array) {
                 var r = /\B(?=(?:\d{3})+(?!\d))/g;
                 return function (size, unit) {
@@ -670,9 +684,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                         return $1;
                 });
             },
-            number: function (val) {
+            // zero : 0을 빈문자열로 반환할지
+            number: function (val, zero) {
+                if (zero === void 0) { zero = false; }
                 if (typeof val === "number") {
-                    return val.toString().replace(r_num_replace, ",");
+                    val = val.toString().replace(r_num_replace, ",");
+                    if (zero && val === '0')
+                        val = '';
+                    return val;
                 }
                 return '';
             },
@@ -741,6 +760,26 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
             return result;
         }
         Formats.__filterParser = __filterParser;
+        function __filterFunction(str) {
+            if (str.indexOf('?') === -1)
+                return function (data) { return __read(str, data); };
+            var _a = str.split('?'), prop = _a[0], filter = _a[1], name, args, i;
+            if ((i = filter.indexOf('(')) !== -1) {
+                name = filter.substring(0, i);
+                args = JSON.parse('[' + filter.substring(i + 1, -1) + ']');
+            }
+            else {
+                name = filter;
+                args = [];
+            }
+            return function (data, filter) {
+                if (filter === void 0) { filter = __DUMMY; }
+                var f = filter[name] || _DEFAULT_FILTER[name] || __f;
+                return f.apply(f, [__read(prop, data)].concat(args));
+            };
+        }
+        Formats.__filterFunction = __filterFunction;
+        // prop?function("args...")
         function __filterApply(str, obj, filter) {
             if (filter === void 0) { filter = __DUMMY; }
             var i = str.indexOf('?');
@@ -793,7 +832,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         function __datetimeFull(val) {
             var m = val.getMonth() + 1, d = val.getDate(), h = val.getHours(), s = val.getSeconds(), M = val.getMinutes();
             return [val.getFullYear(), '-', _zf(m), m, '-', _zf(d), d, ' ',
-                _zf(h), h, ':', _zf(s), s, ':', _zf(M), M].join('');
+                _zf(h), h, ':', _zf(M), M, ':', _zf(s), s].join('');
         }
         function __date(val) {
             var m = val.getMonth() + 1, d = val.getDate();
@@ -892,8 +931,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 /***/ }),
 /* 3 */,
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1227,143 +1265,67 @@ var __extends = (this && this.__extends) || (function () {
          *  event가 발생하면 target 엘리먼트부터 상위엘리먼트로 올라가면서
          *  어트리뷰트를 읽어 데이터맵을 만들어준다.
          */
-        var r_read_split = /;\s*/, r_data = /^data-/, r_data_pre = /-./g, r_fun = function (v) { return v[1].toUpperCase(); }, __setter = function (obj, name, val) { return obj[name] === void 0 && (obj[name] = val); };
-        /*
-         * ① :evt="name:textContent"
-         *    obj[name] = __primitive(element[textContent])
-         *
-         * ② :evt="name:this"
-         *    obj[name] = <element>  (=: data-element="name")
-         *
-         * ③ :evt="name"
-         *    obj[name] = __primitive(element.getAttribute('data-name'))
-         *
-         * ④ :evt="name:[attr]"
-         *    obj[name] = __primitive(element.getAttribute('attr'))
-         *
-         * ⑤ :evt="name:{val}"
-         *    obj[name] = __primitive(val);
-         *
-         * ⑥ 함수호출
-         *    :evt="name("val")"
-         *    obj[name](element, ...args)
-         *
-         */
-        function __parse(target, prop, obj, names, idx) {
-            var p = prop, v, i;
-            // 모든
-            if (p === '*') {
-                var v_1 = target.attributes, l = v_1.length, n = void 0;
-                while (l-- > 0) {
-                    if (r_data.test(n = v_1[l].name)) {
-                        n = n.slice(5).replace(r_data_pre, r_fun);
-                        if (names.indexOf(n) === -1) {
-                            obj = __primitive(v_1[l].value);
-                            names[idx++] = n;
-                        }
-                    }
-                }
-                return idx;
+        var _camelcase = (function (reg) {
+            return function (attrName) { return attrName.replace(reg, function (char) { return char[1].toUpperCase(); }); };
+        })(/\-./g);
+        var DEFAULT_DIRECTIVE = {
+            ele: function (element, attrValue, obj) {
+                obj[attrValue || 'element'] = element;
             }
-            // 함수는 중복 호출된다.
-            if ((i = prop.indexOf('(')) !== -1) {
-                p = prop.slice(0, i++);
-                if (typeof obj[p] === 'function') {
-                    v = prop.slice(i, -1);
-                    if (v)
-                        obj[p].apply(obj, [target].concat(JSON.parse('[' + v + ']')));
-                    else
-                        obj[p](target);
-                }
-            }
-            // 프로퍼티
-            else if ((i = prop.indexOf(':')) !== -1) {
-                p = prop.slice(0, i++);
-                if (names.indexOf(p) === -1) {
-                    v = prop.slice(i);
-                    if (v === 'this')
-                        obj[p] = target;
-                    else if (v[0] === '[')
-                        obj[p] = __primitive(target.getAttribute(v.slice(1, -1)));
-                    else if (v[0] === '{')
-                        obj[p] = __primitive(v.slice(1, -1));
-                    else
-                        obj[p] = __primitive(target[v]);
-                    names[idx++] = p;
-                }
-            }
-            else {
-                if (names.indexOf(p) === -1) {
-                    obj[p] = __primitive(target.getAttribute('data-' + p));
-                }
-            }
-            names[idx++] = p;
-            return idx;
-        }
-        function __builder(target, obj, names, idx) {
-            var v;
-            // target 자체를
-            if ((v = target.getAttribute('data-element')) != null) {
-                __setter(obj, v || 'element', target);
-            }
-            if ((v = target.getAttribute('evt') || '*')) {
-                var array = v.split(r_read_split), l = array.length;
-                while (l-- > 0)
-                    idx = __parse(target, array[l], obj, names, idx);
-            }
-            return idx;
-        }
-        function __$dataEvent(element, type, attr, provider, directive) {
+        };
+        function __$attrEvent(element, type, attr, provider, directive) {
             // arguments : 4
             if (!directive) {
                 directive = provider;
                 provider = false;
             }
+            if (directive['$init'])
+                directive['$init']();
             return new Events(element, type, function (e) {
-                var target = e.target, attrValue, dir;
-                // 등록된 객체가 있는지 확인
+                var eventTarget, target = eventTarget = e.target, attrValue, dir;
+                /*
+                 *  총 2번의 순회를 하게 되는 오버헤드가 존재한다.
+                 *
+                 */
                 do {
-                    if (attrValue = target.getAttribute(attr)) {
+                    if (attrValue = eventTarget.getAttribute(attr)) {
                         dir = directive[attrValue];
                         break;
                     }
-                } while ((target = target.parentElement) && target !== element);
+                } while ((eventTarget = eventTarget.parentElement) && eventTarget !== element);
                 if (dir) {
-                    var obj = provider ? new provider(e, target) : { event: e }, limit = element, node = e.target, exists = [], i = 0;
-                    while (node && (limit !== node)) {
-                        i = __builder(node, obj, exists, i);
-                        node = node.parentElement;
+                    var obj = provider ? new provider(e, eventTarget) : { event: e }, limit = element, done = {}, attrs = void 0, l = 0, isData = void 0, att = void 0, attrName = void 0;
+                    done[attr] = true;
+                    while (target) {
+                        attrs = target.attributes;
+                        l = attrs.length;
+                        while (l-- > 0) {
+                            att = attrs[l];
+                            attrName = att.name;
+                            isData = attrName.indexOf('data-') === 0;
+                            attrName = isData ? _camelcase(attrName.slice(5)) : attrName;
+                            if (!done[attrName]) {
+                                attrName[0] !== '$' && (done[attrName] = true);
+                                if (typeof obj[attrName] === 'function') {
+                                    obj[attrName].call(obj, target, att.value);
+                                }
+                                else if (DEFAULT_DIRECTIVE[attrName]) {
+                                    DEFAULT_DIRECTIVE[attrName](target, att.value, obj);
+                                }
+                                else if (isData) {
+                                    att.value && (obj[attrName] = __primitive(att.value));
+                                }
+                            }
+                        }
+                        if (target === limit)
+                            break;
+                        target = target.parentElement;
                     }
-                    __builder(limit, obj, exists, i);
-                    obj['init'] && obj['init']();
                     dir.call(directive, obj);
                 }
             });
         }
-        Events.__$dataEvent = __$dataEvent;
-        /*export function __$bubbleEvent(element: HTMLElement, type: string, attr: string, directive) {
-    
-            return new Events(element, type, (e) => {
-    
-            let target = <HTMLElement>e.target, prop: string, handler, obj;
-            do {
-                if (!obj) {
-                if (target.hasAttribute(attr)) {
-                    prop = target.getAttribute(attr);
-                    handler = directive[prop];
-                    if (handler) obj = {target: target};
-                }
-                }
-                obj && __builder(target, obj);
-                target = target.parentElement;
-            } while (target && target !== element);
-    
-            if (obj) {
-                directive['*'] && directive['*'](obj, e);
-                handler.call(directive, obj, e);
-            }
-            });
-        }*/
+        Events.__$attrEvent = __$attrEvent;
         /*
          *  click 이벤트에 의한 focus-in focus-out 토글 이벤트
          *
@@ -1431,6 +1393,7 @@ var __extends = (this && this.__extends) || (function () {
 
 
 /***/ }),
+/* 5 */,
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1438,7 +1401,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.r_number = void 0;
-    exports.r_number = /^[+-]?\d+$/;
+    exports.r_number = /^[+-]?[0-9\.]+$/;
 }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
@@ -1508,8 +1471,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 9 */,
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -1595,21 +1557,28 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
         return temp;
     }
     exports.extend = extend;
-    function __extend(dest, source, defaultValues) {
+    function __extend(dest, source, override) {
+        if (override === void 0) { override = true; }
         if (source == null)
             return dest;
         if (__isArrayLike(source)) {
             var i = 0, l = source.length;
             for (; i < l; i++) {
-                dest[i] = source[i];
+                if (!override)
+                    dest[i] == null && (dest[i] = source[i]);
+                else
+                    dest[i] = source[i];
             }
         }
         else {
             var p = void 0;
             for (p in source) {
-                dest[p] = source[p];
-                if (dest[p] === undefined)
-                    dest[p] = defaultValues[p];
+                if (typeof dest[p] !== 'function') {
+                    if (!override)
+                        dest[p] == null && (dest[p] = source[p]);
+                    else
+                        dest[p] = source[p];
+                }
             }
         }
         return dest;
@@ -1680,13 +1649,15 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 11 */
+/* 10 */,
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(1), __webpack_require__(0)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _array_1, _access_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.$delete = exports.$put = exports.$post = exports.$get = exports.$text = exports.$head = exports.$blob = exports.__parseHeader = exports.__setHeader = exports.XHRequest = void 0;
+    exports.$delete = exports.$put = exports.$post = exports.$get = exports.$text = exports.$text_post = exports.$head = exports.$xml = exports.$loop = exports.$blob = exports.__parseHeader = exports.__setHeader = exports.XHRequest = void 0;
     var __forEach = _array_1.Arrays.__forEach;
     var __primitive = _access_1.Access.__primitive;
     var XHRequest = /** @class */ (function () {
@@ -1793,9 +1764,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
                 if (xhr.readyState === 4) {
                     var data = xhr.response;
                     if (data instanceof Blob)
-                        y(data);
+                        y({ value: data, response: xhr });
                     else
-                        y(null);
+                        y({ value: null, response: xhr });
                 }
             };
             xhr.responseType = 'blob';
@@ -1805,6 +1776,36 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
         });
     }
     exports.$blob = $blob;
+    function $loop(url, handler, time) {
+        return new Promise(function (resolve, reject) {
+            var __dispatcher = function () { return $get(url).then(function (result) {
+                if (!result)
+                    resolve();
+                else {
+                    handler(result);
+                    setTimeout(__dispatcher, time);
+                }
+            }).catch(reject); };
+            __dispatcher();
+        });
+    }
+    exports.$loop = $loop;
+    function $xml(url, it) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    var doc = document.createElement('xml');
+                    doc.innerHTML = xhr.responseText;
+                    resolve(doc);
+                }
+            };
+            xhr.open('GET', url, true);
+            it && it(xhr);
+            xhr.send(null);
+        });
+    }
+    exports.$xml = $xml;
     function $head(url, it) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -1820,6 +1821,24 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
     }
     exports.$head = $head;
     // asdf
+    function $text_post(url, data, it) {
+        return new Promise(function (resolve, error) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200)
+                        resolve(xhr.responseText);
+                    else
+                        error(xhr);
+                }
+            };
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            it && it(xhr);
+            xhr.send(data);
+        });
+    }
+    exports.$text_post = $text_post;
     function $text(url, it) {
         return new Promise(function (resolve, error) {
             var xhr = new XMLHttpRequest();
@@ -1903,17 +1922,17 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 12 */,
 /* 13 */,
 /* 14 */,
 /* 15 */,
 /* 16 */,
 /* 17 */,
 /* 18 */,
-/* 19 */
+/* 19 */,
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(10), __webpack_require__(11), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _core_1, _ajax_1, _format_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(9), __webpack_require__(12), __webpack_require__(2)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _core_1, _ajax_1, _format_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.WorkFile = exports.Customer = exports.WorkItem = exports.WorkMemo = exports.Work = void 0;
@@ -2366,7 +2385,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 
 
 /***/ }),
-/* 20 */,
 /* 21 */,
 /* 22 */,
 /* 23 */,
@@ -2376,10 +2394,14 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_
 /* 27 */,
 /* 28 */,
 /* 29 */,
-/* 30 */
+/* 30 */,
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(5), __webpack_require__(19), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, Work_1, _array_1) {
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__, exports, __webpack_require__(4), __webpack_require__(20), __webpack_require__(1)], __WEBPACK_AMD_DEFINE_RESULT__ = (function (require, exports, _events_1, Work_1, _array_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.WorkCreator = void 0;

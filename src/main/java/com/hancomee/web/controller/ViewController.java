@@ -14,8 +14,8 @@ public class ViewController {
 
 
     @RequestMapping("{uuid}")
-    public Object values() throws Exception {
-        return "/work/view.html";
+    public Object html() throws Exception {
+        return "/work2/view.html";
     }
 
     @RequestMapping()
